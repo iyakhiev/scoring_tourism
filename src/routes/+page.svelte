@@ -107,15 +107,15 @@
 
 <div class="flex divide-x min-h-screen">
 	<div class="w-3/12 flex flex-col items-center p-10">
-		<div class="flex gap-5">
-			<a href="/dirs" class="btn btn-outline mb-10">
+		<div class="flex flex-wrap justify-center gap-5">
+			<a href="/dirs" class="btn btn-outline">
 				Справочники
 			</a>
 			<button class="btn btn-outline btn-primary" on:click={() => toggleNewInvestorForm(true)}>
 				Добавить инвестора
 			</button>
 		</div>
-		<div class="text-center text-2xl font-light mt-5 mb-5">Инвесторы:</div>
+		<div class="text-center text-2xl font-light mt-10 mb-5">Инвесторы:</div>
 		<ul class="flex flex-col items-center w-full divide-y">
 			{#each investors as investor}
 				<li class="p-5 w-full text-center hover:bg-blue-50 cursor-pointer"

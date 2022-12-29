@@ -31,7 +31,7 @@
 
 <div class="flex divide-x min-h-screen">
 	<div class="w-3/12 flex flex-col items-center p-10">
-		<a href="/" class="btn btn-outline mb-10">
+		<a href="/" class="btn btn-outline">
 			Инвесторы
 		</a>
 		<div class="text-center text-2xl font-light mt-10 mb-5">Справочники:</div>
