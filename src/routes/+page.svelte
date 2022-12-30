@@ -257,11 +257,11 @@
 										<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
 									</tr>
 									<tr>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th class="text-center">Общий</th>
-										<th class="text-center">Дополнительный</th>
+										<th class="w-2/12"></th>
+										<th class="w-3/12"></th>
+										<th class="w-1/12"></th>
+										<th class="w-3/12 text-center">Общий</th>
+										<th class="w-3/12 text-center">Дополнительный</th>
 									</tr>
 									</thead>
 									<tbody>
