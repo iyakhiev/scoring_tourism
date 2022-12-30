@@ -275,13 +275,13 @@
 													{scoringRow.error}
 												</td>
 											{:else if scoringRow.stopFactor?.type === 'common'}
-												<td class="whitespace-pre-wrap bg-red-300">
+												<td class="whitespace-pre-wrap bg-red-300 text-center">
 													{scoringRow.stopFactor.text}
 												</td>
 												<td></td>
 											{:else if scoringRow.stopFactor?.type === 'additional'}
 												<td></td>
-												<td class="whitespace-pre-wrap bg-yellow-300">
+												<td class="whitespace-pre-wrap bg-yellow-300 text-center">
 													{scoringRow.stopFactor.text}
 												</td>
 											{:else}
