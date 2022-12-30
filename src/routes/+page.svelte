@@ -100,8 +100,8 @@
 		console.log('data', data)
 		investors = data.investors
 
-		if (investors.length)
-			selectInvestor(investors[0])
+		// if (investors.length)
+		// 	selectInvestor(investors[0])
 	})
 </script>
 
