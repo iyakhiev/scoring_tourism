@@ -112,10 +112,10 @@
 				Справочники
 			</a>
 			<button class="btn btn-outline btn-primary" on:click={() => toggleNewInvestorForm(true)}>
-				Добавить инвестора
+				Добавить проект
 			</button>
 		</div>
-		<div class="text-center text-2xl font-light mt-10 mb-5">Инвесторы:</div>
+		<div class="text-center text-2xl font-light mt-10 mb-5">Проекты:</div>
 		<ul class="flex flex-col items-center w-full divide-y">
 			{#each investors as investor}
 				<li class="p-5 w-full text-center hover:bg-blue-50 cursor-pointer"
@@ -129,15 +129,15 @@
 	<div class="w-9/12 p-10">
 		{#if showNewInvestorForm}
 			<div class="flex justify-between">
-				<div class="text-2xl font-light">Новый инвестор</div>
+				<div class="text-2xl font-light">Новый проект</div>
 				<button class="btn btn-outline" on:click={() => toggleNewInvestorForm(false)}>Закрыть</button>
 			</div>
 			<div class="flex flex-col gap-2">
 				<div class="form-control w-full">
 					<label class="label" for="investorName">
-						<span class="label-text">Имя / Название</span>
+						<span class="label-text">Название</span>
 					</label>
-					<input id="investorName" type="text" placeholder="Новый инвестор"
+					<input id="investorName" type="text" placeholder="Новый проект"
 					       bind:value={newInvestor.name}
 					       class="input input-bordered w-full"/>
 				</div>
@@ -170,7 +170,7 @@
 				<button class="btn btn-outline btn-primary"
 				        on:click={addInvestor}
 				        class:btn-disabled={!newInvestor?.name.trim()}>
-					Сохранить
+					Добавить
 				</button>
 			</div>
 		{:else}
@@ -182,15 +182,16 @@
 					        on:click={saveInvestor}>Сохранить
 					</button>
 					<button class="btn btn-outline"
-					        on:click={estimateStopFactors}>Оценить стоп-факторы
+					        on:click={estimateStopFactors}>
+						Провести оценку
 					</button>
 				</div>
 				<div class="my-10 flex flex-col gap-2">
 					<div class="form-control w-full">
 						<label class="label" for="theInvestorName">
-							<span class="label-text">Имя / Название</span>
+							<span class="label-text">Название</span>
 						</label>
-						<input id="theInvestorName" type="text" placeholder="Имя / Название инвестор"
+						<input id="theInvestorName" type="text" placeholder="Название проекта"
 						       on:change={() => highlightSave = true}
 						       bind:value={selectedInvestor.name}
 						       class="input input-bordered w-full"/>
@@ -253,14 +254,14 @@
 										<th>Раздел</th>
 										<th>Наименование показателя</th>
 										<th>Значение</th>
-										<th colspan="2">Стоп-фактор на предварительной оценке</th>
+										<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
 									</tr>
 									<tr>
 										<th></th>
 										<th></th>
 										<th></th>
-										<th>Общий</th>
-										<th>Дополнительный</th>
+										<th class="text-center">Общий</th>
+										<th class="text-center">Дополнительный</th>
 									</tr>
 									</thead>
 									<tbody>
@@ -284,7 +285,7 @@
 													{scoringRow.stopFactor.text}
 												</td>
 											{:else}
-												<td colspan="2" class="text-center">Соответствует критериям.</td>
+												<td colspan="2" class="text-center">Соответствует критериям</td>
 											{/if}
 										</tr>
 									{/each}
@@ -454,12 +455,13 @@
 					        on:click={saveInvestor}>Сохранить
 					</button>
 					<button class="btn btn-outline"
-					        on:click={estimateStopFactors}>Оценить стоп-факторы
+					        on:click={estimateStopFactors}>
+						Провести оценку
 					</button>
 				</div>
 			{:else}
-				Выберите инвестора или
-				<span class="link" on:click={() => toggleNewInvestorForm(true)}>добавьте нового</span>
+				Выберите проект или
+				<span class="link" on:click={() => toggleNewInvestorForm(true)}>добавьте новый</span>
 			{/if}
 		{/if}
 	</div>
