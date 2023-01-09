@@ -46,8 +46,29 @@ function checkDirValue(dir, fields, doNotCheckValue = false) {
 			return [false, dirValue]
 	}
 
-	const fieldsStr = fields.map(row => row.title).join(', ')
+	const fieldsStr = fields
+		.filter(row => row.title)
+		.map(row => row.title)
+		.join(', ')
 	return [true, null, `В справочнике "${dir.title}" не указано значение по параметрам: ${fieldsStr}.`]
+}
+
+function collectDirValues(dirs, fields) {
+	const errors = []
+
+	for (const field of fields)
+		if (field.value) {
+			const matched = dirs[field.dirName].values.filter(row => row[field.dirValueField] === field.value)
+			if (!matched.length)
+				errors.push(`Значение ${field.value} не найдено в справочнике ${field.dirName}.`)
+			else
+				field.title = matched[0].title
+		}
+
+	if (errors.length)
+		return [false, errors]
+	else
+		return [true, fields]
 }
 
 const indicators = {
@@ -106,26 +127,30 @@ const indicators = {
 				errors.push(error)
 
 			if (!errors.length) {
-				const regionDirs = dirs.regions.values.filter(row => row.iso_code === data.region)
-				if (!regionDirs.length)
-					errors.push(`Значение ${data.region} не найдено в справочнике регионов.`)
-				const buildingTypeDirs = dirs.buildingTypes.values.filter(row => row.name === data.buildingType)
-				if (!buildingTypeDirs.length)
-					errors.push(`Значение ${data.buildingType} не найдено в справочнике типов объектов.`)
+				let fields = [
+					{
+						name: 'region',
+						value: data.region,
+						dirName: 'regions',
+						dirValueField: 'iso_code'
+					},
+					{
+						name: 'type',
+						value: data.buildingType,
+						dirName: 'buildingTypes',
+						dirValueField: 'name'
+					},
+					{
+						name: 'category',
+						value: data.buildingCategory || '',
+						dirName: 'buildingCategory',
+						dirValueField: 'name'
+					}
+				]
+				let [noErrors, res] = collectDirValues(dirs, fields)
 
-				if (!errors.length) {
-					const [dirError, dir, error] = checkDirValue(dirs['costPerSqMeter'], [
-						{
-							name: 'region',
-							value: data.region,
-							title: regionDirs[0].name
-						},
-						{
-							name: 'type',
-							value: data.buildingType,
-							title: buildingTypeDirs[0].title
-						}
-					])
+				if (noErrors) {
+					const [dirError, dir, error] = checkDirValue(dirs['costPerSqMeter'], res)
 					if (dirError)
 						errors.push(error)
 					else {
@@ -138,7 +163,8 @@ const indicators = {
 						else
 							stopFactor = false
 					}
-				}
+				} else
+					errors = res
 			}
 
 			return [value, stopFactor, errors]
@@ -247,26 +273,30 @@ const indicators = {
 				errors.push(error)
 
 			if (!errors.length) {
-				const regionDirs = dirs.regions.values.filter(row => row.iso_code === data.region)
-				if (!regionDirs.length)
-					errors.push(`Значение ${data.region} не найдено в справочнике регионов.`)
-				const buildingTypeDirs = dirs.buildingTypes.values.filter(row => row.name === data.buildingType)
-				if (!buildingTypeDirs.length)
-					errors.push(`Значение ${data.buildingType} не найдено в справочнике типов объектов.`)
+				let fields = [
+					{
+						name: 'region',
+						value: data.region,
+						dirName: 'regions',
+						dirValueField: 'iso_code'
+					},
+					{
+						name: 'type',
+						value: data.buildingType,
+						dirName: 'buildingTypes',
+						dirValueField: 'name'
+					},
+					{
+						name: 'category',
+						value: data.buildingCategory || '',
+						dirName: 'buildingCategory',
+						dirValueField: 'name'
+					}
+				]
+				let [noErrors, res] = collectDirValues(dirs, fields)
 
-				if (!errors.length) {
-					const [dirError, dir, error] = checkDirValue(dirs['staffPerRoom'], [
-						{
-							name: 'region',
-							value: data.region,
-							title: regionDirs[0].name
-						},
-						{
-							name: 'type',
-							value: data.buildingType,
-							title: buildingTypeDirs[0].title
-						}
-					], true)
+				if (noErrors) {
+					const [dirError, dir, error] = checkDirValue(dirs['staffPerRoom'], res, true)
 					if (dirError)
 						errors.push(error)
 					else {
@@ -281,7 +311,8 @@ const indicators = {
 						else
 							stopFactor = false
 					}
-				}
+				} else
+					errors = res
 			}
 
 			return [value, stopFactor, errors]
@@ -372,26 +403,30 @@ const indicators = {
 				errors.push(error)
 
 			if (!errors.length) {
-				const regionDirs = dirs.regions.values.filter(row => row.iso_code === data.region)
-				if (!regionDirs.length)
-					errors.push(`Значение ${data.region} не найдено в справочнике регионов.`)
-				const buildingTypeDirs = dirs.buildingTypes.values.filter(row => row.name === data.buildingType)
-				if (!buildingTypeDirs.length)
-					errors.push(`Значение ${data.buildingType} не найдено в справочнике типов объектов.`)
+				let fields = [
+					{
+						name: 'region',
+						value: data.region,
+						dirName: 'regions',
+						dirValueField: 'iso_code'
+					},
+					{
+						name: 'type',
+						value: data.buildingType,
+						dirName: 'buildingTypes',
+						dirValueField: 'name'
+					},
+					{
+						name: 'category',
+						value: data.buildingCategory || '',
+						dirName: 'buildingCategory',
+						dirValueField: 'name'
+					}
+				]
+				let [noErrors, res] = collectDirValues(dirs, fields)
 
-				if (!errors.length) {
-					const [dirError, dir, error] = checkDirValue(dirs['adr'], [
-						{
-							name: 'region',
-							value: data.region,
-							title: regionDirs[0].name
-						},
-						{
-							name: 'type',
-							value: data.buildingType,
-							title: buildingTypeDirs[0].title
-						}
-					])
+				if (noErrors) {
+					const [dirError, dir, error] = checkDirValue(dirs['adr'], res)
 					if (dirError)
 						errors.push(error)
 					else {
@@ -404,7 +439,8 @@ const indicators = {
 						else
 							stopFactor = false
 					}
-				}
+				} else
+					errors = res
 			}
 
 			return [value, stopFactor, errors]
@@ -435,26 +471,30 @@ const indicators = {
 				errors.push(error)
 
 			if (!errors.length) {
-				const regionDirs = dirs.regions.values.filter(row => row.iso_code === data.region)
-				if (!regionDirs.length)
-					errors.push(`Значение ${data.region} не найдено в справочнике регионов.`)
-				const buildingTypeDirs = dirs.buildingTypes.values.filter(row => row.name === data.buildingType)
-				if (!buildingTypeDirs.length)
-					errors.push(`Значение ${data.buildingType} не найдено в справочнике типов объектов.`)
+				let fields = [
+					{
+						name: 'region',
+						value: data.region,
+						dirName: 'regions',
+						dirValueField: 'iso_code'
+					},
+					{
+						name: 'type',
+						value: data.buildingType,
+						dirName: 'buildingTypes',
+						dirValueField: 'name'
+					},
+					{
+						name: 'category',
+						value: data.buildingCategory || '',
+						dirName: 'buildingCategory',
+						dirValueField: 'name'
+					}
+				]
+				let [noErrors, res] = collectDirValues(dirs, fields)
 
-				if (!errors.length) {
-					const [dirError, dir, error] = checkDirValue(dirs['marginEBITDA'], [
-						{
-							name: 'region',
-							value: data.region,
-							title: regionDirs[0].name
-						},
-						{
-							name: 'type',
-							value: data.buildingType,
-							title: buildingTypeDirs[0].title
-						}
-					])
+				if (noErrors) {
+					const [dirError, dir, error] = checkDirValue(dirs['marginEBITDA'], res)
 					if (dirError)
 						errors.push(error)
 					else {
@@ -467,7 +507,8 @@ const indicators = {
 						else
 							stopFactor = false
 					}
-				}
+				} else
+					errors = res
 			}
 
 			return [value, stopFactor, errors]
@@ -498,26 +539,30 @@ const indicators = {
 				errors.push(error)
 
 			if (!errors.length) {
-				const regionDirs = dirs.regions.values.filter(row => row.iso_code === data.region)
-				if (!regionDirs.length)
-					errors.push(`Значение ${data.region} не найдено в справочнике регионов.`)
-				const buildingTypeDirs = dirs.buildingTypes.values.filter(row => row.name === data.buildingType)
-				if (!buildingTypeDirs.length)
-					errors.push(`Значение ${data.buildingType} не найдено в справочнике типов объектов.`)
+				let fields = [
+					{
+						name: 'region',
+						value: data.region,
+						dirName: 'regions',
+						dirValueField: 'iso_code'
+					},
+					{
+						name: 'type',
+						value: data.buildingType,
+						dirName: 'buildingTypes',
+						dirValueField: 'name'
+					},
+					{
+						name: 'category',
+						value: data.buildingCategory || '',
+						dirName: 'buildingCategory',
+						dirValueField: 'name'
+					}
+				]
+				let [noErrors, res] = collectDirValues(dirs, fields)
 
-				if (!errors.length) {
-					const [dirError, dir, error] = checkDirValue(dirs['occ'], [
-						{
-							name: 'region',
-							value: data.region,
-							title: regionDirs[0].name
-						},
-						{
-							name: 'type',
-							value: data.buildingType,
-							title: buildingTypeDirs[0].title
-						}
-					])
+				if (noErrors) {
+					const [dirError, dir, error] = checkDirValue(dirs['occ'], res)
 					if (dirError)
 						errors.push(error)
 					else {
@@ -530,7 +575,8 @@ const indicators = {
 						else
 							stopFactor = false
 					}
-				}
+				} else
+					errors = res
 			}
 
 			return [value, stopFactor, errors]
@@ -561,26 +607,30 @@ const indicators = {
 				errors.push(error)
 
 			if (!errors.length) {
-				const regionDirs = dirs.regions.values.filter(row => row.iso_code === data.region)
-				if (!regionDirs.length)
-					errors.push(`Значение ${data.region} не найдено в справочнике регионов.`)
-				const buildingTypeDirs = dirs.buildingTypes.values.filter(row => row.name === data.buildingType)
-				if (!buildingTypeDirs.length)
-					errors.push(`Значение ${data.buildingType} не найдено в справочнике типов объектов.`)
+				let fields = [
+					{
+						name: 'region',
+						value: data.region,
+						dirName: 'regions',
+						dirValueField: 'iso_code'
+					},
+					{
+						name: 'type',
+						value: data.buildingType,
+						dirName: 'buildingTypes',
+						dirValueField: 'name'
+					},
+					{
+						name: 'category',
+						value: data.buildingCategory || '',
+						dirName: 'buildingCategory',
+						dirValueField: 'name'
+					}
+				]
+				let [noErrors, res] = collectDirValues(dirs, fields)
 
-				if (!errors.length) {
-					const [dirError, dir, error] = checkDirValue(dirs['doubleOcc'], [
-						{
-							name: 'region',
-							value: data.region,
-							title: regionDirs[0].name
-						},
-						{
-							name: 'type',
-							value: data.buildingType,
-							title: buildingTypeDirs[0].title
-						}
-					], true)
+				if (noErrors) {
+					const [dirError, dir, error] = checkDirValue(dirs['doubleOcc'], res, true)
 					if (dirError)
 						errors.push(error)
 					else {
@@ -593,7 +643,8 @@ const indicators = {
 						else
 							stopFactor = false
 					}
-				}
+				} else
+					errors = res
 			}
 
 			return [value, stopFactor, errors]

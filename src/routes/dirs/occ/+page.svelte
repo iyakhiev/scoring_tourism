@@ -65,6 +65,7 @@
 					<th></th>
 					<th>Регион</th>
 					<th>Тип объекта</th>
+					<th>Категория объекта</th>
 					<th>Заполняемость, %</th>
 				</tr>
 				</thead>
@@ -81,7 +82,7 @@
 							        on:change={() => highlightSave = true}>
 								<option disabled selected value="">Выберите регион</option>
 								{#each $DIRs['regions']?.values || [] as region}
-									<option value="{region.iso_code}">{region.name}</option>
+									<option value="{region.iso_code}">{region.title}</option>
 								{/each}
 							</select>
 						</td>
@@ -91,6 +92,16 @@
 							        on:change={() => highlightSave = true}>
 								<option disabled selected value="">Выберите тип объекта</option>
 								{#each $DIRs['buildingTypes']?.values || [] as bType}
+									<option value="{bType.name}">{bType.title}</option>
+								{/each}
+							</select>
+						</td>
+						<td>
+							<select class="select select-bordered w-full"
+							        bind:value={value.category}
+							        on:change={() => highlightSave = true}>
+								<option selected value="">Выберите категорию объекта</option>
+								{#each $DIRs['buildingCategory']?.values || [] as bType}
 									<option value="{bType.name}">{bType.title}</option>
 								{/each}
 							</select>

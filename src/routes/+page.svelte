@@ -149,7 +149,7 @@
 					        bind:value={newInvestor.region}>
 						<option disabled selected value="">Выберите регион</option>
 						{#each $DIRs['regions']?.values || [] as region}
-							<option value="{region.iso_code}">{region.name}</option>
+							<option value="{region.iso_code}">{region.title}</option>
 						{/each}
 					</select>
 				</div>
@@ -161,6 +161,18 @@
 					        bind:value={newInvestor.buildingType}>
 						<option disabled selected value="">Выберите тип объекта</option>
 						{#each $DIRs['buildingTypes']?.values || [] as bType}
+							<option value="{bType.name}">{bType.title}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="form-control">
+					<label class="label" for="investorBuildingCategory">
+						<span class="label-text">Категория объекта</span>
+					</label>
+					<select class="select select-bordered" id="investorBuildingCategory"
+					        bind:value={newInvestor.buildingCategory}>
+						<option selected value="">Выберите категорию объекта</option>
+						{#each $DIRs['buildingCategory']?.values || [] as bType}
 							<option value="{bType.name}">{bType.title}</option>
 						{/each}
 					</select>
@@ -201,10 +213,11 @@
 							<span class="label-text">Регион</span>
 						</label>
 						<select class="select select-bordered" id="theInvestorRegion"
+						        on:change={() => highlightSave = true}
 						        bind:value={selectedInvestor.region}>
 							<option disabled selected value="">Выберите регион</option>
 							{#each $DIRs['regions']?.values || [] as region}
-								<option value="{region.iso_code}">{region.name}</option>
+								<option value="{region.iso_code}">{region.title}</option>
 							{/each}
 						</select>
 					</div>
@@ -213,9 +226,23 @@
 							<span class="label-text">Тип объекта</span>
 						</label>
 						<select class="select select-bordered" id="theInvestorBuildingType"
+						        on:change={() => highlightSave = true}
 						        bind:value={selectedInvestor.buildingType}>
 							<option disabled selected value="">Выберите тип объекта</option>
 							{#each $DIRs['buildingTypes']?.values || [] as bType}
+								<option value="{bType.name}">{bType.title}</option>
+							{/each}
+						</select>
+					</div>
+					<div class="form-control">
+						<label class="label" for="theInvestorBuildingCategory">
+							<span class="label-text">Категория объекта</span>
+						</label>
+						<select class="select select-bordered" id="theInvestorBuildingCategory"
+						        on:change={() => highlightSave = true}
+						        bind:value={selectedInvestor.buildingCategory}>
+							<option selected value="">Выберите категорию объекта</option>
+							{#each $DIRs['buildingCategory']?.values || [] as bType}
 								<option value="{bType.name}">{bType.title}</option>
 							{/each}
 						</select>
@@ -428,15 +455,15 @@
 							       on:change={() => highlightSave = true}
 							       class="input input-bordered w-full max-w-lg"/>
 						</div>
-						<div class="form-control w-full p-5">
-							<label class="label" for="numberOfNewJobs">
-								<span class="label-text">Количество новых рабочих мест, чел.</span>
-							</label>
-							<input id="numberOfNewJobs" type="number" placeholder=""
-							       bind:value={selectedInvestor.numberOfNewJobs}
-							       on:change={() => highlightSave = true}
-							       class="input input-bordered w-full max-w-lg"/>
-						</div>
+<!--						<div class="form-control w-full p-5">-->
+<!--							<label class="label" for="numberOfNewJobs">-->
+<!--								<span class="label-text">Количество новых рабочих мест, чел.</span>-->
+<!--							</label>-->
+<!--							<input id="numberOfNewJobs" type="number" placeholder=""-->
+<!--							       bind:value={selectedInvestor.numberOfNewJobs}-->
+<!--							       on:change={() => highlightSave = true}-->
+<!--							       class="input input-bordered w-full max-w-lg"/>-->
+<!--						</div>-->
 						<div class="form-control w-full p-5">
 							<label class="label" for="numberOfStaff">
 								<span class="label-text">Количество сотрудников, чел.</span>
