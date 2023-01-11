@@ -1,4 +1,4 @@
-import { DIRs } from './dirs.js'
+import { DIRs } from './stores.js'
 import { get } from 'svelte/store'
 
 const noValueMsg = 'Нет данных для оценки.'

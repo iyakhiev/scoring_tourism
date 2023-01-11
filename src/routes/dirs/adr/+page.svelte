@@ -1,5 +1,5 @@
 <script>
-	import { DIRs } from '$lib/dirs'
+	import { DIRs } from '$lib/stores'
 
 	const type = 'adr'
 	let currentDir

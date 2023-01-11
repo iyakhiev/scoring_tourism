@@ -1,16 +1,16 @@
 <script>
 	import '../app.postcss'
-	import { onMount } from 'svelte'
-	import { setDirs } from '$lib/dirs'
-	import { DIRs } from '$lib/dirs'
+	import { setDirs } from '$lib/stores'
+	import { DIRs } from '$lib/stores'
+	import NavBar from '$lib/components/navbar.svelte'
 
 	export let data
 
-	onMount(() => {
+	$: {
+		// console.log('layout, data', data)
 		setDirs(data?.dirs)
-
-		console.log('dirs', $DIRs)
-	})
+		console.log('layout, $DIRs', $DIRs)
+	}
 </script>
 
 {#if !data || !data.dirs}
@@ -27,5 +27,6 @@
 		</div>
 	</div>
 {:else}
+	<NavBar/>
 	<slot/>
 {/if}

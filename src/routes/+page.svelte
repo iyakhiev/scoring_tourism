@@ -1,7 +1,7 @@
 <script>
 	import { estimate } from '$lib/stopFactors'
 	import { onMount } from 'svelte'
-	import { DIRs } from '$lib/dirs'
+	import { DIRs } from '$lib/stores'
 
 	export let data
 
