@@ -2,6 +2,7 @@
 	import { DIRs } from '$lib/stores'
 	import { estimate } from '$lib/stopFactors'
 	import Input from '$lib/components/input.svelte'
+	import Check from '$lib/components/check.svelte'
 
 	export let data
 
@@ -19,9 +20,9 @@
 			label: 'Коэффициент абсолютной ликвидности',
 			name: 'absLiqRatio',
 			calc: function () {
-				if (!investor.fvk || !investor.ds || !investor.ko)
-					investor[this.name] = ''
-				const value = (investor.fvk + investor.ds) / investor.ko
+				if (!investor.kfv || !investor.ds || !investor.ko)
+					return investor[this.name] = ''
+				const value = (investor.kfv + investor.ds) / investor.ko
 				investor[this.name] = value.toFixed(2)
 			}
 		},
@@ -29,9 +30,19 @@
 			label: 'Коэффициент быстрой ликвидности',
 			name: 'fastLiqRatio',
 			calc: function () {
-				if (!investor.kdz || !investor.kfv || !investor.ons || !investor.ko)
-					investor[this.name] = ''
-				const value = (investor.kdz + investor.kfv + investor.ons) / investor.ko
+				if (!investor.kdz || !investor.kfv || !investor.ds || !investor.ko)
+					return investor[this.name] = ''
+				const value = (investor.kdz + investor.kfv + investor.ds) / investor.ko
+				investor[this.name] = value.toFixed(2)
+			}
+		},
+		currentLiqRatio: {
+			label: 'Коэффициент текущей ликвидности',
+			name: 'currentLiqRatio',
+			calc: function () {
+				if (!investor.oa || !investor.ko)
+					return investor[this.name] = ''
+				const value = investor.oa / investor.ko
 				investor[this.name] = value.toFixed(2)
 			}
 		},
@@ -40,7 +51,7 @@
 			name: 'debtToEquityRatio',
 			calc: function () {
 				if (!investor.sk || !investor.ko || !investor.do)
-					investor[this.name] = ''
+					return investor[this.name] = ''
 				const value = (investor.do + investor.ko) / investor.sk
 				investor[this.name] = value.toFixed(2)
 			}
@@ -50,7 +61,7 @@
 			name: 'solvencyRatio',
 			calc: function () {
 				if (!investor.kr || !investor.ko || !investor.do)
-					investor[this.name] = ''
+					return investor[this.name] = ''
 				const value = investor.kr / (investor.do + investor.ko)
 				investor[this.name] = value.toFixed(2)
 			}
@@ -64,17 +75,23 @@
 			fields: [
 				{
 					label: 'Краткосрочные финансовые вложения',
-					name: 'fvk',
+					name: 'kfv',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.absLiqRatio.calc()
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+					}
 				},
 				{
 					label: 'Денежные средства и их эквиваленты',
 					name: 'ds',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.absLiqRatio.calc()
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+					}
 				},
 				{
 					label: 'Краткосрочные обязательства',
@@ -84,6 +101,7 @@
 					calc: () => {
 						calcFields.absLiqRatio.calc()
 						calcFields.fastLiqRatio.calc()
+						calcFields.currentLiqRatio.calc()
 						calcFields.debtToEquityRatio.calc()
 						calcFields.solvencyRatio.calc()
 					}
@@ -102,31 +120,33 @@
 					calc: () => calcFields.fastLiqRatio.calc()
 				},
 				{
-					label: 'Краткосрочные финансовые вложения',
-					name: 'kfv',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.fastLiqRatio.calc()
-				},
-				{
-					label: 'Остаток на счетах',
-					name: 'ons',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.fastLiqRatio.calc()
-				},
-				{
 					label: 'Коэффициент быстрой ликвидности',
 					name: 'fastLiqRatio',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Сумма долгосрочных и краткосрочных обязательств',
-					name: 'zk',
+					label: 'Оборотные активы',
+					name: 'oa',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.debtToEquityRatio.calc()
+					calc: () => calcFields.currentLiqRatio.calc()
+				},
+				{
+					label: 'Коэффициент текущей ликвидности',
+					name: 'currentLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Долгосрочные обязательства',
+					name: 'do',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.debtToEquityRatio.calc()
+						calcFields.solvencyRatio.calc()
+					}
 				},
 				{
 					label: 'Собственный капитал',
@@ -149,20 +169,130 @@
 					calc: () => calcFields.solvencyRatio.calc()
 				},
 				{
-					label: 'Долгосрочные обязательства',
-					name: 'do',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.debtToEquityRatio.calc()
-						calcFields.solvencyRatio.calc()
-					}
-				},
-				{
 					label: 'Коэффициент общей платежеспособности',
 					name: 'solvencyRatio',
 					type: 'number',
 					disabled: true
+				},
+				{
+					label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
+					name: 'hasOwnershipRight',
+					type: 'check',
+				},
+				{
+					label: 'Наличие обременения на имущество (объекты, земельные участки) вносимое в виде имущественного взноса',
+					name: 'hasPropertyEncumbrance',
+					type: 'check',
+				},
+				{
+					label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
+					name: 'hasSourceOfFundsDocs',
+					type: 'check',
+				},
+				{
+					label: 'Участие в уставном капитале инвестора резидента недружественной страны',
+					name: 'hasUnfriendlyCountryCapital',
+					type: 'check',
+				},
+				{
+					label: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем',
+					name: 'noFinancialReportsForLastYear',
+					type: 'check',
+				},
+				{
+					label: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников: ни одного или один сотрудник, являющийся руководителем',
+					name: 'reportWithNoEmployeesForLastYear',
+					type: 'check',
+				},
+				{
+					label: 'Отсутствие штата персонала',
+					name: 'hasLackOfStaff',
+					type: 'check',
+				},
+				{
+					label: 'Отсутствие материальных и финансовых ресурсов',
+					name: 'noFunds',
+					type: 'check',
+				},
+				{
+					label: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности, в т.ч. способе получения сведений об инвесторе (сайте, реклама в СМИ, отзывы в Интернете, рекомендации)',
+					name: 'noEconomicActivity',
+					type: 'check',
+				},
+				{
+					label: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет',
+					name: 'hasLossesForLast2Years',
+					type: 'check',
+				},
+				{
+					label: 'Ответчик в судах на сумму свыше 300 тыс. руб.',
+					name: 'isDefendantInCourts',
+					type: 'check',
+				},
+				{
+					label: 'Предстоящее исключение из ЕГРЮЛ',
+					name: 'upcomingExclusionFromEGRUL',
+					type: 'check',
+				},
+				{
+					label: 'Признание сведений в ЕГРЮЛ недостоверными',
+					name: 'hasUnreliableInfoInEGRUL',
+					type: 'check',
+				},
+				{
+					label: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)',
+					name: 'hasEnforcementProceedings',
+					type: 'check',
+				},
+				{
+					label: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года',
+					name: 'hasTaxDebts',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре сведений о банкротстве',
+					name: 'hasRegisteredBankruptcy',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре недобросовестных поставщиков',
+					name: 'registeredAsUnscrupulousSupplier',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре обеспечительных мер',
+					name: 'inRegisterOfInterimMeasures',
+					type: 'check',
+				},
+				{
+					label: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке',
+					name: 'notAbleToParticipateInOrgByJudicialProceeding',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре дисквалифицированных лиц',
+					name: 'inRegisterOfDisqualifiedPersons',
+					type: 'check',
+				},
+				{
+					label: 'Наличие информации о судимости',
+					name: 'hasCriminalRecords',
+					type: 'check',
+				},
+				{
+					label: 'Наличие информации об актуальных возбужднных уголовных делах',
+					name: 'hasInitiatedCriminalCases',
+					type: 'check',
+				},
+				{
+					label: 'Наличие конфликта интересов, аффилированности с работником Корпорации',
+					name: 'hasConflictOfInterest',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в списке лиц, попадающих под условия, предусмотренные подпунктом "ф" пункта 1 статьи 23 Закона о регистрации (Федеральный закон от 08.08.2001 № 129-ФЗ)',
+					name: 'fallingUnderArticle231f',
+					type: 'check',
 				},
 			]
 		},
@@ -202,6 +332,8 @@
 	function saveInvestor() {
 		if (!investor?._id)
 			return
+
+		console.log('saveInvestor', investor)
 
 		const id = investor._id
 		const investorData = {}
@@ -307,7 +439,7 @@
 			   on:click={() => activeInvestorTab = 0}
 			>Стоп-факторы</a>
 		{/if}
- 		{#each tabs as tab}
+		{#each tabs as tab}
 			<a class="tab tab-lifted"
 			   class:tab-active={activeInvestorTab === tab.ind}
 			   on:click={() => activeInvestorTab = tab.ind}
@@ -372,9 +504,9 @@
 				<div class="shrink-0 w-full overflow-hidden transition-all"
 				     class:h-0={activeInvestorTab !== tab.ind}>
 					{#each tab.fields as field}
-						<div class="max-w-lg">
+						<div class="max-w-lg p-5">
 							{#if field.disabled}
-								<div class="form-control w-full p-5">
+								<div class="form-control w-full">
 									<label class="label" for="{field.name}">
 										<span class="label-text">{field.label}</span>
 									</label>
@@ -386,6 +518,10 @@
 								<Input {...field}
 								       on:change={() => (highlightSave = true) && field.calc()}
 								       bind:value={investor[field.name]}/>
+							{:else if field.type === 'check'}
+								<Check {...field}
+								       on:change={() => (highlightSave = true)}
+								       bind:checked={investor[field.name]}/>
 							{/if}
 						</div>
 					{/each}

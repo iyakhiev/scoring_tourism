@@ -1,12 +1,12 @@
 <script>
 	import { createEventDispatcher } from 'svelte'
 
-	export let name = undefined
-	export let value = undefined
-	export let label = undefined
-	export let placeholder = undefined
-	export let min = undefined
-	export let max = undefined
+	export let name
+	export let value
+	export let label
+	export let min
+	export let max
+	export let placeholder = ''
 	export let type = 'text'
 
 	const handleInput = (e) => {
@@ -20,7 +20,7 @@
 	const dispatch = createEventDispatcher()
 </script>
 
-<div class="form-control w-full p-5">
+<div class="form-control w-full">
 	<label class="label" for="input-{name}">
 		<span class="label-text">{@html label}</span>
 	</label>
