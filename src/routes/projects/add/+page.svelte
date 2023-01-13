@@ -2,38 +2,38 @@
 	import { DIRs } from '$lib/stores'
 	import { investors } from '$lib/stores'
 	import { goto } from '$app/navigation'
+	import Select from '$lib/components/select.svelte'
+	import Input from '$lib/components/input.svelte'
 
-	let newInvestor = {
+	let investor = {
 		name: '',
 		region: '',
 		buildingType: ''
 	}
 
 	function addInvestor() {
-		if (!newInvestor.name || !newInvestor.name.trim())
+		if (!investor.name || !investor.name.trim())
 			return
 
-		newInvestor.name = newInvestor.name.trim()
+		investor.name = investor.name.trim()
 
 		fetch('/api/add_investor', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				investor: newInvestor
-			})
+			body: JSON.stringify({ investor })
 		})
 			.then(res => res.json())
 			.then(res => {
 				console.log('add_investor(), res', res)
 
 				if (res?.res?.insertedId) {
-					newInvestor._id = res?.res?.insertedId
+					investor._id = res?.res?.insertedId
 					investors.update(arr => {
-						arr.push(newInvestor)
+						arr.push(investor)
 						return arr
 					})
 
-					goto(`/projects/${newInvestor._id}`)
+					goto(`/projects/${investor._id}`)
 				}
 			})
 	}
@@ -44,55 +44,37 @@
 	<a href="/projects" class="btn btn-outline">Закрыть</a>
 </div>
 <div class="flex flex-col gap-2">
-	<div class="form-control w-full">
-		<label class="label" for="investorName">
-			<span class="label-text">Название</span>
-		</label>
-		<input id="investorName" type="text" placeholder="Новый проект"
-		       bind:value={newInvestor.name}
-		       class="input input-bordered w-full"/>
-	</div>
-	<div class="form-control">
-		<label class="label" for="investorRegion">
-			<span class="label-text">Регион</span>
-		</label>
-		<select class="select select-bordered" id="investorRegion"
-		        bind:value={newInvestor.region}>
-			<option disabled selected value="">Выберите регион</option>
-			{#each $DIRs['regions']?.values || [] as region}
-				<option value="{region.iso_code}">{region.title}</option>
-			{/each}
-		</select>
-	</div>
-	<div class="form-control">
-		<label class="label" for="investorBuildingType">
-			<span class="label-text">Тип объекта</span>
-		</label>
-		<select class="select select-bordered" id="investorBuildingType"
-		        bind:value={newInvestor.buildingType}>
-			<option disabled selected value="">Выберите тип объекта</option>
-			{#each $DIRs['buildingTypes']?.values || [] as bType}
-				<option value="{bType.name}">{bType.title}</option>
-			{/each}
-		</select>
-	</div>
-	<div class="form-control">
-		<label class="label" for="investorBuildingCategory">
-			<span class="label-text">Категория объекта</span>
-		</label>
-		<select class="select select-bordered" id="investorBuildingCategory"
-		        bind:value={newInvestor.buildingCategory}>
-			<option selected value="">Выберите категорию объекта</option>
-			{#each $DIRs['buildingCategory']?.values || [] as bType}
-				<option value="{bType.name}">{bType.title}</option>
-			{/each}
-		</select>
-	</div>
+	<Input name="theInvestorName"
+	       label="Название"
+	       placeholder="Название проекта"
+	       bind:value={investor.name}/>
+	<Select name="theInvestorRegion"
+	        label="Регион"
+	        title="Выберите регион"
+	        options={$DIRs['regions']?.values}
+	        valueField="iso_code"
+	        bind:value={investor.region}
+	/>
+	<Select name="theInvestorBuildingType"
+	        label="Тип объекта"
+	        title="Выберите тип объекта"
+	        options={$DIRs['buildingTypes']?.values}
+	        valueField="name"
+	        bind:value={investor.buildingType}
+	/>
+	<Select name="theInvestorBuildingCategory"
+	        label="Категория объекта"
+	        title="Выберите категорию объекта"
+	        options={$DIRs['buildingCategory']?.values}
+	        valueField="name"
+	        defaultDisabled={false}
+	        bind:value={investor.buildingCategory}
+	/>
 </div>
 <div class="flex justify-between mt-10">
 	<button class="btn btn-outline btn-primary"
 	        on:click={addInvestor}
-	        class:btn-disabled={!newInvestor?.name.trim()}>
+	        class:btn-disabled={!investor?.name.trim()}>
 		Добавить
 	</button>
 </div>

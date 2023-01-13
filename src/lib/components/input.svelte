@@ -9,6 +9,8 @@
 	export let placeholder = ''
 	export let type = 'text'
 
+	$: value = value === undefined ? '' : value
+
 	const handleInput = (e) => {
 		// in here, you can switch on type and implement
 		// whatever behaviour you need

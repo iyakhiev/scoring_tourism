@@ -3,9 +3,15 @@
 	import { estimate } from '$lib/stopFactors'
 	import Input from '$lib/components/input.svelte'
 	import Check from '$lib/components/check.svelte'
+	import Select from '$lib/components/select.svelte'
 
 	// todo check tab problem
 	// todo sticky save button
+	// todo add delete button
+	// todo calc RevPAC
+	// todo calc glkRevenuePerSqMeter
+	// todo calc otherRevenuePerSqMeter
+	// todo calc corporationFundsShare
 
 	export let data
 
@@ -19,19 +25,22 @@
 		setInvestor(data)
 	}
 
-	function getBuildingCostFromDIR() {
-		for (const cost of $DIRs.costPerSqMeter.values)
-			if (cost.region === investor.region
-				&& cost.type === investor.buildingType
-				&& cost.category === investor.buildingCategory
-				&& cost.value)
-				return [true, cost.value]
+	function getDirValue(dirName) {
+		const values = $DIRs[dirName]?.values || []
+		for (const value of values)
+			if (value.region === investor.region
+				&& value.type === investor.buildingType
+				&& (value.category || '') === (investor.buildingCategory || '')
+				&& value.value)
+				return [true, value.value]
+
+		const dirTitle = $DIRs[dirName] ? $DIRs[dirName].title : dirName
 		const searchFieldsStr = `${investor.regionsTitle}, ${investor.buildingTypeTitle}`
 			+ (investor.buildingCategoryTitle ? `, ${investor.buildingCategoryTitle}` : '')
-		return [false, `В справочнике "Стоимость 1 м² объекта" не указано значение по параметрам: ${searchFieldsStr}.`]
+		return [false, `В справочнике "${dirTitle}" не указано значение по параметрам: ${searchFieldsStr}.`]
 	}
 
-	function getDirValue(dirName, dirValueField, dirTitleField, value) {
+	function getTitleFromDirByValue(dirName, dirValueField, dirTitleField, value) {
 		const values = $DIRs[dirName].values.filter(row => row[dirValueField] === value)
 		if (values.length)
 			return values[0][dirTitleField]
@@ -46,7 +55,7 @@
 				if (!investor.kfv || !investor.ds || !investor.ko)
 					return investor[this.name] = ''
 				const value = (investor.kfv + investor.ds) / investor.ko
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
 		fastLiqRatio: {
@@ -56,7 +65,7 @@
 				if (!investor.kdz || !investor.kfv || !investor.ds || !investor.ko)
 					return investor[this.name] = ''
 				const value = (investor.kdz + investor.kfv + investor.ds) / investor.ko
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
 		currentLiqRatio: {
@@ -66,7 +75,7 @@
 				if (!investor.oa || !investor.ko)
 					return investor[this.name] = ''
 				const value = investor.oa / investor.ko
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
 		debtToEquityRatio: {
@@ -76,7 +85,7 @@
 				if (!investor.sk || !investor.ko || !investor.do)
 					return investor[this.name] = ''
 				const value = (investor.do + investor.ko) / investor.sk
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
 		solvencyRatio: {
@@ -86,7 +95,7 @@
 				if (!investor.kr || !investor.ko || !investor.do)
 					return investor[this.name] = ''
 				const value = investor.kr / (investor.do + investor.ko)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
 		costPerSqMeter: {
@@ -96,41 +105,51 @@
 				if (!investor.totalCost || !investor.totalArea)
 					return investor[this.name] = ''
 				const value = investor.totalCost / investor.totalArea
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		costPerRoom: {
+			label: 'Стоимость 1 номера, тыс.руб.',
+			name: 'costPerRoom',
+			calc: function () {
+				if (!investor.totalCost || !investor.numberOfRooms)
+					return investor[this.name] = ''
+				const value = investor.totalCost / investor.numberOfRooms
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		shareOfRoomsArea: {
+			label: 'Доля площадей КСР в составе объекта (для МФК), %',
+			name: 'shareOfRoomsArea',
+			calc: function () {
+				if (!investor.totalArea || !investor.roomsArea)
+					return investor[this.name] = ''
+				const value = (investor.roomsArea / investor.totalArea) * 100
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
 		totalArea: {
 			label: 'Общая площадь объектов, м²',
 			name: 'totalArea',
 			calc: function () {
-				if (!investor.hotelArea && !investor.infrastructureArea) {
-					investor[this.name] = ''
-					calcFields.costPerSqMeter.calc()
-					return
-				}
 				const value = parseFloat(investor.hotelArea || 0)
 					+ parseFloat(investor.infrastructureArea || 0)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 				calcFields.costPerSqMeter.calc()
+				calcFields.revenuePerSqMeter.calc()
 			}
 		},
 		hotelArea: {
 			label: 'Площадь гостиницы, м²',
 			name: 'hotelArea',
 			calc: function () {
-				if (!investor.roomsArea && !investor.restaurantsArea && !investor.confRoomsArea
-					&& !investor.spaAndGymArea && !investor.poolsArea && !investor.hotelOthersArea) {
-					investor[this.name] = ''
-					calcFields.totalArea.calc()
-					return
-				}
 				const value = parseFloat(investor.roomsArea || 0)
 					+ parseFloat(investor.restaurantsArea || 0)
 					+ parseFloat(investor.confRoomsArea || 0)
 					+ parseFloat(investor.spaAndGymArea || 0)
 					+ parseFloat(investor.poolsArea || 0)
 					+ parseFloat(investor.hotelOthersArea || 0)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 				calcFields.totalArea.calc()
 			}
 		},
@@ -138,18 +157,12 @@
 			label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
 			name: 'infrastructureArea',
 			calc: function () {
-				if (!investor.aquaparkArea && !investor.sportComplexArea && !investor.amusementParkArea
-					&& !investor.thermalComplexArea && !investor.infrastructureOthersArea) {
-					investor[this.name] = ''
-					calcFields.totalArea.calc()
-					return
-				}
 				const value = parseFloat(investor.aquaparkArea || 0)
 					+ parseFloat(investor.sportComplexArea || 0)
 					+ parseFloat(investor.amusementParkArea || 0)
 					+ parseFloat(investor.thermalComplexArea || 0)
 					+ parseFloat(investor.infrastructureOthersArea || 0)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 				calcFields.totalArea.calc()
 			}
 		},
@@ -157,14 +170,10 @@
 			label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
 			name: 'totalCost',
 			calc: function () {
-				if (!investor.totalCostOfBuilding && !investor.totalCostOfBuildingInfrastructure) {
-					investor[this.name] = ''
-					calcFields.costPerSqMeter.calc()
-					return
-				}
 				const value = parseFloat(investor.totalCostOfBuilding || 0)
 					+ parseFloat(investor.totalCostOfBuildingInfrastructure || 0)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
+				calcFields.costPerRoom.calc()
 				calcFields.costPerSqMeter.calc()
 			}
 		},
@@ -172,272 +181,310 @@
 			label: 'Стоимость строительства объектов, тыс. руб.',
 			name: 'totalCostOfBuilding',
 			calc: function () {
-				if (!investor.totalCostOfBuildingRooms && !investor.totalCostOfBuildingRestaurants
-					&& !investor.totalCostOfBuildingConfRooms && !investor.totalCostOfBuildingSpaAndGym
-					&& !investor.totalCostOfBuildingPools && !investor.totalCostOfBuildingHotelOthers) {
-					investor[this.name] = ''
-					calcFields.totalCost.calc()
-					return
-				}
 				const value = parseFloat(investor.totalCostOfBuildingRooms || 0)
 					+ parseFloat(investor.totalCostOfBuildingRestaurants || 0)
 					+ parseFloat(investor.totalCostOfBuildingConfRooms || 0)
 					+ parseFloat(investor.totalCostOfBuildingSpaAndGym || 0)
 					+ parseFloat(investor.totalCostOfBuildingPools || 0)
 					+ parseFloat(investor.totalCostOfBuildingHotelOthers || 0)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 				calcFields.totalCost.calc()
-			}
-		},
-		totalCostOfBuildingRooms: {
-			label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования, тыс. руб.',
-			name: 'totalCostOfBuildingRooms',
-			calc: function () {
-				if (!investor.roomsArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const value = parseFloat(investor.roomsArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuilding.calc()
-			}
-		},
-		totalCostOfBuildingRestaurants: {
-			label: 'Стоимость строительства ресторанов, тыс. руб.',
-			name: 'totalCostOfBuildingRestaurants',
-			calc: function () {
-				if (!investor.restaurantsArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const value = parseFloat(investor.restaurantsArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuilding.calc()
-			}
-		},
-		totalCostOfBuildingConfRooms: {
-			label: 'Стоимость строительства конференц-залов, тыс. руб.',
-			name: 'totalCostOfBuildingConfRooms',
-			calc: function () {
-				if (!investor.confRoomsArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const value = parseFloat(investor.confRoomsArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuilding.calc()
-			}
-		},
-		totalCostOfBuildingSpaAndGym: {
-			label: 'Стоимость строительства СПА и фитнес центров, тыс. руб.',
-			name: 'totalCostOfBuildingSpaAndGym',
-			calc: function () {
-				if (!investor.spaAndGymArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const value = parseFloat(investor.spaAndGymArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuilding.calc()
-			}
-		},
-		totalCostOfBuildingPools: {
-			label: 'Стоимость строительства бассейнов, тыс. руб.',
-			name: 'totalCostOfBuildingPools',
-			calc: function () {
-				if (!investor.poolsArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const value = parseFloat(investor.poolsArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuilding.calc()
-			}
-		},
-		totalCostOfBuildingHotelOthers: {
-			label: 'Стоимость строительства иных объектов, тыс. руб.',
-			name: 'totalCostOfBuildingHotelOthers',
-			calc: function () {
-				if (!investor.hotelOthersArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuilding.calc()
-					return
-				}
-				const value = parseFloat(investor.hotelOthersArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuilding.calc()
 			}
 		},
 		totalCostOfBuildingInfrastructure: {
 			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
 			name: 'totalCostOfBuildingInfrastructure',
 			calc: function () {
-				if (!investor.totalCostOfBuildingAquapark && !investor.totalCostOfBuildingSportComplex
-					&& !investor.totalCostOfBuildingAmusementPark && !investor.totalCostOfBuildingThermalComplex
-					&& !investor.totalCostOfBuildingInfrastructureOthers) {
-					investor[this.name] = ''
-					calcFields.totalCost.calc()
-					return
-				}
 				const value = parseFloat(investor.totalCostOfBuildingAquapark || 0)
 					+ parseFloat(investor.totalCostOfBuildingSportComplex || 0)
 					+ parseFloat(investor.totalCostOfBuildingAmusementPark || 0)
 					+ parseFloat(investor.totalCostOfBuildingThermalComplex || 0)
 					+ parseFloat(investor.totalCostOfBuildingInfrastructureOthers || 0)
-				investor[this.name] = value.toFixed(2)
+				investor[this.name] = +value.toFixed(2)
 				calcFields.totalCost.calc()
 			}
 		},
-		totalCostOfBuildingAquapark: {
-			label: 'Стоимость строительства аквапарка, тыс. руб.',
-			name: 'totalCostOfBuildingAquapark',
+		occ: {
+			label: 'Occupancy (OCC) — реальная заполняемость, %',
+			name: 'occ',
 			calc: function () {
-				if (!investor.aquaparkArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
-					return
-				}
-				const value = parseFloat(investor.aquaparkArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuildingInfrastructure.calc()
+				if (!investor.totalRoomsOccupied || !investor.numberOfRooms)
+					return investor[this.name] = ''
+				const value = (investor.totalRoomsOccupied / investor.numberOfRooms) * 100
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
-		totalCostOfBuildingSportComplex: {
-			label: 'Стоимость строительства физкультурно-оздоровительный комплекса, тыс. руб.',
-			name: 'totalCostOfBuildingSportComplex',
+		doubleOcc: {
+			label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
+			name: 'doubleOcc',
 			calc: function () {
-				if (!investor.sportComplexArea) {
+				if (!investor.totalRoomsOccupied || !investor.totalGuestsInHouse) {
 					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
+					calcFields.touristFlow.calc()
+					calcFields.touristPerNightFlow.calc()
 					return
 				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
-					return
-				}
-				const value = parseFloat(investor.sportComplexArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuildingInfrastructure.calc()
+				const value = investor.totalGuestsInHouse / investor.totalRoomsOccupied
+				investor[this.name] = +value.toFixed(2)
+				calcFields.touristFlow.calc()
+				calcFields.touristPerNightFlow.calc()
 			}
 		},
-		totalCostOfBuildingAmusementPark: {
-			label: 'Стоимость строительства парк развлечений, аттракционов, тыс. руб.',
-			name: 'totalCostOfBuildingAmusementPark',
+		touristPerNightFlow: {
+			label: 'Турпоток, чел./ночей за год',
+			name: 'touristPerNightFlow',
 			calc: function () {
-				if (!investor.amusementParkArea) {
-					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
-					return
-				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
-					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
-					return
-				}
-				const value = parseFloat(investor.amusementParkArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuildingInfrastructure.calc()
+				if (!investor.totalRoomsOccupied || !investor.doubleOcc)
+					return investor[this.name] = ''
+				const value = investor.totalRoomsOccupied * investor.doubleOcc * 365
+				investor[this.name] = +value.toFixed(2)
 			}
 		},
-		totalCostOfBuildingThermalComplex: {
-			label: 'Стоимость строительства термальный комплекса, тыс. руб.',
-			name: 'totalCostOfBuildingThermalComplex',
+		touristFlow: {
+			label: 'Турпоток, чел./год',
+			name: 'touristFlow',
 			calc: function () {
-				if (!investor.thermalComplexArea) {
+				if (!investor.totalRoomsOccupied || !investor.doubleOcc) {
 					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
+					calcFields.revPAC.calc()
 					return
 				}
-				const [status, price] = getBuildingCostFromDIR(investor)
+
+				const [status, dirValue] = getDirValue('AverageLengthOfStay')
 				if (!status) {
-					errors[this.name] = price
+					errors[this.name] = dirValue
 					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
+					calcFields.revPAC.calc()
 					return
 				}
-				const value = parseFloat(investor.thermalComplexArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuildingInfrastructure.calc()
+
+				const value = (investor.totalRoomsOccupied * investor.doubleOcc * 365) / dirValue
+					+ parseFloat(investor.totalExternalGuests || 0) * 365
+				investor[this.name] = +value.toFixed(2)
+				calcFields.revPAC.calc()
 			}
 		},
-		totalCostOfBuildingInfrastructureOthers: {
-			label: 'Стоимость строительства иных объектов инфраструктуры, тыс. руб.',
-			name: 'totalCostOfBuildingInfrastructureOthers',
+		totalRevenues: {
+			label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
+			name: 'totalRevenues',
 			calc: function () {
-				if (!investor.infrastructureOthersArea) {
+				const value = parseFloat(investor.roomRevenue || 0)
+					+ parseFloat(investor.restaurantsRevenue || 0)
+					+ parseFloat(investor.spaAndGymRevenue || 0)
+					+ parseFloat(investor.aquaparkRevenue || 0)
+					+ parseFloat(investor.glkRevenue || 0)
+					+ parseFloat(investor.amusementsRevenue || 0)
+					+ parseFloat(investor.otherRevenue || 0)
+				investor[this.name] = +value.toFixed(2)
+				calcFields.revPAC.calc()
+				calcFields.revenuePerSqMeter.calc()
+			}
+		},
+		revPAR: {
+			label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
+			name: 'revPAR',
+			calc: function () {
+				if (!investor.roomRevenue || !investor.numberOfRooms)
+					return investor[this.name] = ''
+
+				const value = investor.roomRevenue / investor.numberOfRooms
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		revPAC: {
+			label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, тыс. руб.',
+			name: 'revPAC',
+			calc: function () {
+				if (!investor.totalRevenues || !investor.touristFlow)
+					return investor[this.name] = ''
+
+				const value = investor.totalRevenues / investor.touristFlow
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		staffPerRoom: {
+			label: 'Количество сотрудников на 1 номер, чел.',
+			name: 'staffPerRoom',
+			calc: function () {
+				if (!investor.numberOfNewJobs || !investor.numberOfRooms)
+					return investor[this.name] = ''
+
+				const value = investor.numberOfNewJobs / investor.numberOfRooms
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		revenuePerSqMeter: {
+			label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
+			name: 'revenuePerSqMeter',
+			calc: function () {
+				if (!investor.totalRevenues || !investor.totalArea)
+					return investor[this.name] = ''
+
+				const value = investor.totalRevenues / investor.totalArea
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		roomRevenuePerSqMeter: {
+			label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+			name: 'roomRevenuePerSqMeter',
+			calc: function () {
+				if (!investor.roomRevenue || !investor.roomsArea)
+					return investor[this.name] = ''
+
+				const value = investor.roomRevenue / investor.roomsArea
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		restaurantsRevenuePerSqMeter: {
+			label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
+			name: 'restaurantsRevenuePerSqMeter',
+			calc: function () {
+				if (!investor.restaurantsRevenue || !investor.restaurantsArea)
+					return investor[this.name] = ''
+
+				const value = investor.restaurantsRevenue / investor.restaurantsArea
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		spaAndGymRevenuePerSqMeter: {
+			label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
+			name: 'spaAndGymRevenuePerSqMeter',
+			calc: function () {
+				if (!investor.spaAndGymRevenue || !investor.spaAndGymArea)
+					return investor[this.name] = ''
+
+				const value = investor.spaAndGymRevenue / investor.spaAndGymArea
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		aquaparkRevenuePerSqMeter: {
+			label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
+			name: 'aquaparkRevenuePerSqMeter',
+			calc: function () {
+				if (!investor.aquaparkRevenue || !investor.aquaparkArea)
+					return investor[this.name] = ''
+
+				const value = investor.aquaparkRevenue / investor.aquaparkArea
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		amusementsRevenuePerSqMeter: {
+			label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
+			name: 'amusementsRevenuePerSqMeter',
+			calc: function () {
+				if (!investor.amusementsRevenue || !investor.amusementParkArea)
+					return investor[this.name] = ''
+
+				const value = investor.amusementsRevenue / investor.amusementParkArea
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		totalFunds: {
+			label: 'Общий объем финансирования (Total Founds), тыс. руб.',
+			name: 'totalFunds',
+			calc: function () {
+				const value = parseFloat(investor.ownFunds || 0)
+					+ parseFloat(investor.bankLoanAmount || 0)
+				investor[this.name] = +value.toFixed(2)
+				calcFields.creditFundsShare.calc()
+				calcFields.EBITDA.calc()
+			}
+		},
+		ownFunds: {
+			label: 'Собственные средства, тыс. руб.',
+			name: 'ownFunds',
+			calc: function () {
+				const value = parseFloat(investor.investorContributionCash || 0)
+					+ parseFloat(investor.investorContributionNotCash || 0)
+					+ parseFloat(investor.investorContributionCashNotInCapital || 0)
+					+ parseFloat(investor.investorLoan || 0)
+					+ parseFloat(investor.corporationContributionCash || 0)
+					+ parseFloat(investor.corporationLoan || 0)
+					+ parseFloat(investor.landSaleRevenue || 0)
+				investor[this.name] = +value.toFixed(2)
+				calcFields.totalFunds.calc()
+			}
+		},
+		corporationFundsShare: {
+			label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
+			name: 'corporationFundsShare',
+			calc: function () {
+				if (!(investor.corporationContributionCash || investor.corporationLoan)
+					|| !(investor.investorContributionCash || investor.investorContributionNotCash))
+					return investor[this.name] = ''
+
+				const value = ((parseFloat(investor.corporationContributionCash || 0)
+						+ parseFloat(investor.corporationLoan || 0))
+					/ (parseFloat(investor.investorContributionCash || 0)
+						+ parseFloat(investor.investorContributionNotCash || 0))) * 100
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		creditFundsShare: {
+			label: 'Доля кредитных средств в объеме финансирования, %',
+			name: 'creditFundsShare',
+			calc: function () {
+				if (!investor.bankLoanAmount || !investor.totalFunds)
+					return investor[this.name] = ''
+
+				const value = (investor.bankLoanAmount / investor.totalFunds) * 100
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		debtCoverageRatio: {
+			label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
+			name: 'debtCoverageRatio',
+			calc: function () {
+				if (!investor.EBITDA || !investor.interestPayments || !investor.loanBodyPayments)
+					return investor[this.name] = ''
+
+				const value = investor.EBITDA / (investor.interestPayments + investor.loanBodyPayments)
+				investor[this.name] = +value.toFixed(2)
+			}
+		},
+		EBITDA: {
+			label: 'EBITDA, руб. (за год после ввода в эксплуатацию)',
+			name: 'EBITDA',
+			calc: function () {
+				if (!investor.totalFunds || !investor.marginEBITDA) {
 					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
+					calcFields.debtCoverageRatio.calc()
 					return
 				}
-				const [status, price] = getBuildingCostFromDIR(investor)
-				if (!status) {
-					errors[this.name] = price
+
+				const value = investor.totalFunds * investor.marginEBITDA
+				investor[this.name] = +value.toFixed(2)
+				calcFields.debtCoverageRatio.calc()
+			}
+		},
+		interestPayments: {
+			label: 'Процентные платежи в год (I)',
+			name: 'interestPayments',
+			calc: function () {
+				if (!investor.bankLoanAmount || !investor.plannedLoanRate || !investor.loanTerm) {
 					investor[this.name] = ''
-					calcFields.totalCostOfBuildingInfrastructure.calc()
+					calcFields.debtCoverageRatio.calc()
 					return
 				}
-				const value = parseFloat(investor.infrastructureOthersArea || 0) * price
-				investor[this.name] = value.toFixed(2)
-				calcFields.totalCostOfBuildingInfrastructure.calc()
+
+				const value = investor.bankLoanAmount / investor.loanTerm * (investor.plannedLoanRate / 100)
+				investor[this.name] = +value.toFixed(2)
+				calcFields.debtCoverageRatio.calc()
+			}
+		},
+		loanBodyPayments: {
+			label: 'Выплаты тела кредита, руб. в год (D)',
+			name: 'loanBodyPayments',
+			calc: function () {
+				if (!investor.bankLoanAmount || !investor.loanTerm) {
+					investor[this.name] = ''
+					calcFields.debtCoverageRatio.calc()
+					return
+				}
+
+				const value = investor.bankLoanAmount / investor.loanTerm
+				investor[this.name] = +value.toFixed(2)
+				calcFields.debtCoverageRatio.calc()
 			}
 		},
 	}
@@ -709,10 +756,36 @@
 					name: 'numberOfRooms',
 					type: 'number',
 					min: 0,
+					calc: () => {
+						calcFields.costPerRoom.calc()
+						calcFields.revPAR.calc()
+						calcFields.staffPerRoom.calc()
+					}
+				},
+				{
+					label: 'Вид работ по проекту',
+					name: 'typeOfWork',
+					type: 'select',
+					options: [
+						{
+							title: 'Строительство',
+							value: 'construction'
+						},
+						{
+							title: 'Реконструкция',
+							value: 'reconstruction'
+						},
+					]
 				},
 				{
 					label: 'Стоимость 1 м² объекта, тыс.руб.',
 					name: 'costPerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость 1 номера, тыс.руб.',
+					name: 'costPerRoom',
 					type: 'number',
 					disabled: true
 				},
@@ -744,7 +817,10 @@
 					label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования, тыс. руб.',
 					name: 'totalCostOfBuildingRooms',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuilding.calc()
+					}
 				},
 				{
 					label: 'Площадь номерного фонда, включая апартаменты и места общего пользования, м²',
@@ -753,14 +829,23 @@
 					min: 0,
 					calc: () => {
 						calcFields.hotelArea.calc()
-						calcFields.totalCostOfBuildingRooms.calc()
+						calcFields.roomRevenuePerSqMeter.calc()
 					}
+				},
+				{
+					label: 'Доля площадей КСР в составе объекта (для МФК), %',
+					name: 'shareOfRoomsArea',
+					type: 'number',
+					disabled: true
 				},
 				{
 					label: 'Стоимость строительства ресторанов, тыс. руб.',
 					name: 'totalCostOfBuildingRestaurants',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuilding.calc()
+					}
 				},
 				{
 					label: 'Площадь ресторанов, м²',
@@ -769,14 +854,17 @@
 					min: 0,
 					calc: () => {
 						calcFields.hotelArea.calc()
-						calcFields.totalCostOfBuildingRestaurants.calc()
+						calcFields.restaurantsRevenuePerSqMeter.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства конференц-залов, тыс. руб.',
 					name: 'totalCostOfBuildingConfRooms',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuilding.calc()
+					}
 				},
 				{
 					label: 'Площадь конференц-залов, м²',
@@ -785,14 +873,16 @@
 					min: 0,
 					calc: () => {
 						calcFields.hotelArea.calc()
-						calcFields.totalCostOfBuildingConfRooms.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства СПА и фитнес центров, тыс. руб.',
 					name: 'totalCostOfBuildingSpaAndGym',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuilding.calc()
+					}
 				},
 				{
 					label: 'Площадь СПА и фитнес центров, м²',
@@ -801,14 +891,17 @@
 					min: 0,
 					calc: () => {
 						calcFields.hotelArea.calc()
-						calcFields.totalCostOfBuildingSpaAndGym.calc()
+						calcFields.spaAndGymRevenuePerSqMeter.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства бассейнов, тыс. руб.',
 					name: 'totalCostOfBuildingPools',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuilding.calc()
+					}
 				},
 				{
 					label: 'Площадь бассейнов, м²',
@@ -817,14 +910,16 @@
 					min: 0,
 					calc: () => {
 						calcFields.hotelArea.calc()
-						calcFields.totalCostOfBuildingPools.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства иных объектов, тыс. руб.',
 					name: 'totalCostOfBuildingHotelOthers',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuilding.calc()
+					}
 				},
 				{
 					label: 'Площадь иных объектов, м²',
@@ -833,7 +928,6 @@
 					min: 0,
 					calc: () => {
 						calcFields.hotelArea.calc()
-						calcFields.totalCostOfBuildingHotelOthers.calc()
 					}
 				},
 				{
@@ -852,7 +946,10 @@
 					label: 'Стоимость строительства аквапарка, тыс. руб.',
 					name: 'totalCostOfBuildingAquapark',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuildingInfrastructure.calc()
+					}
 				},
 				{
 					label: 'Площадь аквапарка, м²',
@@ -861,14 +958,17 @@
 					min: 0,
 					calc: () => {
 						calcFields.infrastructureArea.calc()
-						calcFields.totalCostOfBuildingAquapark.calc()
+						calcFields.aquaparkRevenuePerSqMeter.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства физкультурно-оздоровительный комплекса, тыс. руб.',
 					name: 'totalCostOfBuildingSportComplex',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuildingInfrastructure.calc()
+					}
 				},
 				{
 					label: 'Площадь физкультурно-оздоровительный комплекса, м²',
@@ -877,14 +977,16 @@
 					min: 0,
 					calc: () => {
 						calcFields.infrastructureArea.calc()
-						calcFields.totalCostOfBuildingSportComplex.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства парк развлечений, аттракционов, тыс. руб.',
 					name: 'totalCostOfBuildingAmusementPark',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuildingInfrastructure.calc()
+					}
 				},
 				{
 					label: 'Площадь парк развлечений, аттракционов, м²',
@@ -893,14 +995,17 @@
 					min: 0,
 					calc: () => {
 						calcFields.infrastructureArea.calc()
-						calcFields.totalCostOfBuildingAmusementPark.calc()
+						calcFields.amusementsRevenuePerSqMeter.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства термальный комплекса, тыс. руб.',
 					name: 'totalCostOfBuildingThermalComplex',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuildingInfrastructure.calc()
+					}
 				},
 				{
 					label: 'Площадь термальный комплекса, м²',
@@ -909,14 +1014,16 @@
 					min: 0,
 					calc: () => {
 						calcFields.infrastructureArea.calc()
-						calcFields.totalCostOfBuildingThermalComplex.calc()
 					}
 				},
 				{
 					label: 'Стоимость строительства иных объектов инфраструктуры, тыс. руб.',
 					name: 'totalCostOfBuildingInfrastructureOthers',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => {
+						calcFields.totalCostOfBuildingInfrastructure.calc()
+					}
 				},
 				{
 					label: 'Площадь иных объектов инфраструктуры, м²',
@@ -925,7 +1032,6 @@
 					min: 0,
 					calc: () => {
 						calcFields.infrastructureArea.calc()
-						calcFields.totalCostOfBuildingInfrastructureOthers.calc()
 					}
 				},
 				{
@@ -934,17 +1040,409 @@
 					type: 'number',
 					min: 0,
 				},
+				{
+					label: 'Дата начала подготовки ПСД',
+					name: 'startDateOfPSDPreparation',
+					type: 'date',
+				},
+				{
+					label: 'Дата окончания подготовки ПСД',
+					name: 'endDateOfPSDPreparation',
+					type: 'date',
+				},
+				{
+					label: 'Дата начала СМР',
+					name: 'startDateOfSMR',
+					type: 'date',
+				},
+				{
+					label: 'Дата окончания СМР',
+					name: 'endDateOfSMR',
+					type: 'date',
+				},
+				{
+					label: 'Дата ввода в эксплуатацию',
+					name: 'commissioningDate',
+					type: 'date',
+				},
+				{
+					label: 'Соответствие категории и вида разрешенного использования земельного участка целям проекта',
+					name: 'complianceOfLandTypeWithProject',
+					type: 'check',
+				},
+				{
+					label: 'Расходы pre-opening, тыс.руб.',
+					name: 'preOpeningCost',
+					type: 'number',
+					min: 0
+				},
 			],
 		},
 		{
 			ind: 4,
 			title: 'Экономические показатели',
-			fields: [],
+			fields: [
+				{
+					label: 'Количество месяцев функционирования в году',
+					name: 'numberOfOperationMonths',
+					type: 'number',
+					min: 0
+				},
+				{
+					label: 'ADR — отпускной тариф, руб./сутки',
+					name: 'adr',
+					type: 'number',
+					min: 0
+				},
+				{
+					label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
+					name: 'marginEBITDA',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.EBITDA.calc()
+				},
+				{
+					label: 'Occupancy (OCC) — реальная заполняемость, %',
+					name: 'occ',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общее количество занятых номеров Total Rooms Occupied (за период)',
+					name: 'totalRoomsOccupied',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.occ.calc()
+						calcFields.doubleOcc.calc()
+					}
+				},
+				{
+					label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
+					name: 'doubleOcc',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Турпоток, чел./ночей за год',
+					name: 'touristPerNightFlow',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Количество гостей Total Guests In-House (за период)',
+					name: 'totalGuestsInHouse',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.doubleOcc.calc()
+				},
+				{
+					label: 'Турпоток, чел./год',
+					name: 'touristFlow',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общее количество внешних гостей',
+					name: 'totalExternalGuests',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.touristFlow.calc()
+				},
+				{
+					label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'totalRevenues',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
+					name: 'revenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'roomRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+						calcFields.roomRevenuePerSqMeter.calc()
+						calcFields.revPAR.calc()
+					}
+				},
+				{
+					label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'roomRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'restaurantsRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+						calcFields.restaurantsRevenuePerSqMeter.calc()
+					}
+				},
+				{
+					label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'restaurantsRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'spaAndGymRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+						calcFields.spaAndGymRevenuePerSqMeter.calc()
+					}
+				},
+				{
+					label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'spaAndGymRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'aquaparkRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+						calcFields.aquaparkRevenuePerSqMeter.calc()
+					}
+				},
+				{
+					label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'aquaparkRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'glkRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.totalRevenues.calc()
+				},
+				{
+					label: 'Выручка на 1 м² инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'glkRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'amusementsRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+						calcFields.amusementsRevenuePerSqMeter.calc()
+					}
+				},
+				{
+					label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'amusementsRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка прочее, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'otherRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.totalRevenues.calc()
+				},
+				{
+					label: 'Выручка на 1 м² прочее, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'otherRevenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
+					name: 'revPAR',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, тыс. руб.',
+					name: 'revPAC',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Количество новых рабочих мест, чел.',
+					name: 'numberOfNewJobs',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.staffPerRoom.calc()
+				},
+				{
+					label: 'Количество сотрудников на 1 номер, чел.',
+					name: 'staffPerRoom',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Участие в проекте гостиничного оператора (вознаграждение за управление проектируемым объектом)',
+					name: 'remunerationForManagement',
+					type: 'number',
+					min: 0,
+				},
+			],
 		},
 		{
 			ind: 5,
 			title: 'Финансирование',
-			fields: [],
+			fields: [
+				{
+					label: 'Общий объем финансирования (Total Founds), тыс. руб.',
+					name: 'totalFunds',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Собственные средства, тыс. руб.',
+					name: 'ownFunds',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Взнос Инвестора в уставный капитал СПК в денежной форме, тыс. руб.',
+					name: 'investorContributionCash',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме), тыс. руб.',
+					name: 'investorContributionNotCash',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме), тыс. руб.',
+					name: 'investorContributionCashNotInCapital',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Инвестор (заем), тыс. руб.',
+					name: 'investorLoan',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Корпорация Туризм.РФ  (взнос в уставный капитал СПК), тыс. руб.',
+					name: 'corporationContributionCash',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Корпорация Туризм.РФ  (заем), тыс. руб.',
+					name: 'corporationLoan',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо), тыс. руб.',
+					name: 'landSaleRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Кредит банка (DEBT), тыс. руб.',
+					name: 'bankLoanAmount',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalFunds.calc()
+						calcFields.creditFundsShare.calc()
+						calcFields.interestPayments.calc()
+						calcFields.loanBodyPayments.calc()
+					}
+				},
+				{
+					label: 'Планируемая ставка по кредиту, %',
+					name: 'plannedLoanRate',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.interestPayments.calc()
+				},
+				{
+					label: 'Срок кредита, лет',
+					name: 'loanTerm',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.interestPayments.calc()
+						calcFields.loanBodyPayments.calc()
+					}
+				},
+				{
+					label: 'Потребность в льготном кредите (в т.ч. Постановление №141), тыс. руб.',
+					name: 'needOfPreferentialLoan',
+					type: 'check',
+				},
+				{
+					label: 'Наличие банка кредитора (наименование)',
+					name: 'bankName',
+					type: 'text',
+					min: 0,
+				},
+				{
+					label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
+					name: 'corporationFundsShare',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Доля кредитных средств в объеме финансирования, %',
+					name: 'creditFundsShare',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
+					name: 'debtCoverageRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'EBITDA, руб. (за год после ввода в эксплуатацию)',
+					name: 'EBITDA',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Процентные платежи в год (I), тыс. руб.',
+					name: 'interestPayments',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выплаты тела кредита, руб. в год (D)',
+					name: 'loanBodyPayments',
+					type: 'number',
+					disabled: true
+				},
+			],
 		}
 	]
 
@@ -954,11 +1452,11 @@
 
 		investor = data.investor
 		highlightSave = false
-		activeInvestorTab = 1
+		activeInvestorTab = 3
 
-		investor.regionsTitle = getDirValue('regions', 'iso_code', 'title', investor.region)
-		investor.buildingTypeTitle = getDirValue('buildingTypes', 'name', 'title', investor.buildingType)
-		investor.buildingCategoryTitle = getDirValue('buildingCategory', 'name', 'title', investor.buildingCategory)
+		investor.regionsTitle = getTitleFromDirByValue('regions', 'iso_code', 'title', investor.region)
+		investor.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'name', 'title', investor.buildingType)
+		investor.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'name', 'title', investor.buildingCategory)
 
 		Object.values(calcFields).forEach(field => field.calc())
 	}
@@ -1017,54 +1515,36 @@
 		</button>
 	</div>
 	<div class="my-10 flex flex-col gap-2">
-		<div class="form-control w-full">
-			<label class="label" for="theInvestorName">
-				<span class="label-text">Название</span>
-			</label>
-			<input id="theInvestorName" type="text" placeholder="Название проекта"
-			       on:change={() => highlightSave = true}
-			       bind:value={investor.name}
-			       class="input input-bordered w-full"/>
-		</div>
-		<div class="form-control">
-			<label class="label" for="theInvestorRegion">
-				<span class="label-text">Регион</span>
-			</label>
-			<select class="select select-bordered" id="theInvestorRegion"
-			        on:change={() => highlightSave = true}
-			        bind:value={investor.region}>
-				<option disabled selected value="">Выберите регион</option>
-				{#each $DIRs['regions']?.values || [] as region}
-					<option value="{region.iso_code}">{region.title}</option>
-				{/each}
-			</select>
-		</div>
-		<div class="form-control">
-			<label class="label" for="theInvestorBuildingType">
-				<span class="label-text">Тип объекта</span>
-			</label>
-			<select class="select select-bordered" id="theInvestorBuildingType"
-			        on:change={() => highlightSave = true}
-			        bind:value={investor.buildingType}>
-				<option disabled selected value="">Выберите тип объекта</option>
-				{#each $DIRs['buildingTypes']?.values || [] as bType}
-					<option value="{bType.name}">{bType.title}</option>
-				{/each}
-			</select>
-		</div>
-		<div class="form-control">
-			<label class="label" for="theInvestorBuildingCategory">
-				<span class="label-text">Категория объекта</span>
-			</label>
-			<select class="select select-bordered" id="theInvestorBuildingCategory"
-			        on:change={() => highlightSave = true}
-			        bind:value={investor.buildingCategory}>
-				<option selected value="">Выберите категорию объекта</option>
-				{#each $DIRs['buildingCategory']?.values || [] as bType}
-					<option value="{bType.name}">{bType.title}</option>
-				{/each}
-			</select>
-		</div>
+		<Input name="theInvestorName"
+		       label="Название"
+		       placeholder="Название проекта"
+		       on:change={() => highlightSave = true}
+		       bind:value={investor.name}/>
+		<Select name="theInvestorRegion"
+		        label="Регион"
+		        title="Выберите регион"
+		        options={$DIRs['regions']?.values}
+		        valueField="iso_code"
+		        on:change={() => highlightSave = true}
+		        bind:value={investor.region}
+		/>
+		<Select name="theInvestorBuildingType"
+		        label="Тип объекта"
+		        title="Выберите тип объекта"
+		        options={$DIRs['buildingTypes']?.values}
+		        valueField="name"
+		        on:change={() => highlightSave = true}
+		        bind:value={investor.buildingType}
+		/>
+		<Select name="theInvestorBuildingCategory"
+		        label="Категория объекта"
+		        title="Выберите категорию объекта"
+		        options={$DIRs['buildingCategory']?.values}
+		        valueField="name"
+		        defaultDisabled={false}
+		        on:change={() => highlightSave = true}
+		        bind:value={investor.buildingCategory}
+		/>
 	</div>
 	<div class="tabs mt-10">
 		{#if investor.scoring}
@@ -1136,7 +1616,7 @@
 		{#each tabs as tab}
 			{#if tab.fields.length}
 				<div class="shrink-0 w-full overflow-hidden transition-all"
-				     class:h-0={activeInvestorTab !== tab.ind}>
+				     class:h-10={activeInvestorTab !== tab.ind}>
 					{#each tab.fields as field}
 						<div class="max-w-lg p-5">
 							{#if field.disabled}
@@ -1148,7 +1628,7 @@
 									       value={investor[field.name]} disabled
 									       class="input input-bordered w-full"/>
 								</div>
-							{:else if field.type === 'number'}
+							{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
 								<Input {...field}
 								       on:change={() => (highlightSave = true) && field.calc && field.calc()}
 								       bind:value={investor[field.name]}/>
@@ -1156,6 +1636,10 @@
 								<Check {...field}
 								       on:change={() => (highlightSave = true)}
 								       bind:checked={investor[field.name]}/>
+							{:else if field.type === 'select'}
+								<Select {...field}
+								        on:change={() => (highlightSave = true)}
+								        bind:value={investor[field.name]}/>
 							{/if}
 						</div>
 						{#if errors[field.name]}
@@ -1174,131 +1658,7 @@
 				</div>
 			{/if}
 		{/each}
-		<div class="shrink-0 w-full overflow-hidden transition-all"
-		     class:h-0={activeInvestorTab !== tabs[3].ind}>
-			<div class="form-control w-full p-5">
-				<label class="label" for="totalFunds">
-					<span class="label-text">Общий объем финансирования, тыс. руб.</span>
-				</label>
-				<input id="totalFunds" type="number" placeholder=""
-				       bind:value={investor.totalFunds}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="bankLoanAmount">
-					<span class="label-text">Кредит банка, тыс. руб.</span>
-				</label>
-				<input id="bankLoanAmount" type="number" placeholder=""
-				       bind:value={investor.bankLoanAmount}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="investorContributionCash">
-					<span class="label-text">Взнос Инвестора в уставный капитал СПК в денежной форме, тыс. руб.</span>
-				</label>
-				<input id="investorContributionCash" type="number" placeholder=""
-				       bind:value={investor.investorContributionCash}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="investorContributionNotCash">
-					<span class="label-text">Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме), тыс. руб.</span>
-				</label>
-				<input id="investorContributionNotCash" type="number" placeholder=""
-				       bind:value={investor.investorContributionNotCash}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="corporationContribution">
-					<span class="label-text">Корпорация Туризм.РФ (взнос в уставный капитал СПК), тыс. руб.</span>
-				</label>
-				<input id="corporationContribution" type="number" placeholder=""
-				       bind:value={investor.corporationContribution}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="debtCoverageRatio">
-					<span class="label-text">Уровень долговой нагрузки</span>
-				</label>
-				<input id="debtCoverageRatio" type="number" placeholder=""
-				       bind:value={investor.debtCoverageRatio}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-		</div>
-		<div class="shrink-0 w-full overflow-hidden transition-all"
-		     class:h-0={activeInvestorTab !== tabs[4].ind}>
-			<div class="form-control w-full p-5">
-				<label class="label" for="numberOfOperationMonths">
-					<span class="label-text">Количество месяцев функционирования в году</span>
-				</label>
-				<input id="numberOfOperationMonths" type="number" placeholder=""
-				       bind:value={investor.numberOfOperationMonths}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="adr">
-					<span class="label-text">ADR — отпускной тариф, руб./сутки</span>
-				</label>
-				<input id="adr" type="number" placeholder=""
-				       bind:value={investor.adr}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="marginEBITDA">
-					<span class="label-text">Рентабельность по EBITDA (прогноз Инвестора), %</span>
-				</label>
-				<input id="marginEBITDA" type="number" placeholder=""
-				       bind:value={investor.marginEBITDA}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="occ">
-					<span class="label-text">Occupancy (OCC) — реальная заполняемость, %</span>
-				</label>
-				<input id="occ" type="number" placeholder=""
-				       bind:value={investor.occ}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="doubleOcc">
-					<span class="label-text">Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер</span>
-				</label>
-				<input id="doubleOcc" type="number" placeholder=""
-				       bind:value={investor.doubleOcc}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="touristFlow">
-					<span class="label-text">Турпоток, чел./год</span>
-				</label>
-				<input id="touristFlow" type="number" placeholder=""
-				       bind:value={investor.touristFlow}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-			<div class="form-control w-full p-5">
-				<label class="label" for="numberOfStaff">
-					<span class="label-text">Количество сотрудников, чел.</span>
-				</label>
-				<input id="numberOfStaff" type="number" placeholder=""
-				       bind:value={investor.numberOfStaff}
-				       on:change={() => highlightSave = true}
-				       class="input input-bordered w-full max-w-lg"/>
-			</div>
-		</div>
 	</div>
-
 	<div class="flex items-center gap-5 mt-10">
 		<button class="btn btn-primary ml-auto"
 		        class:btn-outline={!highlightSave}
