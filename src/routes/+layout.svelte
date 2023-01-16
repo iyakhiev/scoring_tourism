@@ -3,6 +3,7 @@
 	import { setDirs } from '$lib/stores'
 	import { DIRs } from '$lib/stores'
 	import NavBar from '$lib/components/navbar.svelte'
+	import Modals from '$lib/components/modals.svelte'
 
 	export let data
 
@@ -30,3 +31,4 @@
 	<NavBar/>
 	<slot/>
 {/if}
+<Modals />

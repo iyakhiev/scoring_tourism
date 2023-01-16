@@ -1,17 +1,17 @@
 <script>
-	import { DIRs } from '$lib/stores'
+	import { DIRs, investors } from '$lib/stores'
 	import { estimate } from '$lib/stopFactors'
 	import Input from '$lib/components/input.svelte'
 	import Check from '$lib/components/check.svelte'
 	import Select from '$lib/components/select.svelte'
+	import { openModal } from '$lib/components/modals.svelte'
+	import { goto } from '$app/navigation'
 
 	// todo check tab problem
 	// todo sticky save button
 	// todo add delete button
 	// todo calc RevPAC
 	// todo calc glkRevenuePerSqMeter
-	// todo calc otherRevenuePerSqMeter
-	// todo calc corporationFundsShare
 
 	export let data
 
@@ -413,10 +413,11 @@
 					|| !(investor.investorContributionCash || investor.investorContributionNotCash))
 					return investor[this.name] = ''
 
-				const value = ((parseFloat(investor.corporationContributionCash || 0)
-						+ parseFloat(investor.corporationLoan || 0))
-					/ (parseFloat(investor.investorContributionCash || 0)
-						+ parseFloat(investor.investorContributionNotCash || 0))) * 100
+				const corporationContribution = parseFloat(investor.corporationContributionCash || 0)
+					+ parseFloat(investor.corporationLoan || 0)
+				const investorContribution = parseFloat(investor.investorContributionCash || 0)
+					+ parseFloat(investor.investorContributionNotCash || 0)
+				const value = corporationContribution / (corporationContribution + investorContribution) * 100
 				investor[this.name] = +value.toFixed(2)
 			}
 		},
@@ -1452,7 +1453,7 @@
 
 		investor = data.investor
 		highlightSave = false
-		activeInvestorTab = 3
+		activeInvestorTab = 1
 
 		investor.regionsTitle = getTitleFromDirByValue('regions', 'iso_code', 'title', investor.region)
 		investor.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'name', 'title', investor.buildingType)
@@ -1500,19 +1501,61 @@
 		activeInvestorTab = 0
 		console.log('estimateStopFactors(), scoring', investor.scoring)
 	}
+
+	function deleteProject(showModal = true) {
+		if (showModal)
+			return openModal('Удалить проект?', [
+				{
+					title: 'Удалить',
+					class: 'btn-accent',
+					cb: () => deleteProject(false)
+				},
+				{
+					title: 'Отменить',
+					class: 'btn-outline',
+				}
+			])
+
+		fetch('/api/delete_project', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				_id: investor._id
+			})
+		})
+			.then(res => res.json())
+			.then(res => {
+				console.log('delete_project', res)
+
+				if (res?.res?.deletedCount) {
+					investors.update(arr => {
+						return arr.filter(row => row._id !== investor._id)
+					})
+
+					goto('/projects')
+				}
+			})
+	}
 </script>
 
 {#if investor}
-	<div class="flex items-center gap-5">
+	<div class="flex items-center gap-5 flex-wrap">
 		<div class="text-2xl">{investor.name}</div>
-		<button class="btn btn-primary ml-auto"
-		        class:btn-outline={!highlightSave}
-		        on:click={saveInvestor}>Сохранить
-		</button>
-		<button class="btn btn-outline"
-		        on:click={estimateStopFactors}>
-			Провести оценку
-		</button>
+		<div class="flex gap-5 ml-auto">
+			<button class="btn btn-accent btn-outline"
+			        on:click={deleteProject}>
+				Удалить
+			</button>
+			<button class="btn btn-primary"
+			        class:btn-outline={!highlightSave}
+			        on:click={saveInvestor}>
+				Сохранить
+			</button>
+			<button class="btn btn-outline"
+			        on:click={estimateStopFactors}>
+				Провести оценку
+			</button>
+		</div>
 	</div>
 	<div class="my-10 flex flex-col gap-2">
 		<Input name="theInvestorName"
