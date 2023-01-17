@@ -1,7 +1,7 @@
 <script>
 	import Dir from '$lib/components/dir.svelte'
 
-	const type = 'costPerSqMeter'
+	const type = 'averageLengthOfStay'
 	const structure = [
 		{
 			type: 'dir',
@@ -28,11 +28,11 @@
 		{
 			type: 'value',
 			name: 'value',
-			title: 'Стоимость 1 м², тыс. руб.',
+			title: 'Продолжительность пребывания, сутки',
 			fields: [
 				{
 					name: 'value',
-					placeholder: 'тыс. руб.',
+					placeholder: 'Среднее кол-во суток',
 				}
 			]
 		}

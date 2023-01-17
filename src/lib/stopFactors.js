@@ -132,7 +132,7 @@ const indicators = {
 						name: 'region',
 						value: data.region,
 						dirName: 'regions',
-						dirValueField: 'iso_code'
+						dirValueField: 'name'
 					},
 					{
 						name: 'type',
@@ -278,7 +278,7 @@ const indicators = {
 						name: 'region',
 						value: data.region,
 						dirName: 'regions',
-						dirValueField: 'iso_code'
+						dirValueField: 'name'
 					},
 					{
 						name: 'type',
@@ -408,7 +408,7 @@ const indicators = {
 						name: 'region',
 						value: data.region,
 						dirName: 'regions',
-						dirValueField: 'iso_code'
+						dirValueField: 'name'
 					},
 					{
 						name: 'type',
@@ -476,7 +476,7 @@ const indicators = {
 						name: 'region',
 						value: data.region,
 						dirName: 'regions',
-						dirValueField: 'iso_code'
+						dirValueField: 'name'
 					},
 					{
 						name: 'type',
@@ -544,7 +544,7 @@ const indicators = {
 						name: 'region',
 						value: data.region,
 						dirName: 'regions',
-						dirValueField: 'iso_code'
+						dirValueField: 'name'
 					},
 					{
 						name: 'type',
@@ -612,7 +612,7 @@ const indicators = {
 						name: 'region',
 						value: data.region,
 						dirName: 'regions',
-						dirValueField: 'iso_code'
+						dirValueField: 'name'
 					},
 					{
 						name: 'type',

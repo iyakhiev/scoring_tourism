@@ -6,7 +6,6 @@
 	export let label = ''
 	export let value = ''
 	export let options = []
-	export let valueField = 'value'
 	export let defaultDisabled = true
 
 	$: value = value === undefined ? '' : value
@@ -28,7 +27,7 @@
 			<option selected value="">{title}</option>
 		{/if}
 		{#each options as option}
-			<option value={option[valueField]}>{option.title}</option>
+			<option value={option.name}>{option.title}</option>
 		{/each}
 	</select>
 </div>

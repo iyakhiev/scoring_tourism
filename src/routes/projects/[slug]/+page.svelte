@@ -8,10 +8,7 @@
 	import { goto } from '$app/navigation'
 
 	// todo check tab problem
-	// todo sticky save button
-	// todo add delete button
-	// todo calc RevPAC
-	// todo calc glkRevenuePerSqMeter
+	// todo убрать поля выручка на кв метр по разным блокам
 
 	export let data
 
@@ -27,12 +24,11 @@
 
 	function getDirValue(dirName) {
 		const values = $DIRs[dirName]?.values || []
-		for (const value of values)
-			if (value.region === investor.region
-				&& value.type === investor.buildingType
-				&& (value.category || '') === (investor.buildingCategory || '')
-				&& value.value)
-				return [true, value.value]
+		for (const valueRow of values)
+			if (valueRow.region === investor.region
+				&& valueRow.buildingType === investor.buildingType
+				&& (valueRow.buildingCategory || '') === (investor.buildingCategory || ''))
+				return [true, valueRow.value]
 
 		const dirTitle = $DIRs[dirName] ? $DIRs[dirName].title : dirName
 		const searchFieldsStr = `${investor.regionsTitle}, ${investor.buildingTypeTitle}`
@@ -41,7 +37,7 @@
 	}
 
 	function getTitleFromDirByValue(dirName, dirValueField, dirTitleField, value) {
-		const values = $DIRs[dirName].values.filter(row => row[dirValueField] === value)
+		const values = $DIRs[dirName].values.filter(row => row.name === value)
 		if (values.length)
 			return values[0][dirTitleField]
 		return ''
@@ -99,7 +95,7 @@
 			}
 		},
 		costPerSqMeter: {
-			label: 'Стоимость 1 м² объекта, тыс.руб.',
+			label: 'Стоимость 1 м² объекта, тыс. руб.',
 			name: 'costPerSqMeter',
 			calc: function () {
 				if (!investor.totalCost || !investor.totalArea)
@@ -109,7 +105,7 @@
 			}
 		},
 		costPerRoom: {
-			label: 'Стоимость 1 номера, тыс.руб.',
+			label: 'Стоимость 1 номера, тыс. руб.',
 			name: 'costPerRoom',
 			calc: function () {
 				if (!investor.totalCost || !investor.numberOfRooms)
@@ -250,7 +246,7 @@
 					return
 				}
 
-				const [status, dirValue] = getDirValue('AverageLengthOfStay')
+				const [status, dirValue] = getDirValue('averageLengthOfStay')
 				if (!status) {
 					errors[this.name] = dirValue
 					investor[this.name] = ''
@@ -258,7 +254,7 @@
 					return
 				}
 
-				const value = (investor.totalRoomsOccupied * investor.doubleOcc * 365) / dirValue
+				const value = (investor.totalRoomsOccupied * investor.doubleOcc * 365) / dirValue.value
 					+ parseFloat(investor.totalExternalGuests || 0) * 365
 				investor[this.name] = +value.toFixed(2)
 				calcFields.revPAC.calc()
@@ -779,13 +775,13 @@
 					]
 				},
 				{
-					label: 'Стоимость 1 м² объекта, тыс.руб.',
+					label: 'Стоимость 1 м² объекта, тыс. руб.',
 					name: 'costPerSqMeter',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость 1 номера, тыс.руб.',
+					label: 'Стоимость 1 номера, тыс. руб.',
 					name: 'costPerRoom',
 					type: 'number',
 					disabled: true
@@ -1072,7 +1068,7 @@
 					type: 'check',
 				},
 				{
-					label: 'Расходы pre-opening, тыс.руб.',
+					label: 'Расходы pre-opening, тыс. руб.',
 					name: 'preOpeningCost',
 					type: 'number',
 					min: 0
@@ -1455,9 +1451,9 @@
 		highlightSave = false
 		activeInvestorTab = 1
 
-		investor.regionsTitle = getTitleFromDirByValue('regions', 'iso_code', 'title', investor.region)
-		investor.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'name', 'title', investor.buildingType)
-		investor.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'name', 'title', investor.buildingCategory)
+		investor.regionsTitle = getTitleFromDirByValue('regions', 'title', investor.region)
+		investor.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', investor.buildingType)
+		investor.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', investor.buildingCategory)
 
 		Object.values(calcFields).forEach(field => field.calc())
 	}
@@ -1539,9 +1535,9 @@
 </script>
 
 {#if investor}
-	<div class="flex items-center gap-5 flex-wrap">
+	<div class="flex items-center gap-5">
 		<div class="text-2xl">{investor.name}</div>
-		<div class="flex gap-5 ml-auto">
+		<div class="flex items-center gap-5 ml-auto shrink-0">
 			<button class="btn btn-accent btn-outline"
 			        on:click={deleteProject}>
 				Удалить
@@ -1567,7 +1563,6 @@
 		        label="Регион"
 		        title="Выберите регион"
 		        options={$DIRs['regions']?.values}
-		        valueField="iso_code"
 		        on:change={() => highlightSave = true}
 		        bind:value={investor.region}
 		/>
@@ -1575,7 +1570,6 @@
 		        label="Тип объекта"
 		        title="Выберите тип объекта"
 		        options={$DIRs['buildingTypes']?.values}
-		        valueField="name"
 		        on:change={() => highlightSave = true}
 		        bind:value={investor.buildingType}
 		/>
@@ -1583,7 +1577,6 @@
 		        label="Категория объекта"
 		        title="Выберите категорию объекта"
 		        options={$DIRs['buildingCategory']?.values}
-		        valueField="name"
 		        defaultDisabled={false}
 		        on:change={() => highlightSave = true}
 		        bind:value={investor.buildingCategory}
@@ -1603,113 +1596,126 @@
 			>{tab.title}</a>
 		{/each}
 	</div>
-	<div class="flex overflow-hidden">
-		<div class="shrink-0 w-full overflow-hidden transition-all"
-		     class:h-0={activeInvestorTab !== 0}
-		     style="margin-left: {-activeInvestorTab * 100}%">
-			{#if investor.scoring}
-				<div class="overflow-x-auto mt-10">
-					<table class="table w-full">
-						<!-- head -->
-						<thead>
-						<tr>
-							<th>Раздел</th>
-							<th>Наименование показателя</th>
-							<th>Значение</th>
-							<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
-						</tr>
-						<tr>
-							<th class="w-2/12"></th>
-							<th class="w-3/12"></th>
-							<th class="w-1/12"></th>
-							<th class="w-3/12 text-center">Общий</th>
-							<th class="w-3/12 text-center">Дополнительный</th>
-						</tr>
-						</thead>
-						<tbody>
-						{#each investor.scoring as scoringRow}
+	<div>
+		<div class="flex overflow-hidden">
+			<div class="shrink-0 w-full overflow-hidden transition-all"
+			     class:h-0={activeInvestorTab !== 0}
+			     style="margin-left: {-activeInvestorTab * 100}%">
+				{#if investor.scoring}
+					<div class="overflow-x-auto mt-10">
+						<table class="table w-full">
+							<!-- head -->
+							<thead>
 							<tr>
-								<td class="whitespace-pre-wrap">{scoringRow.section}</td>
-								<td class="whitespace-pre-wrap">{scoringRow.fieldName}</td>
-								<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
-								{#if scoringRow.error}
-									<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
-										{scoringRow.error}
-									</td>
-								{:else if scoringRow.stopFactor?.type === 'common'}
-									<td class="whitespace-pre-wrap bg-red-300 text-center">
-										{scoringRow.stopFactor.text}
-									</td>
-									<td></td>
-								{:else if scoringRow.stopFactor?.type === 'additional'}
-									<td></td>
-									<td class="whitespace-pre-wrap bg-yellow-300 text-center">
-										{scoringRow.stopFactor.text}
-									</td>
-								{:else}
-									<td colspan="2" class="text-center">Соответствует критериям</td>
-								{/if}
+								<th>Раздел</th>
+								<th>Наименование показателя</th>
+								<th>Значение</th>
+								<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
 							</tr>
-						{/each}
-						</tbody>
-					</table>
-				</div>
-			{/if}
-		</div>
-		{#each tabs as tab}
-			{#if tab.fields.length}
-				<div class="shrink-0 w-full overflow-hidden transition-all"
-				     class:h-10={activeInvestorTab !== tab.ind}>
-					{#each tab.fields as field}
-						<div class="max-w-lg p-5">
-							{#if field.disabled}
-								<div class="form-control w-full">
-									<label class="label" for="{field.name}">
-										<span class="label-text">{field.label}</span>
-									</label>
-									<input id="{field.name}" type="number" placeholder=""
-									       value={investor[field.name]} disabled
-									       class="input input-bordered w-full"/>
-								</div>
-							{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-								<Input {...field}
-								       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-								       bind:value={investor[field.name]}/>
-							{:else if field.type === 'check'}
-								<Check {...field}
-								       on:change={() => (highlightSave = true)}
-								       bind:checked={investor[field.name]}/>
-							{:else if field.type === 'select'}
-								<Select {...field}
-								        on:change={() => (highlightSave = true)}
-								        bind:value={investor[field.name]}/>
-							{/if}
-						</div>
-						{#if errors[field.name]}
-							<div class="alert alert-warning shadow-lg">
-								<div>
-									<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6"
-									     fill="none" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-										      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-									</svg>
-									<span>{errors[field.name]}</span>
-								</div>
+							<tr>
+								<th class="w-2/12"></th>
+								<th class="w-3/12"></th>
+								<th class="w-1/12"></th>
+								<th class="w-3/12 text-center">Общий</th>
+								<th class="w-3/12 text-center">Дополнительный</th>
+							</tr>
+							</thead>
+							<tbody>
+							{#each investor.scoring as scoringRow}
+								<tr>
+									<td class="whitespace-pre-wrap">{scoringRow.section}</td>
+									<td class="whitespace-pre-wrap">{scoringRow.fieldName}</td>
+									<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
+									{#if scoringRow.error}
+										<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
+											{scoringRow.error}
+										</td>
+									{:else if scoringRow.stopFactor?.type === 'common'}
+										<td class="whitespace-pre-wrap bg-red-300 text-center">
+											{scoringRow.stopFactor.text}
+										</td>
+										<td></td>
+									{:else if scoringRow.stopFactor?.type === 'additional'}
+										<td></td>
+										<td class="whitespace-pre-wrap bg-yellow-300 text-center">
+											{scoringRow.stopFactor.text}
+										</td>
+									{:else}
+										<td colspan="2" class="text-center">Соответствует критериям</td>
+									{/if}
+								</tr>
+							{/each}
+							</tbody>
+						</table>
+					</div>
+				{/if}
+			</div>
+			{#each tabs as tab}
+				{#if tab.fields.length}
+					<div class="shrink-0 w-full overflow-hidden transition-all"
+					     class:h-10={activeInvestorTab !== tab.ind}>
+						{#each tab.fields as field}
+							<div class="max-w-lg p-5">
+								{#if field.disabled}
+									<div class="form-control w-full">
+										<label class="label" for="{field.name}">
+											<span class="label-text">{field.label}</span>
+										</label>
+										<input id="{field.name}" type="number" placeholder=""
+										       value={investor[field.name]} disabled
+										       class="input input-bordered w-full"/>
+									</div>
+								{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+									<Input {...field}
+									       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+									       bind:value={investor[field.name]}/>
+								{:else if field.type === 'check'}
+									<Check {...field}
+									       on:change={() => (highlightSave = true)}
+									       bind:checked={investor[field.name]}/>
+								{:else if field.type === 'select'}
+									<Select {...field}
+									        on:change={() => (highlightSave = true)}
+									        bind:value={investor[field.name]}/>
+								{/if}
 							</div>
-						{/if}
-					{/each}
-				</div>
-			{/if}
-		{/each}
-	</div>
-	<div class="flex items-center gap-5 mt-10">
-		<button class="btn btn-primary ml-auto"
-		        class:btn-outline={!highlightSave}
-		        on:click={saveInvestor}>Сохранить
-		</button>
-		<button class="btn btn-outline"
-		        on:click={estimateStopFactors}>
-			Провести оценку
-		</button>
+							{#if errors[field.name]}
+								<div class="alert alert-warning shadow-lg">
+									<div>
+										<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6"
+										     fill="none" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+											      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+										</svg>
+										<span>{errors[field.name]}</span>
+									</div>
+								</div>
+							{/if}
+						{/each}
+					</div>
+				{/if}
+			{/each}
+		</div>
+		<div class="flex items-center gap-5 mt-10 sticky bottom-10">
+			<div class="flex flex-col gap-5 ml-auto">
+				<button class="btn btn-sm btn-accent btn-outline"
+				        on:click={deleteProject}>
+					Удалить
+				</button>
+				<button class="btn btn-primary"
+				        class:btn-outline={!highlightSave}
+				        on:click={saveInvestor}>
+					Сохранить
+				</button>
+				<button class="btn btn-outline"
+				        on:click={estimateStopFactors}>
+					Провести оценку
+				</button>
+				<button class="btn btn-outline btn-secondary"
+				     on:click={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+					Наверх
+				</button>
+			</div>
+		</div>
 	</div>
 {/if}

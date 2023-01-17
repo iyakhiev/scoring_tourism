@@ -52,21 +52,18 @@
 	        label="Регион"
 	        title="Выберите регион"
 	        options={$DIRs['regions']?.values}
-	        valueField="iso_code"
 	        bind:value={investor.region}
 	/>
 	<Select name="theInvestorBuildingType"
 	        label="Тип объекта"
 	        title="Выберите тип объекта"
 	        options={$DIRs['buildingTypes']?.values}
-	        valueField="name"
 	        bind:value={investor.buildingType}
 	/>
 	<Select name="theInvestorBuildingCategory"
 	        label="Категория объекта"
 	        title="Выберите категорию объекта"
 	        options={$DIRs['buildingCategory']?.values}
-	        valueField="name"
 	        defaultDisabled={false}
 	        bind:value={investor.buildingCategory}
 	/>

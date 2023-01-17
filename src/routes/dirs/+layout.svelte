@@ -25,6 +25,10 @@
 		{
 			name: 'staffPerRoom',
 			title: 'Количество сотрудников на 1 номер'
+		},
+		{
+			name: 'averageLengthOfStay',
+			title: 'Средняя продолжительность пребывания'
 		}
 	]
 </script>

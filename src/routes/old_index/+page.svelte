@@ -149,7 +149,7 @@
 					        bind:value={newInvestor.region}>
 						<option disabled selected value="">Выберите регион</option>
 						{#each $DIRs['regions']?.values || [] as region}
-							<option value="{region.iso_code}">{region.title}</option>
+							<option value="{region.name}">{region.title}</option>
 						{/each}
 					</select>
 				</div>
@@ -217,7 +217,7 @@
 						        bind:value={selectedInvestor.region}>
 							<option disabled selected value="">Выберите регион</option>
 							{#each $DIRs['regions']?.values || [] as region}
-								<option value="{region.iso_code}">{region.title}</option>
+								<option value="{region.name}">{region.title}</option>
 							{/each}
 						</select>
 					</div>
