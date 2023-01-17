@@ -8,7 +8,6 @@
 	import { goto } from '$app/navigation'
 
 	// todo check tab problem
-	// todo убрать поля выручка на кв метр по разным блокам
 
 	export let data
 
@@ -1147,14 +1146,14 @@
 					calc: () => calcFields.touristFlow.calc()
 				},
 				{
-					label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'totalRevenues',
+					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
+					name: 'revenuePerSqMeter',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
-					name: 'revenuePerSqMeter',
+					label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'totalRevenues',
 					type: 'number',
 					disabled: true
 				},
@@ -1169,12 +1168,12 @@
 						calcFields.revPAR.calc()
 					}
 				},
-				{
-					label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'roomRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'roomRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Выручка ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'restaurantsRevenue',
@@ -1185,12 +1184,12 @@
 						calcFields.restaurantsRevenuePerSqMeter.calc()
 					}
 				},
-				{
-					label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'restaurantsRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'restaurantsRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Выручка СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'spaAndGymRevenue',
@@ -1201,12 +1200,12 @@
 						calcFields.spaAndGymRevenuePerSqMeter.calc()
 					}
 				},
-				{
-					label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'spaAndGymRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'spaAndGymRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Выручка аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'aquaparkRevenue',
@@ -1217,12 +1216,12 @@
 						calcFields.aquaparkRevenuePerSqMeter.calc()
 					}
 				},
-				{
-					label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'aquaparkRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'aquaparkRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Выручка инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'glkRevenue',
@@ -1230,12 +1229,12 @@
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
-				{
-					label: 'Выручка на 1 м² инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'glkRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'glkRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Выручка парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'amusementsRevenue',
@@ -1246,12 +1245,12 @@
 						calcFields.amusementsRevenuePerSqMeter.calc()
 					}
 				},
-				{
-					label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'amusementsRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'amusementsRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Выручка прочее, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'otherRevenue',
@@ -1259,12 +1258,12 @@
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
-				{
-					label: 'Выручка на 1 м² прочее, тыс. руб. в год после выхода на проектную нагрузку',
-					name: 'otherRevenuePerSqMeter',
-					type: 'number',
-					disabled: true
-				},
+				// {
+				// 	label: 'Выручка на 1 м² прочее, тыс. руб. в год после выхода на проектную нагрузку',
+				// 	name: 'otherRevenuePerSqMeter',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
 					name: 'revPAR',
