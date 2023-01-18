@@ -42,15 +42,23 @@
 		return ''
 	}
 
+	function updateInvestorProp(field, value = '') {
+		if (investor[field] !== value) {
+			investor[field] = value
+			highlightSave = true
+		}
+	}
+
 	const calcFields = {
 		absLiqRatio: {
 			label: 'Коэффициент абсолютной ликвидности',
 			name: 'absLiqRatio',
 			calc: function () {
 				if (!investor.kfv || !investor.ds || !investor.ko)
-					return investor[this.name] = ''
-				const value = (investor.kfv + investor.ds) / investor.ko
-				investor[this.name] = +value.toFixed(2)
+					return updateInvestorProp(this.name)
+				const a = parseFloat(investor.kfv || 0) + parseFloat(investor.ds || 0)
+				const value = a / investor.ko
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		fastLiqRatio: {
@@ -58,9 +66,10 @@
 			name: 'fastLiqRatio',
 			calc: function () {
 				if (!investor.kdz || !investor.kfv || !investor.ds || !investor.ko)
-					return investor[this.name] = ''
-				const value = (investor.kdz + investor.kfv + investor.ds) / investor.ko
-				investor[this.name] = +value.toFixed(2)
+					return updateInvestorProp(this.name)
+				const a = parseFloat(investor.kdz || 0) + parseFloat(investor.kfv || 0) + parseFloat(investor.ds || 0)
+				const value = a / investor.ko
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		currentLiqRatio: {
@@ -68,9 +77,9 @@
 			name: 'currentLiqRatio',
 			calc: function () {
 				if (!investor.oa || !investor.ko)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 				const value = investor.oa / investor.ko
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		debtToEquityRatio: {
@@ -78,9 +87,10 @@
 			name: 'debtToEquityRatio',
 			calc: function () {
 				if (!investor.sk || !investor.ko || !investor.do)
-					return investor[this.name] = ''
-				const value = (investor.do + investor.ko) / investor.sk
-				investor[this.name] = +value.toFixed(2)
+					return updateInvestorProp(this.name)
+				const a = parseFloat(investor.do || 0) + parseFloat(investor.ko || 0)
+				const value = a / investor.sk
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		solvencyRatio: {
@@ -88,9 +98,10 @@
 			name: 'solvencyRatio',
 			calc: function () {
 				if (!investor.kr || !investor.ko || !investor.do)
-					return investor[this.name] = ''
-				const value = investor.kr / (investor.do + investor.ko)
-				investor[this.name] = +value.toFixed(2)
+					return updateInvestorProp(this.name)
+				const a = parseFloat(investor.do || 0) + parseFloat(investor.ko || 0)
+				const value = investor.k / a
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		costPerSqMeter: {
@@ -98,9 +109,9 @@
 			name: 'costPerSqMeter',
 			calc: function () {
 				if (!investor.totalCost || !investor.totalArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 				const value = investor.totalCost / investor.totalArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		costPerRoom: {
@@ -108,9 +119,9 @@
 			name: 'costPerRoom',
 			calc: function () {
 				if (!investor.totalCost || !investor.numberOfRooms)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 				const value = investor.totalCost / investor.numberOfRooms
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		shareOfRoomsArea: {
@@ -118,18 +129,17 @@
 			name: 'shareOfRoomsArea',
 			calc: function () {
 				if (!investor.totalArea || !investor.roomsArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 				const value = (investor.roomsArea / investor.totalArea) * 100
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalArea: {
 			label: 'Общая площадь объектов, м²',
 			name: 'totalArea',
 			calc: function () {
-				const value = parseFloat(investor.hotelArea || 0)
-					+ parseFloat(investor.infrastructureArea || 0)
-				investor[this.name] = +value.toFixed(2)
+				const value = parseFloat(investor.hotelArea || 0) + parseFloat(investor.infrastructureArea || 0)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.costPerSqMeter.calc()
 				calcFields.revenuePerSqMeter.calc()
 			}
@@ -144,7 +154,7 @@
 					+ parseFloat(investor.spaAndGymArea || 0)
 					+ parseFloat(investor.poolsArea || 0)
 					+ parseFloat(investor.hotelOthersArea || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.totalArea.calc()
 			}
 		},
@@ -157,7 +167,7 @@
 					+ parseFloat(investor.amusementParkArea || 0)
 					+ parseFloat(investor.thermalComplexArea || 0)
 					+ parseFloat(investor.infrastructureOthersArea || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.totalArea.calc()
 			}
 		},
@@ -167,7 +177,7 @@
 			calc: function () {
 				const value = parseFloat(investor.totalCostOfBuilding || 0)
 					+ parseFloat(investor.totalCostOfBuildingInfrastructure || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.costPerRoom.calc()
 				calcFields.costPerSqMeter.calc()
 			}
@@ -182,7 +192,7 @@
 					+ parseFloat(investor.totalCostOfBuildingSpaAndGym || 0)
 					+ parseFloat(investor.totalCostOfBuildingPools || 0)
 					+ parseFloat(investor.totalCostOfBuildingHotelOthers || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.totalCost.calc()
 			}
 		},
@@ -195,7 +205,7 @@
 					+ parseFloat(investor.totalCostOfBuildingAmusementPark || 0)
 					+ parseFloat(investor.totalCostOfBuildingThermalComplex || 0)
 					+ parseFloat(investor.totalCostOfBuildingInfrastructureOthers || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.totalCost.calc()
 			}
 		},
@@ -204,9 +214,9 @@
 			name: 'occ',
 			calc: function () {
 				if (!investor.totalRoomsOccupied || !investor.numberOfRooms)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 				const value = (investor.totalRoomsOccupied / investor.numberOfRooms) * 100
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		doubleOcc: {
@@ -214,13 +224,13 @@
 			name: 'doubleOcc',
 			calc: function () {
 				if (!investor.totalRoomsOccupied || !investor.totalGuestsInHouse) {
-					investor[this.name] = ''
+					updateInvestorProp(this.name)
 					calcFields.touristFlow.calc()
 					calcFields.touristPerNightFlow.calc()
 					return
 				}
 				const value = investor.totalGuestsInHouse / investor.totalRoomsOccupied
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.touristFlow.calc()
 				calcFields.touristPerNightFlow.calc()
 			}
@@ -230,9 +240,9 @@
 			name: 'touristPerNightFlow',
 			calc: function () {
 				if (!investor.totalRoomsOccupied || !investor.doubleOcc)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 				const value = investor.totalRoomsOccupied * investor.doubleOcc * 365
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		touristFlow: {
@@ -240,7 +250,7 @@
 			name: 'touristFlow',
 			calc: function () {
 				if (!investor.totalRoomsOccupied || !investor.doubleOcc) {
-					investor[this.name] = ''
+					updateInvestorProp(this.name)
 					calcFields.revPAC.calc()
 					return
 				}
@@ -248,14 +258,14 @@
 				const [status, dirValue] = getDirValue('averageLengthOfStay')
 				if (!status) {
 					errors[this.name] = dirValue
-					investor[this.name] = ''
+					updateInvestorProp(this.name)
 					calcFields.revPAC.calc()
 					return
 				}
 
 				const value = (investor.totalRoomsOccupied * investor.doubleOcc * 365) / dirValue.value
 					+ parseFloat(investor.totalExternalGuests || 0) * 365
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.revPAC.calc()
 			}
 		},
@@ -270,7 +280,7 @@
 					+ parseFloat(investor.glkRevenue || 0)
 					+ parseFloat(investor.amusementsRevenue || 0)
 					+ parseFloat(investor.otherRevenue || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.revPAC.calc()
 				calcFields.revenuePerSqMeter.calc()
 			}
@@ -280,10 +290,10 @@
 			name: 'revPAR',
 			calc: function () {
 				if (!investor.roomRevenue || !investor.numberOfRooms)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.roomRevenue / investor.numberOfRooms
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		revPAC: {
@@ -291,10 +301,10 @@
 			name: 'revPAC',
 			calc: function () {
 				if (!investor.totalRevenues || !investor.touristFlow)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.totalRevenues / investor.touristFlow
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		staffPerRoom: {
@@ -302,10 +312,10 @@
 			name: 'staffPerRoom',
 			calc: function () {
 				if (!investor.numberOfNewJobs || !investor.numberOfRooms)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.numberOfNewJobs / investor.numberOfRooms
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		revenuePerSqMeter: {
@@ -313,10 +323,10 @@
 			name: 'revenuePerSqMeter',
 			calc: function () {
 				if (!investor.totalRevenues || !investor.totalArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.totalRevenues / investor.totalArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		roomRevenuePerSqMeter: {
@@ -324,10 +334,10 @@
 			name: 'roomRevenuePerSqMeter',
 			calc: function () {
 				if (!investor.roomRevenue || !investor.roomsArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.roomRevenue / investor.roomsArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		restaurantsRevenuePerSqMeter: {
@@ -335,10 +345,10 @@
 			name: 'restaurantsRevenuePerSqMeter',
 			calc: function () {
 				if (!investor.restaurantsRevenue || !investor.restaurantsArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.restaurantsRevenue / investor.restaurantsArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		spaAndGymRevenuePerSqMeter: {
@@ -346,10 +356,10 @@
 			name: 'spaAndGymRevenuePerSqMeter',
 			calc: function () {
 				if (!investor.spaAndGymRevenue || !investor.spaAndGymArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.spaAndGymRevenue / investor.spaAndGymArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		aquaparkRevenuePerSqMeter: {
@@ -357,10 +367,10 @@
 			name: 'aquaparkRevenuePerSqMeter',
 			calc: function () {
 				if (!investor.aquaparkRevenue || !investor.aquaparkArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.aquaparkRevenue / investor.aquaparkArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		amusementsRevenuePerSqMeter: {
@@ -368,19 +378,18 @@
 			name: 'amusementsRevenuePerSqMeter',
 			calc: function () {
 				if (!investor.amusementsRevenue || !investor.amusementParkArea)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = investor.amusementsRevenue / investor.amusementParkArea
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalFunds: {
 			label: 'Общий объем финансирования (Total Founds), тыс. руб.',
 			name: 'totalFunds',
 			calc: function () {
-				const value = parseFloat(investor.ownFunds || 0)
-					+ parseFloat(investor.bankLoanAmount || 0)
-				investor[this.name] = +value.toFixed(2)
+				const value = parseFloat(investor.ownFunds || 0) + parseFloat(investor.bankLoanAmount || 0)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.creditFundsShare.calc()
 				calcFields.EBITDA.calc()
 			}
@@ -396,7 +405,7 @@
 					+ parseFloat(investor.corporationContributionCash || 0)
 					+ parseFloat(investor.corporationLoan || 0)
 					+ parseFloat(investor.landSaleRevenue || 0)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.totalFunds.calc()
 			}
 		},
@@ -406,14 +415,14 @@
 			calc: function () {
 				if (!(investor.corporationContributionCash || investor.corporationLoan)
 					|| !(investor.investorContributionCash || investor.investorContributionNotCash))
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const corporationContribution = parseFloat(investor.corporationContributionCash || 0)
 					+ parseFloat(investor.corporationLoan || 0)
 				const investorContribution = parseFloat(investor.investorContributionCash || 0)
 					+ parseFloat(investor.investorContributionNotCash || 0)
 				const value = corporationContribution / (corporationContribution + investorContribution) * 100
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		creditFundsShare: {
@@ -421,10 +430,10 @@
 			name: 'creditFundsShare',
 			calc: function () {
 				if (!investor.bankLoanAmount || !investor.totalFunds)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
 				const value = (investor.bankLoanAmount / investor.totalFunds) * 100
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		debtCoverageRatio: {
@@ -432,10 +441,11 @@
 			name: 'debtCoverageRatio',
 			calc: function () {
 				if (!investor.EBITDA || !investor.interestPayments || !investor.loanBodyPayments)
-					return investor[this.name] = ''
+					return updateInvestorProp(this.name)
 
-				const value = investor.EBITDA / (investor.interestPayments + investor.loanBodyPayments)
-				investor[this.name] = +value.toFixed(2)
+				const a = parseFloat(investor.interestPayments || 0) + parseFloat(investor.loanBodyPayments || 0)
+				const value = investor.EBITDA / a
+				updateInvestorProp(this.name, +value.toFixed(2))
 			}
 		},
 		EBITDA: {
@@ -443,13 +453,13 @@
 			name: 'EBITDA',
 			calc: function () {
 				if (!investor.totalFunds || !investor.marginEBITDA) {
-					investor[this.name] = ''
+					updateInvestorProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
 				const value = investor.totalFunds * investor.marginEBITDA
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
@@ -458,13 +468,13 @@
 			name: 'interestPayments',
 			calc: function () {
 				if (!investor.bankLoanAmount || !investor.plannedLoanRate || !investor.loanTerm) {
-					investor[this.name] = ''
+					updateInvestorProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
 				const value = investor.bankLoanAmount / investor.loanTerm * (investor.plannedLoanRate / 100)
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
@@ -473,13 +483,13 @@
 			name: 'loanBodyPayments',
 			calc: function () {
 				if (!investor.bankLoanAmount || !investor.loanTerm) {
-					investor[this.name] = ''
+					updateInvestorProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
 				const value = investor.bankLoanAmount / investor.loanTerm
-				investor[this.name] = +value.toFixed(2)
+				updateInvestorProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
@@ -1681,7 +1691,8 @@
 							{#if errors[field.name]}
 								<div class="alert alert-warning shadow-lg">
 									<div>
-										<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6"
+										<svg xmlns="http://www.w3.org/2000/svg"
+										     class="stroke-current flex-shrink-0 h-6 w-6"
 										     fill="none" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 											      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -1711,7 +1722,7 @@
 					Провести оценку
 				</button>
 				<button class="btn btn-outline btn-secondary"
-				     on:click={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+				        on:click={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
 					Наверх
 				</button>
 			</div>
