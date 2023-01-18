@@ -1,7 +1,7 @@
-import { investors } from '$lib/db/investors'
+import { projects } from '$lib/db/projects'
 
 export async function load () {
-	const res = await investors
+	const res = await projects
 		.find({}, {
 			projection: {
 				_id: 1,
@@ -11,6 +11,6 @@ export async function load () {
 		.toArray()
 
 	return {
-		investors: JSON.parse(JSON.stringify(res)),
+		projects: JSON.parse(JSON.stringify(res)),
 	}
 }

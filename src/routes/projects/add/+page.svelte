@@ -1,39 +1,39 @@
 <script>
 	import { DIRs } from '$lib/stores'
-	import { investors } from '$lib/stores'
+	import { projects } from '$lib/stores'
 	import { goto } from '$app/navigation'
 	import Select from '$lib/components/select.svelte'
 	import Input from '$lib/components/input.svelte'
 
-	let investor = {
+	let project = {
 		name: '',
 		region: '',
 		buildingType: ''
 	}
 
-	function addInvestor() {
-		if (!investor.name || !investor.name.trim())
+	function addProject() {
+		if (!project.name || !project.name.trim())
 			return
 
-		investor.name = investor.name.trim()
+		project.name = project.name.trim()
 
-		fetch('/api/add_investor', {
+		fetch('/api/add_project', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ investor })
+			body: JSON.stringify({ project })
 		})
 			.then(res => res.json())
 			.then(res => {
-				console.log('add_investor(), res', res)
+				console.log('add_project(), res', res)
 
 				if (res?.res?.insertedId) {
-					investor._id = res?.res?.insertedId
-					investors.update(arr => {
-						arr.push(investor)
+					project._id = res?.res?.insertedId
+					projects.update(arr => {
+						arr.push(project)
 						return arr
 					})
 
-					goto(`/projects/${investor._id}`)
+					goto(`/projects/${project._id}`)
 				}
 			})
 	}
@@ -44,34 +44,34 @@
 	<a href="/projects" class="btn btn-outline">Закрыть</a>
 </div>
 <div class="flex flex-col gap-2">
-	<Input name="theInvestorName"
+	<Input name="theProjectName"
 	       label="Название"
 	       placeholder="Название проекта"
-	       bind:value={investor.name}/>
-	<Select name="theInvestorRegion"
+	       bind:value={project.name}/>
+	<Select name="theProjectRegion"
 	        label="Регион"
 	        title="Выберите регион"
 	        options={$DIRs['regions']?.values}
-	        bind:value={investor.region}
+	        bind:value={project.region}
 	/>
-	<Select name="theInvestorBuildingType"
+	<Select name="theProjectBuildingType"
 	        label="Тип объекта"
 	        title="Выберите тип объекта"
 	        options={$DIRs['buildingTypes']?.values}
-	        bind:value={investor.buildingType}
+	        bind:value={project.buildingType}
 	/>
-	<Select name="theInvestorBuildingCategory"
+	<Select name="theProjectBuildingCategory"
 	        label="Категория объекта"
 	        title="Выберите категорию объекта"
 	        options={$DIRs['buildingCategory']?.values}
 	        defaultDisabled={false}
-	        bind:value={investor.buildingCategory}
+	        bind:value={project.buildingCategory}
 	/>
 </div>
 <div class="flex justify-between mt-10">
 	<button class="btn btn-outline btn-primary"
-	        on:click={addInvestor}
-	        class:btn-disabled={!investor?.name.trim()}>
+	        on:click={addProject}
+	        class:btn-disabled={!project?.name.trim()}>
 		Добавить
 	</button>
 </div>

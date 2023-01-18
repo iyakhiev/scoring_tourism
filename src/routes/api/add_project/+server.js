@@ -1,10 +1,9 @@
 import { projects } from '$lib/db/projects'
-import { ObjectId } from 'mongodb'
 
 export const POST = async function ({ request }) {
-	const { _id } = await request.json()
+	const { project } = await request.json()
 
-	const res = await projects.deleteOne({ _id: new ObjectId(_id) })
+	const res = await projects.insertOne(project)
 
 	return new Response(JSON.stringify({ res }))
 }

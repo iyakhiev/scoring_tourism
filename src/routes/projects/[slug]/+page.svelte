@@ -1,5 +1,5 @@
 <script>
-	import { DIRs, investors } from '$lib/stores'
+	import { DIRs, projects } from '$lib/stores'
 	import { estimate } from '$lib/stopFactors'
 	import Input from '$lib/components/input.svelte'
 	import Check from '$lib/components/check.svelte'
@@ -11,27 +11,27 @@
 
 	export let data
 
-	let investor
+	let project
 	let highlightSave = false
-	let activeInvestorTab = 1
+	let activeProjectTab = 1
 	let errors = {}
 
 	$: {
 		console.log('projects/[slug], data', data)
-		setInvestor(data)
+		setProject(data)
 	}
 
 	function getDirValue(dirName) {
 		const values = $DIRs[dirName]?.values || []
 		for (const valueRow of values)
-			if (valueRow.region === investor.region
-				&& valueRow.buildingType === investor.buildingType
-				&& (valueRow.buildingCategory || '') === (investor.buildingCategory || ''))
+			if (valueRow.region === project.region
+				&& valueRow.buildingType === project.buildingType
+				&& (valueRow.buildingCategory || '') === (project.buildingCategory || ''))
 				return [true, valueRow.value]
 
 		const dirTitle = $DIRs[dirName] ? $DIRs[dirName].title : dirName
-		const searchFieldsStr = `${investor.regionsTitle}, ${investor.buildingTypeTitle}`
-			+ (investor.buildingCategoryTitle ? `, ${investor.buildingCategoryTitle}` : '')
+		const searchFieldsStr = `${project.regionsTitle}, ${project.buildingTypeTitle}`
+			+ (project.buildingCategoryTitle ? `, ${project.buildingCategoryTitle}` : '')
 		return [false, `В справочнике "${dirTitle}" не указано значение по параметрам: ${searchFieldsStr}.`]
 	}
 
@@ -42,9 +42,9 @@
 		return ''
 	}
 
-	function updateInvestorProp(field, value = '') {
-		if (investor[field] !== value) {
-			investor[field] = value
+	function updateProjectProp(field, value = '') {
+		if (project[field] !== value) {
+			project[field] = value
 			highlightSave = true
 		}
 	}
@@ -54,92 +54,92 @@
 			label: 'Коэффициент абсолютной ликвидности',
 			name: 'absLiqRatio',
 			calc: function () {
-				if (!investor.kfv || !investor.ds || !investor.ko)
-					return updateInvestorProp(this.name)
-				const a = parseFloat(investor.kfv || 0) + parseFloat(investor.ds || 0)
-				const value = a / investor.ko
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.kfv || !project.ds || !project.ko)
+					return updateProjectProp(this.name)
+				const a = parseFloat(project.kfv || 0) + parseFloat(project.ds || 0)
+				const value = a / project.ko
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		fastLiqRatio: {
 			label: 'Коэффициент быстрой ликвидности',
 			name: 'fastLiqRatio',
 			calc: function () {
-				if (!investor.kdz || !investor.kfv || !investor.ds || !investor.ko)
-					return updateInvestorProp(this.name)
-				const a = parseFloat(investor.kdz || 0) + parseFloat(investor.kfv || 0) + parseFloat(investor.ds || 0)
-				const value = a / investor.ko
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.kdz || !project.kfv || !project.ds || !project.ko)
+					return updateProjectProp(this.name)
+				const a = parseFloat(project.kdz || 0) + parseFloat(project.kfv || 0) + parseFloat(project.ds || 0)
+				const value = a / project.ko
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		currentLiqRatio: {
 			label: 'Коэффициент текущей ликвидности',
 			name: 'currentLiqRatio',
 			calc: function () {
-				if (!investor.oa || !investor.ko)
-					return updateInvestorProp(this.name)
-				const value = investor.oa / investor.ko
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.oa || !project.ko)
+					return updateProjectProp(this.name)
+				const value = project.oa / project.ko
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		debtToEquityRatio: {
 			label: 'Коэфициент соотношения заемных и собственных средств',
 			name: 'debtToEquityRatio',
 			calc: function () {
-				if (!investor.sk || !investor.ko || !investor.do)
-					return updateInvestorProp(this.name)
-				const a = parseFloat(investor.do || 0) + parseFloat(investor.ko || 0)
-				const value = a / investor.sk
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.sk || !project.ko || !project.do)
+					return updateProjectProp(this.name)
+				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
+				const value = a / project.sk
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		solvencyRatio: {
 			label: 'Коэффициент общей платежеспособности',
 			name: 'solvencyRatio',
 			calc: function () {
-				if (!investor.kr || !investor.ko || !investor.do)
-					return updateInvestorProp(this.name)
-				const a = parseFloat(investor.do || 0) + parseFloat(investor.ko || 0)
-				const value = investor.k / a
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.kr || !project.ko || !project.do)
+					return updateProjectProp(this.name)
+				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
+				const value = project.k / a
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		costPerSqMeter: {
 			label: 'Стоимость 1 м² объекта, тыс. руб.',
 			name: 'costPerSqMeter',
 			calc: function () {
-				if (!investor.totalCost || !investor.totalArea)
-					return updateInvestorProp(this.name)
-				const value = investor.totalCost / investor.totalArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.totalCost || !project.totalArea)
+					return updateProjectProp(this.name)
+				const value = project.totalCost / project.totalArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		costPerRoom: {
 			label: 'Стоимость 1 номера, тыс. руб.',
 			name: 'costPerRoom',
 			calc: function () {
-				if (!investor.totalCost || !investor.numberOfRooms)
-					return updateInvestorProp(this.name)
-				const value = investor.totalCost / investor.numberOfRooms
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.totalCost || !project.numberOfRooms)
+					return updateProjectProp(this.name)
+				const value = project.totalCost / project.numberOfRooms
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		shareOfRoomsArea: {
 			label: 'Доля площадей КСР в составе объекта (для МФК), %',
 			name: 'shareOfRoomsArea',
 			calc: function () {
-				if (!investor.totalArea || !investor.roomsArea)
-					return updateInvestorProp(this.name)
-				const value = (investor.roomsArea / investor.totalArea) * 100
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.totalArea || !project.roomsArea)
+					return updateProjectProp(this.name)
+				const value = (project.roomsArea / project.totalArea) * 100
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalArea: {
 			label: 'Общая площадь объектов, м²',
 			name: 'totalArea',
 			calc: function () {
-				const value = parseFloat(investor.hotelArea || 0) + parseFloat(investor.infrastructureArea || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.hotelArea || 0) + parseFloat(project.infrastructureArea || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.costPerSqMeter.calc()
 				calcFields.revenuePerSqMeter.calc()
 			}
@@ -148,13 +148,13 @@
 			label: 'Площадь гостиницы, м²',
 			name: 'hotelArea',
 			calc: function () {
-				const value = parseFloat(investor.roomsArea || 0)
-					+ parseFloat(investor.restaurantsArea || 0)
-					+ parseFloat(investor.confRoomsArea || 0)
-					+ parseFloat(investor.spaAndGymArea || 0)
-					+ parseFloat(investor.poolsArea || 0)
-					+ parseFloat(investor.hotelOthersArea || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.roomsArea || 0)
+					+ parseFloat(project.restaurantsArea || 0)
+					+ parseFloat(project.confRoomsArea || 0)
+					+ parseFloat(project.spaAndGymArea || 0)
+					+ parseFloat(project.poolsArea || 0)
+					+ parseFloat(project.hotelOthersArea || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.totalArea.calc()
 			}
 		},
@@ -162,12 +162,12 @@
 			label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
 			name: 'infrastructureArea',
 			calc: function () {
-				const value = parseFloat(investor.aquaparkArea || 0)
-					+ parseFloat(investor.sportComplexArea || 0)
-					+ parseFloat(investor.amusementParkArea || 0)
-					+ parseFloat(investor.thermalComplexArea || 0)
-					+ parseFloat(investor.infrastructureOthersArea || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.aquaparkArea || 0)
+					+ parseFloat(project.sportComplexArea || 0)
+					+ parseFloat(project.amusementParkArea || 0)
+					+ parseFloat(project.thermalComplexArea || 0)
+					+ parseFloat(project.infrastructureOthersArea || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.totalArea.calc()
 			}
 		},
@@ -175,9 +175,9 @@
 			label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
 			name: 'totalCost',
 			calc: function () {
-				const value = parseFloat(investor.totalCostOfBuilding || 0)
-					+ parseFloat(investor.totalCostOfBuildingInfrastructure || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.totalCostOfBuilding || 0)
+					+ parseFloat(project.totalCostOfBuildingInfrastructure || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.costPerRoom.calc()
 				calcFields.costPerSqMeter.calc()
 			}
@@ -186,13 +186,13 @@
 			label: 'Стоимость строительства объектов, тыс. руб.',
 			name: 'totalCostOfBuilding',
 			calc: function () {
-				const value = parseFloat(investor.totalCostOfBuildingRooms || 0)
-					+ parseFloat(investor.totalCostOfBuildingRestaurants || 0)
-					+ parseFloat(investor.totalCostOfBuildingConfRooms || 0)
-					+ parseFloat(investor.totalCostOfBuildingSpaAndGym || 0)
-					+ parseFloat(investor.totalCostOfBuildingPools || 0)
-					+ parseFloat(investor.totalCostOfBuildingHotelOthers || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.totalCostOfBuildingRooms || 0)
+					+ parseFloat(project.totalCostOfBuildingRestaurants || 0)
+					+ parseFloat(project.totalCostOfBuildingConfRooms || 0)
+					+ parseFloat(project.totalCostOfBuildingSpaAndGym || 0)
+					+ parseFloat(project.totalCostOfBuildingPools || 0)
+					+ parseFloat(project.totalCostOfBuildingHotelOthers || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.totalCost.calc()
 			}
 		},
@@ -200,12 +200,12 @@
 			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
 			name: 'totalCostOfBuildingInfrastructure',
 			calc: function () {
-				const value = parseFloat(investor.totalCostOfBuildingAquapark || 0)
-					+ parseFloat(investor.totalCostOfBuildingSportComplex || 0)
-					+ parseFloat(investor.totalCostOfBuildingAmusementPark || 0)
-					+ parseFloat(investor.totalCostOfBuildingThermalComplex || 0)
-					+ parseFloat(investor.totalCostOfBuildingInfrastructureOthers || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.totalCostOfBuildingAquapark || 0)
+					+ parseFloat(project.totalCostOfBuildingSportComplex || 0)
+					+ parseFloat(project.totalCostOfBuildingAmusementPark || 0)
+					+ parseFloat(project.totalCostOfBuildingThermalComplex || 0)
+					+ parseFloat(project.totalCostOfBuildingInfrastructureOthers || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.totalCost.calc()
 			}
 		},
@@ -213,24 +213,24 @@
 			label: 'Occupancy (OCC) — реальная заполняемость, %',
 			name: 'occ',
 			calc: function () {
-				if (!investor.totalRoomsOccupied || !investor.numberOfRooms)
-					return updateInvestorProp(this.name)
-				const value = (investor.totalRoomsOccupied / investor.numberOfRooms) * 100
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.totalRoomsOccupied || !project.numberOfRooms)
+					return updateProjectProp(this.name)
+				const value = (project.totalRoomsOccupied / project.numberOfRooms) * 100
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		doubleOcc: {
 			label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
 			name: 'doubleOcc',
 			calc: function () {
-				if (!investor.totalRoomsOccupied || !investor.totalGuestsInHouse) {
-					updateInvestorProp(this.name)
+				if (!project.totalRoomsOccupied || !project.totalGuestsInHouse) {
+					updateProjectProp(this.name)
 					calcFields.touristFlow.calc()
 					calcFields.touristPerNightFlow.calc()
 					return
 				}
-				const value = investor.totalGuestsInHouse / investor.totalRoomsOccupied
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.totalGuestsInHouse / project.totalRoomsOccupied
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.touristFlow.calc()
 				calcFields.touristPerNightFlow.calc()
 			}
@@ -239,18 +239,18 @@
 			label: 'Турпоток, чел./ночей за год',
 			name: 'touristPerNightFlow',
 			calc: function () {
-				if (!investor.totalRoomsOccupied || !investor.doubleOcc)
-					return updateInvestorProp(this.name)
-				const value = investor.totalRoomsOccupied * investor.doubleOcc * 365
-				updateInvestorProp(this.name, +value.toFixed(2))
+				if (!project.totalRoomsOccupied || !project.doubleOcc)
+					return updateProjectProp(this.name)
+				const value = project.totalRoomsOccupied * project.doubleOcc * 365
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		touristFlow: {
 			label: 'Турпоток, чел./год',
 			name: 'touristFlow',
 			calc: function () {
-				if (!investor.totalRoomsOccupied || !investor.doubleOcc) {
-					updateInvestorProp(this.name)
+				if (!project.totalRoomsOccupied || !project.doubleOcc) {
+					updateProjectProp(this.name)
 					calcFields.revPAC.calc()
 					return
 				}
@@ -258,14 +258,14 @@
 				const [status, dirValue] = getDirValue('averageLengthOfStay')
 				if (!status) {
 					errors[this.name] = dirValue
-					updateInvestorProp(this.name)
+					updateProjectProp(this.name)
 					calcFields.revPAC.calc()
 					return
 				}
 
-				const value = (investor.totalRoomsOccupied * investor.doubleOcc * 365) / dirValue.value
-					+ parseFloat(investor.totalExternalGuests || 0) * 365
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = (project.totalRoomsOccupied * project.doubleOcc * 365) / dirValue.value
+					+ parseFloat(project.totalExternalGuests || 0) * 365
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.revPAC.calc()
 			}
 		},
@@ -273,14 +273,14 @@
 			label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
 			name: 'totalRevenues',
 			calc: function () {
-				const value = parseFloat(investor.roomRevenue || 0)
-					+ parseFloat(investor.restaurantsRevenue || 0)
-					+ parseFloat(investor.spaAndGymRevenue || 0)
-					+ parseFloat(investor.aquaparkRevenue || 0)
-					+ parseFloat(investor.glkRevenue || 0)
-					+ parseFloat(investor.amusementsRevenue || 0)
-					+ parseFloat(investor.otherRevenue || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.roomRevenue || 0)
+					+ parseFloat(project.restaurantsRevenue || 0)
+					+ parseFloat(project.spaAndGymRevenue || 0)
+					+ parseFloat(project.aquaparkRevenue || 0)
+					+ parseFloat(project.glkRevenue || 0)
+					+ parseFloat(project.amusementsRevenue || 0)
+					+ parseFloat(project.otherRevenue || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.revPAC.calc()
 				calcFields.revenuePerSqMeter.calc()
 			}
@@ -289,107 +289,107 @@
 			label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
 			name: 'revPAR',
 			calc: function () {
-				if (!investor.roomRevenue || !investor.numberOfRooms)
-					return updateInvestorProp(this.name)
+				if (!project.roomRevenue || !project.numberOfRooms)
+					return updateProjectProp(this.name)
 
-				const value = investor.roomRevenue / investor.numberOfRooms
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.roomRevenue / project.numberOfRooms
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		revPAC: {
 			label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, тыс. руб.',
 			name: 'revPAC',
 			calc: function () {
-				if (!investor.totalRevenues || !investor.touristFlow)
-					return updateInvestorProp(this.name)
+				if (!project.totalRevenues || !project.touristFlow)
+					return updateProjectProp(this.name)
 
-				const value = investor.totalRevenues / investor.touristFlow
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.totalRevenues / project.touristFlow
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		staffPerRoom: {
 			label: 'Количество сотрудников на 1 номер, чел.',
 			name: 'staffPerRoom',
 			calc: function () {
-				if (!investor.numberOfNewJobs || !investor.numberOfRooms)
-					return updateInvestorProp(this.name)
+				if (!project.numberOfNewJobs || !project.numberOfRooms)
+					return updateProjectProp(this.name)
 
-				const value = investor.numberOfNewJobs / investor.numberOfRooms
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.numberOfNewJobs / project.numberOfRooms
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		revenuePerSqMeter: {
 			label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
 			name: 'revenuePerSqMeter',
 			calc: function () {
-				if (!investor.totalRevenues || !investor.totalArea)
-					return updateInvestorProp(this.name)
+				if (!project.totalRevenues || !project.totalArea)
+					return updateProjectProp(this.name)
 
-				const value = investor.totalRevenues / investor.totalArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.totalRevenues / project.totalArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		roomRevenuePerSqMeter: {
 			label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
 			name: 'roomRevenuePerSqMeter',
 			calc: function () {
-				if (!investor.roomRevenue || !investor.roomsArea)
-					return updateInvestorProp(this.name)
+				if (!project.roomRevenue || !project.roomsArea)
+					return updateProjectProp(this.name)
 
-				const value = investor.roomRevenue / investor.roomsArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.roomRevenue / project.roomsArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		restaurantsRevenuePerSqMeter: {
 			label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
 			name: 'restaurantsRevenuePerSqMeter',
 			calc: function () {
-				if (!investor.restaurantsRevenue || !investor.restaurantsArea)
-					return updateInvestorProp(this.name)
+				if (!project.restaurantsRevenue || !project.restaurantsArea)
+					return updateProjectProp(this.name)
 
-				const value = investor.restaurantsRevenue / investor.restaurantsArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.restaurantsRevenue / project.restaurantsArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		spaAndGymRevenuePerSqMeter: {
 			label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
 			name: 'spaAndGymRevenuePerSqMeter',
 			calc: function () {
-				if (!investor.spaAndGymRevenue || !investor.spaAndGymArea)
-					return updateInvestorProp(this.name)
+				if (!project.spaAndGymRevenue || !project.spaAndGymArea)
+					return updateProjectProp(this.name)
 
-				const value = investor.spaAndGymRevenue / investor.spaAndGymArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.spaAndGymRevenue / project.spaAndGymArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		aquaparkRevenuePerSqMeter: {
 			label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
 			name: 'aquaparkRevenuePerSqMeter',
 			calc: function () {
-				if (!investor.aquaparkRevenue || !investor.aquaparkArea)
-					return updateInvestorProp(this.name)
+				if (!project.aquaparkRevenue || !project.aquaparkArea)
+					return updateProjectProp(this.name)
 
-				const value = investor.aquaparkRevenue / investor.aquaparkArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.aquaparkRevenue / project.aquaparkArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		amusementsRevenuePerSqMeter: {
 			label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
 			name: 'amusementsRevenuePerSqMeter',
 			calc: function () {
-				if (!investor.amusementsRevenue || !investor.amusementParkArea)
-					return updateInvestorProp(this.name)
+				if (!project.amusementsRevenue || !project.amusementParkArea)
+					return updateProjectProp(this.name)
 
-				const value = investor.amusementsRevenue / investor.amusementParkArea
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.amusementsRevenue / project.amusementParkArea
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalFunds: {
 			label: 'Общий объем финансирования (Total Founds), тыс. руб.',
 			name: 'totalFunds',
 			calc: function () {
-				const value = parseFloat(investor.ownFunds || 0) + parseFloat(investor.bankLoanAmount || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.ownFunds || 0) + parseFloat(project.bankLoanAmount || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.creditFundsShare.calc()
 				calcFields.EBITDA.calc()
 			}
@@ -398,14 +398,14 @@
 			label: 'Собственные средства, тыс. руб.',
 			name: 'ownFunds',
 			calc: function () {
-				const value = parseFloat(investor.investorContributionCash || 0)
-					+ parseFloat(investor.investorContributionNotCash || 0)
-					+ parseFloat(investor.investorContributionCashNotInCapital || 0)
-					+ parseFloat(investor.investorLoan || 0)
-					+ parseFloat(investor.corporationContributionCash || 0)
-					+ parseFloat(investor.corporationLoan || 0)
-					+ parseFloat(investor.landSaleRevenue || 0)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = parseFloat(project.investorContributionCash || 0)
+					+ parseFloat(project.investorContributionNotCash || 0)
+					+ parseFloat(project.investorContributionCashNotInCapital || 0)
+					+ parseFloat(project.investorLoan || 0)
+					+ parseFloat(project.corporationContributionCash || 0)
+					+ parseFloat(project.corporationLoan || 0)
+					+ parseFloat(project.landSaleRevenue || 0)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.totalFunds.calc()
 			}
 		},
@@ -413,53 +413,53 @@
 			label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
 			name: 'corporationFundsShare',
 			calc: function () {
-				if (!(investor.corporationContributionCash || investor.corporationLoan)
-					|| !(investor.investorContributionCash || investor.investorContributionNotCash))
-					return updateInvestorProp(this.name)
+				if (!(project.corporationContributionCash || project.corporationLoan)
+					|| !(project.investorContributionCash || project.investorContributionNotCash))
+					return updateProjectProp(this.name)
 
-				const corporationContribution = parseFloat(investor.corporationContributionCash || 0)
-					+ parseFloat(investor.corporationLoan || 0)
-				const investorContribution = parseFloat(investor.investorContributionCash || 0)
-					+ parseFloat(investor.investorContributionNotCash || 0)
+				const corporationContribution = parseFloat(project.corporationContributionCash || 0)
+					+ parseFloat(project.corporationLoan || 0)
+				const investorContribution = parseFloat(project.investorContributionCash || 0)
+					+ parseFloat(project.investorContributionNotCash || 0)
 				const value = corporationContribution / (corporationContribution + investorContribution) * 100
-				updateInvestorProp(this.name, +value.toFixed(2))
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		creditFundsShare: {
 			label: 'Доля кредитных средств в объеме финансирования, %',
 			name: 'creditFundsShare',
 			calc: function () {
-				if (!investor.bankLoanAmount || !investor.totalFunds)
-					return updateInvestorProp(this.name)
+				if (!project.bankLoanAmount || !project.totalFunds)
+					return updateProjectProp(this.name)
 
-				const value = (investor.bankLoanAmount / investor.totalFunds) * 100
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = (project.bankLoanAmount / project.totalFunds) * 100
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		debtCoverageRatio: {
 			label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
 			name: 'debtCoverageRatio',
 			calc: function () {
-				if (!investor.EBITDA || !investor.interestPayments || !investor.loanBodyPayments)
-					return updateInvestorProp(this.name)
+				if (!project.EBITDA || !project.interestPayments || !project.loanBodyPayments)
+					return updateProjectProp(this.name)
 
-				const a = parseFloat(investor.interestPayments || 0) + parseFloat(investor.loanBodyPayments || 0)
-				const value = investor.EBITDA / a
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const a = parseFloat(project.interestPayments || 0) + parseFloat(project.loanBodyPayments || 0)
+				const value = project.EBITDA / a
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		EBITDA: {
 			label: 'EBITDA, руб. (за год после ввода в эксплуатацию)',
 			name: 'EBITDA',
 			calc: function () {
-				if (!investor.totalFunds || !investor.marginEBITDA) {
-					updateInvestorProp(this.name)
+				if (!project.totalFunds || !project.marginEBITDA) {
+					updateProjectProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
-				const value = investor.totalFunds * investor.marginEBITDA
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.totalFunds * project.marginEBITDA
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
@@ -467,14 +467,14 @@
 			label: 'Процентные платежи в год (I)',
 			name: 'interestPayments',
 			calc: function () {
-				if (!investor.bankLoanAmount || !investor.plannedLoanRate || !investor.loanTerm) {
-					updateInvestorProp(this.name)
+				if (!project.bankLoanAmount || !project.plannedLoanRate || !project.loanTerm) {
+					updateProjectProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
-				const value = investor.bankLoanAmount / investor.loanTerm * (investor.plannedLoanRate / 100)
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.bankLoanAmount / project.loanTerm * (project.plannedLoanRate / 100)
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
@@ -482,14 +482,14 @@
 			label: 'Выплаты тела кредита, руб. в год (D)',
 			name: 'loanBodyPayments',
 			calc: function () {
-				if (!investor.bankLoanAmount || !investor.loanTerm) {
-					updateInvestorProp(this.name)
+				if (!project.bankLoanAmount || !project.loanTerm) {
+					updateProjectProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
-				const value = investor.bankLoanAmount / investor.loanTerm
-				updateInvestorProp(this.name, +value.toFixed(2))
+				const value = project.bankLoanAmount / project.loanTerm
+				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
@@ -1452,47 +1452,47 @@
 		}
 	]
 
-	function setInvestor(data) {
-		if (!data?.investor)
+	function setProject(data) {
+		if (!data?.project)
 			return
 
-		investor = data.investor
+		project = data.project
 		highlightSave = false
-		activeInvestorTab = 1
+		activeProjectTab = 1
 
-		investor.regionsTitle = getTitleFromDirByValue('regions', 'title', investor.region)
-		investor.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', investor.buildingType)
-		investor.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', investor.buildingCategory)
+		project.regionsTitle = getTitleFromDirByValue('regions', 'title', project.region)
+		project.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', project.buildingType)
+		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
 
 		Object.values(calcFields).forEach(field => field.calc())
 	}
 
-	function saveInvestor() {
-		if (!investor?._id)
+	function saveProject() {
+		if (!project?._id)
 			return
 
-		console.log('saveInvestor', investor)
+		console.log('saveProject', project)
 
-		const id = investor._id
-		const investorData = {}
+		const id = project._id
+		const projectData = {}
 
-		Object.keys(investor)
+		Object.keys(project)
 			.forEach(key => {
 				if (!['_id', 'scoring'].includes(key))
-					investorData[key] = investor[key]
+					projectData[key] = project[key]
 			})
 
-		fetch('/api/update_investor', {
+		fetch('/api/update_project', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
 				id,
-				investor: investorData
+				project: projectData
 			})
 		})
 			.then(res => res.json())
 			.then(res => {
-				console.log('update_investor(), res', res)
+				console.log('update_project(), res', res)
 
 				if (res?.res?.modifiedCount || res?.res?.matchedCount) {
 					highlightSave = false
@@ -1501,10 +1501,10 @@
 	}
 
 	function estimateStopFactors() {
-		console.log('estimateStopFactors(), investor', investor)
-		investor.scoring = estimate(investor)
-		activeInvestorTab = 0
-		console.log('estimateStopFactors(), scoring', investor.scoring)
+		console.log('estimateStopFactors(), project', project)
+		project.scoring = estimate(project)
+		activeProjectTab = 0
+		console.log('estimateStopFactors(), scoring', project.scoring)
 	}
 
 	function deleteProject(showModal = true) {
@@ -1525,7 +1525,7 @@
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				_id: investor._id
+				_id: project._id
 			})
 		})
 			.then(res => res.json())
@@ -1533,8 +1533,8 @@
 				console.log('delete_project', res)
 
 				if (res?.res?.deletedCount) {
-					investors.update(arr => {
-						return arr.filter(row => row._id !== investor._id)
+					projects.update(arr => {
+						return arr.filter(row => row._id !== project._id)
 					})
 
 					goto('/projects')
@@ -1543,9 +1543,9 @@
 	}
 </script>
 
-{#if investor}
+{#if project}
 	<div class="flex items-center gap-5">
-		<div class="text-2xl">{investor.name}</div>
+		<div class="text-2xl">{project.name}</div>
 		<div class="flex items-center gap-5 ml-auto shrink-0">
 			<button class="btn btn-accent btn-outline"
 			        on:click={deleteProject}>
@@ -1553,7 +1553,7 @@
 			</button>
 			<button class="btn btn-primary"
 			        class:btn-outline={!highlightSave}
-			        on:click={saveInvestor}>
+			        on:click={saveProject}>
 				Сохранить
 			</button>
 			<button class="btn btn-outline"
@@ -1563,54 +1563,54 @@
 		</div>
 	</div>
 	<div class="my-10 flex flex-col gap-2">
-		<Input name="theInvestorName"
+		<Input name="theProjectName"
 		       label="Название"
 		       placeholder="Название проекта"
 		       on:change={() => highlightSave = true}
-		       bind:value={investor.name}/>
-		<Select name="theInvestorRegion"
+		       bind:value={project.name}/>
+		<Select name="theProjectRegion"
 		        label="Регион"
 		        title="Выберите регион"
 		        options={$DIRs['regions']?.values}
 		        on:change={() => highlightSave = true}
-		        bind:value={investor.region}
+		        bind:value={project.region}
 		/>
-		<Select name="theInvestorBuildingType"
+		<Select name="theProjectBuildingType"
 		        label="Тип объекта"
 		        title="Выберите тип объекта"
 		        options={$DIRs['buildingTypes']?.values}
 		        on:change={() => highlightSave = true}
-		        bind:value={investor.buildingType}
+		        bind:value={project.buildingType}
 		/>
-		<Select name="theInvestorBuildingCategory"
+		<Select name="theProjectBuildingCategory"
 		        label="Категория объекта"
 		        title="Выберите категорию объекта"
 		        options={$DIRs['buildingCategory']?.values}
 		        defaultDisabled={false}
 		        on:change={() => highlightSave = true}
-		        bind:value={investor.buildingCategory}
+		        bind:value={project.buildingCategory}
 		/>
 	</div>
 	<div class="tabs mt-10">
-		{#if investor.scoring}
+		{#if project.scoring}
 			<a class="tab tab-lifted"
-			   class:tab-active={activeInvestorTab === 0}
-			   on:click={() => activeInvestorTab = 0}
+			   class:tab-active={activeProjectTab === 0}
+			   on:click={() => activeProjectTab = 0}
 			>Стоп-факторы</a>
 		{/if}
 		{#each tabs as tab}
 			<a class="tab tab-lifted"
-			   class:tab-active={activeInvestorTab === tab.ind}
-			   on:click={() => activeInvestorTab = tab.ind}
+			   class:tab-active={activeProjectTab === tab.ind}
+			   on:click={() => activeProjectTab = tab.ind}
 			>{tab.title}</a>
 		{/each}
 	</div>
 	<div>
 		<div class="flex overflow-hidden">
 			<div class="shrink-0 w-full overflow-hidden transition-all"
-			     class:h-0={activeInvestorTab !== 0}
-			     style="margin-left: {-activeInvestorTab * 100}%">
-				{#if investor.scoring}
+			     class:h-0={activeProjectTab !== 0}
+			     style="margin-left: {-activeProjectTab * 100}%">
+				{#if project.scoring}
 					<div class="overflow-x-auto mt-10">
 						<table class="table w-full">
 							<!-- head -->
@@ -1630,7 +1630,7 @@
 							</tr>
 							</thead>
 							<tbody>
-							{#each investor.scoring as scoringRow}
+							{#each project.scoring as scoringRow}
 								<tr>
 									<td class="whitespace-pre-wrap">{scoringRow.section}</td>
 									<td class="whitespace-pre-wrap">{scoringRow.fieldName}</td>
@@ -1662,7 +1662,7 @@
 			{#each tabs as tab}
 				{#if tab.fields.length}
 					<div class="shrink-0 w-full overflow-hidden transition-all"
-					     class:h-10={activeInvestorTab !== tab.ind}>
+					     class:h-10={activeProjectTab !== tab.ind}>
 						{#each tab.fields as field}
 							<div class="max-w-lg p-5">
 								{#if field.disabled}
@@ -1671,21 +1671,21 @@
 											<span class="label-text">{field.label}</span>
 										</label>
 										<input id="{field.name}" type="number" placeholder=""
-										       value={investor[field.name]} disabled
+										       value={project[field.name]} disabled
 										       class="input input-bordered w-full"/>
 									</div>
 								{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
 									<Input {...field}
 									       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-									       bind:value={investor[field.name]}/>
+									       bind:value={project[field.name]}/>
 								{:else if field.type === 'check'}
 									<Check {...field}
 									       on:change={() => (highlightSave = true)}
-									       bind:checked={investor[field.name]}/>
+									       bind:checked={project[field.name]}/>
 								{:else if field.type === 'select'}
 									<Select {...field}
 									        on:change={() => (highlightSave = true)}
-									        bind:value={investor[field.name]}/>
+									        bind:value={project[field.name]}/>
 								{/if}
 							</div>
 							{#if errors[field.name]}
@@ -1714,7 +1714,7 @@
 				</button>
 				<button class="btn btn-primary"
 				        class:btn-outline={!highlightSave}
-				        on:click={saveInvestor}>
+				        on:click={saveProject}>
 					Сохранить
 				</button>
 				<button class="btn btn-outline"
