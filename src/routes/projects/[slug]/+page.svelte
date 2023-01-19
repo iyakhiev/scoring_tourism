@@ -35,7 +35,7 @@
 		return [false, `В справочнике "${dirTitle}" не указано значение по параметрам: ${searchFieldsStr}.`]
 	}
 
-	function getTitleFromDirByValue(dirName, dirValueField, dirTitleField, value) {
+	function getTitleFromDirByValue(dirName, dirTitleField, value) {
 		const values = $DIRs[dirName].values.filter(row => row.name === value)
 		if (values.length)
 			return values[0][dirTitleField]
@@ -775,11 +775,11 @@
 					options: [
 						{
 							title: 'Строительство',
-							value: 'construction'
+							name: 'construction'
 						},
 						{
 							title: 'Реконструкция',
-							value: 'reconstruction'
+							name: 'reconstruction'
 						},
 					]
 				},
