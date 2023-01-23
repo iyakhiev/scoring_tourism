@@ -8,12 +8,14 @@
 	import { goto } from '$app/navigation'
 
 	// todo check tab problem
+	// todo check calc staffPerRoom
 
 	export let data
 
 	let project
 	let highlightSave = false
 	let activeProjectTab = 1
+	let activeObject = 0
 	let errors = {}
 
 	$: {
@@ -44,6 +46,7 @@
 
 	function updateProjectProp(field, value = '') {
 		if (project[field] !== value) {
+			console.log('updateProjectProp', field, value)
 			project[field] = value
 			highlightSave = true
 		}
@@ -100,7 +103,7 @@
 				if (!project.kr || !project.ko || !project.do)
 					return updateProjectProp(this.name)
 				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
-				const value = project.k / a
+				const value = project.kr / a
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -118,10 +121,14 @@
 			label: 'Стоимость 1 номера, тыс. руб.',
 			name: 'costPerRoom',
 			calc: function () {
-				if (!project.totalCost || !project.numberOfRooms)
-					return updateProjectProp(this.name)
-				const value = project.totalCost / project.numberOfRooms
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = ''
+
+				if (project.totalCost && project.totalNumberOfRooms) {
+					value = project.totalCost / project.totalNumberOfRooms
+					value = +value.toFixed(2)
+				}
+
+				updateProjectProp(this.name, value)
 			}
 		},
 		shareOfRoomsArea: {
@@ -138,8 +145,15 @@
 			label: 'Общая площадь объектов, м²',
 			name: 'totalArea',
 			calc: function () {
-				const value = parseFloat(project.hotelArea || 0) + parseFloat(project.infrastructureArea || 0)
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = 0
+
+				if (project.objects && project.objects.length)
+					value = project.objects.reduce((acc, row) => {
+						acc += parseFloat(row.hotelArea || 0) + parseFloat(row.infrastructureArea || 0)
+						return acc
+					}, 0)
+
+				updateProjectProp(this.name, value)
 				calcFields.costPerSqMeter.calc()
 				calcFields.revenuePerSqMeter.calc()
 			}
@@ -148,13 +162,25 @@
 			label: 'Площадь гостиницы, м²',
 			name: 'hotelArea',
 			calc: function () {
-				const value = parseFloat(project.roomsArea || 0)
-					+ parseFloat(project.restaurantsArea || 0)
-					+ parseFloat(project.confRoomsArea || 0)
-					+ parseFloat(project.spaAndGymArea || 0)
-					+ parseFloat(project.poolsArea || 0)
-					+ parseFloat(project.hotelOthersArea || 0)
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = 0
+
+				if (project.objects && project.objects.length)
+					for (const key in project.objects) {
+						const object = project.objects[key]
+
+						object[this.name] = parseFloat(object.roomsArea || 0)
+							+ parseFloat(object.restaurantsArea || 0)
+							+ parseFloat(object.confRoomsArea || 0)
+							+ parseFloat(object.spaAndGymArea || 0)
+							+ parseFloat(object.poolsArea || 0)
+							+ parseFloat(object.hotelOthersArea || 0)
+
+						value += object[this.name]
+
+						// project.objects[key] = object
+					}
+
+				updateProjectProp(this.name, value)
 				calcFields.totalArea.calc()
 			}
 		},
@@ -162,12 +188,16 @@
 			label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
 			name: 'infrastructureArea',
 			calc: function () {
-				const value = parseFloat(project.aquaparkArea || 0)
-					+ parseFloat(project.sportComplexArea || 0)
-					+ parseFloat(project.amusementParkArea || 0)
-					+ parseFloat(project.thermalComplexArea || 0)
-					+ parseFloat(project.infrastructureOthersArea || 0)
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = 0
+
+				if (project.infrastructureObjects && project.infrastructureObjects.length)
+					for (const key in project.infrastructureObjects) {
+						const infrastructure = project.infrastructureObjects[key]
+
+						value += parseFloat(infrastructure.area || 0)
+					}
+
+				updateProjectProp(this.name, value)
 				calcFields.totalArea.calc()
 			}
 		},
@@ -175,9 +205,16 @@
 			label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
 			name: 'totalCost',
 			calc: function () {
-				const value = parseFloat(project.totalCostOfBuilding || 0)
-					+ parseFloat(project.totalCostOfBuildingInfrastructure || 0)
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = 0
+
+				if (project.objects && project.objects.length)
+					value = project.objects.reduce((acc, row) => {
+						acc += parseFloat(row.totalCostOfBuilding || 0)
+							+ parseFloat(row.totalCostOfBuildingInfrastructure || 0)
+						return acc
+					}, 0)
+
+				updateProjectProp(this.name, value)
 				calcFields.costPerRoom.calc()
 				calcFields.costPerSqMeter.calc()
 			}
@@ -186,13 +223,25 @@
 			label: 'Стоимость строительства объектов, тыс. руб.',
 			name: 'totalCostOfBuilding',
 			calc: function () {
-				const value = parseFloat(project.totalCostOfBuildingRooms || 0)
-					+ parseFloat(project.totalCostOfBuildingRestaurants || 0)
-					+ parseFloat(project.totalCostOfBuildingConfRooms || 0)
-					+ parseFloat(project.totalCostOfBuildingSpaAndGym || 0)
-					+ parseFloat(project.totalCostOfBuildingPools || 0)
-					+ parseFloat(project.totalCostOfBuildingHotelOthers || 0)
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = 0
+
+				if (project.objects && project.objects.length)
+					for (const key in project.objects) {
+						const object = project.objects[key]
+
+						object[this.name] = parseFloat(object.totalCostOfBuildingRooms || 0)
+							+ parseFloat(object.totalCostOfBuildingRestaurants || 0)
+							+ parseFloat(object.totalCostOfBuildingConfRooms || 0)
+							+ parseFloat(object.totalCostOfBuildingSpaAndGym || 0)
+							+ parseFloat(object.totalCostOfBuildingPools || 0)
+							+ parseFloat(object.totalCostOfBuildingHotelOthers || 0)
+
+						value += object[this.name]
+
+						// project.objects[key] = object
+					}
+
+				updateProjectProp(this.name, value)
 				calcFields.totalCost.calc()
 			}
 		},
@@ -200,12 +249,16 @@
 			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
 			name: 'totalCostOfBuildingInfrastructure',
 			calc: function () {
-				const value = parseFloat(project.totalCostOfBuildingAquapark || 0)
-					+ parseFloat(project.totalCostOfBuildingSportComplex || 0)
-					+ parseFloat(project.totalCostOfBuildingAmusementPark || 0)
-					+ parseFloat(project.totalCostOfBuildingThermalComplex || 0)
-					+ parseFloat(project.totalCostOfBuildingInfrastructureOthers || 0)
-				updateProjectProp(this.name, +value.toFixed(2))
+				let value = 0
+
+				if (project.infrastructureObjects && project.infrastructureObjects.length)
+					for (const key in project.infrastructureObjects) {
+						const infrastructure = project.infrastructureObjects[key]
+
+						value += parseFloat(infrastructure.cost || 0)
+					}
+
+				updateProjectProp(this.name, value)
 				calcFields.totalCost.calc()
 			}
 		},
@@ -289,11 +342,14 @@
 			label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
 			name: 'revPAR',
 			calc: function () {
-				if (!project.roomRevenue || !project.numberOfRooms)
-					return updateProjectProp(this.name)
+				let value = ''
 
-				const value = project.roomRevenue / project.numberOfRooms
-				updateProjectProp(this.name, +value.toFixed(2))
+				if (project.roomRevenue && project.totalNumberOfRooms) {
+					value = project.roomRevenue / project.totalNumberOfRooms
+					value = +value.toFixed(2)
+				}
+
+				updateProjectProp(this.name, value)
 			}
 		},
 		revPAC: {
@@ -311,11 +367,35 @@
 			label: 'Количество сотрудников на 1 номер, чел.',
 			name: 'staffPerRoom',
 			calc: function () {
-				if (!project.numberOfNewJobs || !project.numberOfRooms)
-					return updateProjectProp(this.name)
+				let value = ''
 
-				const value = project.numberOfNewJobs / project.numberOfRooms
-				updateProjectProp(this.name, +value.toFixed(2))
+				if (project.objects && project.objects.length) {
+					const total = {
+						numberOfNewJobs: 0,
+						numberOfRooms: 0
+					}
+
+					for (const key in project.objects) {
+						const object = project.objects[key]
+
+						const numberOfNewJobs = parseFloat(object.numberOfNewJobs || 0)
+						const numberOfRooms = parseFloat(object.numberOfRooms || 0)
+
+						total.numberOfNewJobs += numberOfNewJobs
+						total.numberOfRooms += numberOfRooms
+
+						let value = numberOfNewJobs / numberOfRooms
+						value = +value.toFixed(2)
+						object[this.name] = value
+
+						// project.objects[key] = object
+					}
+
+					value = total.numberOfNewJobs / total.numberOfRooms
+					value = +value.toFixed(2)
+				}
+
+				updateProjectProp(this.name, value)
 			}
 		},
 		revenuePerSqMeter: {
@@ -326,61 +406,6 @@
 					return updateProjectProp(this.name)
 
 				const value = project.totalRevenues / project.totalArea
-				updateProjectProp(this.name, +value.toFixed(2))
-			}
-		},
-		roomRevenuePerSqMeter: {
-			label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
-			name: 'roomRevenuePerSqMeter',
-			calc: function () {
-				if (!project.roomRevenue || !project.roomsArea)
-					return updateProjectProp(this.name)
-
-				const value = project.roomRevenue / project.roomsArea
-				updateProjectProp(this.name, +value.toFixed(2))
-			}
-		},
-		restaurantsRevenuePerSqMeter: {
-			label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
-			name: 'restaurantsRevenuePerSqMeter',
-			calc: function () {
-				if (!project.restaurantsRevenue || !project.restaurantsArea)
-					return updateProjectProp(this.name)
-
-				const value = project.restaurantsRevenue / project.restaurantsArea
-				updateProjectProp(this.name, +value.toFixed(2))
-			}
-		},
-		spaAndGymRevenuePerSqMeter: {
-			label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
-			name: 'spaAndGymRevenuePerSqMeter',
-			calc: function () {
-				if (!project.spaAndGymRevenue || !project.spaAndGymArea)
-					return updateProjectProp(this.name)
-
-				const value = project.spaAndGymRevenue / project.spaAndGymArea
-				updateProjectProp(this.name, +value.toFixed(2))
-			}
-		},
-		aquaparkRevenuePerSqMeter: {
-			label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
-			name: 'aquaparkRevenuePerSqMeter',
-			calc: function () {
-				if (!project.aquaparkRevenue || !project.aquaparkArea)
-					return updateProjectProp(this.name)
-
-				const value = project.aquaparkRevenue / project.aquaparkArea
-				updateProjectProp(this.name, +value.toFixed(2))
-			}
-		},
-		amusementsRevenuePerSqMeter: {
-			label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
-			name: 'amusementsRevenuePerSqMeter',
-			calc: function () {
-				if (!project.amusementsRevenue || !project.amusementParkArea)
-					return updateProjectProp(this.name)
-
-				const value = project.amusementsRevenue / project.amusementParkArea
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -491,6 +516,46 @@
 				const value = project.bankLoanAmount / project.loanTerm
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
+			}
+		},
+		totalNumberOfRooms: {
+			label: 'Общее количество номеров в КСР, шт.',
+			name: 'totalNumberOfRooms',
+			calc: function () {
+				let value = ''
+
+				if (project.objects && project.objects.length)
+					value = project.objects.reduce((acc, row) => {
+						acc += parseFloat(row.numberOfRooms || 0)
+						return acc
+					}, 0)
+
+				updateProjectProp(this.name, value)
+				calcFields.costPerRoom.calc()
+				calcFields.revPAR.calc()
+				calcFields.staffPerRoom.calc()
+			}
+		},
+		totalNumberOfNewJobs: {
+			label: 'Общее количество новых рабочих мест, чел.',
+			name: 'totalNumberOfNewJobs',
+			calc: function () {
+				let value = 0
+
+				if (project.objects && project.objects.length)
+					value = project.objects.reduce((acc, object) => {
+						acc += parseFloat(object.numberOfNewJobs || 0)
+						return acc
+					}, 0)
+
+				if (project.infrastructureObjects && project.infrastructureObjects.length)
+					value += project.infrastructureObjects.reduce((acc, row) => {
+						acc += parseFloat(row.numberOfNewJobs || 0)
+						return acc
+					}, 0)
+
+				updateProjectProp(this.name, value)
+				calcFields.staffPerRoom.calc()
 			}
 		},
 	}
@@ -758,15 +823,10 @@
 			title: 'ТЭП, CAPEX',
 			fields: [
 				{
-					label: 'Количество номеров в КСР, шт.',
-					name: 'numberOfRooms',
+					label: 'Общее количество номеров в КСР, шт.',
+					name: 'totalNumberOfRooms',
 					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.costPerRoom.calc()
-						calcFields.revPAR.calc()
-						calcFields.staffPerRoom.calc()
-					}
+					disabled: true
 				},
 				{
 					label: 'Вид работ по проекту',
@@ -802,139 +862,22 @@
 					disabled: true
 				},
 				{
-					label: 'Общая площадь объектов, м²',
+					label: 'Общая площадь объектов и дополнительной инфраструктуры, м²',
 					name: 'totalArea',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость строительства объектов, тыс. руб.',
+					label: 'Стоимость строительства гостиниц(ы), тыс. руб.',
 					name: 'totalCostOfBuilding',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Площадь гостиницы, м²',
+					label: 'Площадь гостиниц(ы), м²',
 					name: 'hotelArea',
 					type: 'number',
 					disabled: true
-				},
-				{
-					label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования, тыс. руб.',
-					name: 'totalCostOfBuildingRooms',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuilding.calc()
-					}
-				},
-				{
-					label: 'Площадь номерного фонда, включая апартаменты и места общего пользования, м²',
-					name: 'roomsArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.hotelArea.calc()
-						calcFields.roomRevenuePerSqMeter.calc()
-					}
-				},
-				{
-					label: 'Доля площадей КСР в составе объекта (для МФК), %',
-					name: 'shareOfRoomsArea',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Стоимость строительства ресторанов, тыс. руб.',
-					name: 'totalCostOfBuildingRestaurants',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuilding.calc()
-					}
-				},
-				{
-					label: 'Площадь ресторанов, м²',
-					name: 'restaurantsArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.hotelArea.calc()
-						calcFields.restaurantsRevenuePerSqMeter.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства конференц-залов, тыс. руб.',
-					name: 'totalCostOfBuildingConfRooms',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuilding.calc()
-					}
-				},
-				{
-					label: 'Площадь конференц-залов, м²',
-					name: 'confRoomsArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.hotelArea.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства СПА и фитнес центров, тыс. руб.',
-					name: 'totalCostOfBuildingSpaAndGym',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuilding.calc()
-					}
-				},
-				{
-					label: 'Площадь СПА и фитнес центров, м²',
-					name: 'spaAndGymArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.hotelArea.calc()
-						calcFields.spaAndGymRevenuePerSqMeter.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства бассейнов, тыс. руб.',
-					name: 'totalCostOfBuildingPools',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuilding.calc()
-					}
-				},
-				{
-					label: 'Площадь бассейнов, м²',
-					name: 'poolsArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.hotelArea.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства иных объектов, тыс. руб.',
-					name: 'totalCostOfBuildingHotelOthers',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuilding.calc()
-					}
-				},
-				{
-					label: 'Площадь иных объектов, м²',
-					name: 'hotelOthersArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.hotelArea.calc()
-					}
 				},
 				{
 					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
@@ -948,104 +891,12 @@
 					type: 'number',
 					disabled: true
 				},
-				{
-					label: 'Стоимость строительства аквапарка, тыс. руб.',
-					name: 'totalCostOfBuildingAquapark',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuildingInfrastructure.calc()
-					}
-				},
-				{
-					label: 'Площадь аквапарка, м²',
-					name: 'aquaparkArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.infrastructureArea.calc()
-						calcFields.aquaparkRevenuePerSqMeter.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства физкультурно-оздоровительный комплекса, тыс. руб.',
-					name: 'totalCostOfBuildingSportComplex',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuildingInfrastructure.calc()
-					}
-				},
-				{
-					label: 'Площадь физкультурно-оздоровительный комплекса, м²',
-					name: 'sportComplexArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.infrastructureArea.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства парк развлечений, аттракционов, тыс. руб.',
-					name: 'totalCostOfBuildingAmusementPark',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuildingInfrastructure.calc()
-					}
-				},
-				{
-					label: 'Площадь парк развлечений, аттракционов, м²',
-					name: 'amusementParkArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.infrastructureArea.calc()
-						calcFields.amusementsRevenuePerSqMeter.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства термальный комплекса, тыс. руб.',
-					name: 'totalCostOfBuildingThermalComplex',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuildingInfrastructure.calc()
-					}
-				},
-				{
-					label: 'Площадь термальный комплекса, м²',
-					name: 'thermalComplexArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.infrastructureArea.calc()
-					}
-				},
-				{
-					label: 'Стоимость строительства иных объектов инфраструктуры, тыс. руб.',
-					name: 'totalCostOfBuildingInfrastructureOthers',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.totalCostOfBuildingInfrastructure.calc()
-					}
-				},
-				{
-					label: 'Площадь иных объектов инфраструктуры, м²',
-					name: 'infrastructureOthersArea',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.infrastructureArea.calc()
-					}
-				},
-				{
-					label: 'Общая протяженность ГЛК, м',
-					name: 'totalLengthGLK',
-					type: 'number',
-					min: 0,
-				},
+				// {
+				// 	label: 'Доля площадей КСР в составе объекта (для МФК), %',
+				// 	name: 'shareOfRoomsArea',
+				// 	type: 'number',
+				// 	disabled: true
+				// },
 				{
 					label: 'Дата начала подготовки ПСД',
 					name: 'startDateOfPSDPreparation',
@@ -1174,16 +1025,9 @@
 					min: 0,
 					calc: () => {
 						calcFields.totalRevenues.calc()
-						calcFields.roomRevenuePerSqMeter.calc()
 						calcFields.revPAR.calc()
 					}
 				},
-				// {
-				// 	label: 'Выручка на 1 м² от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'roomRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'Выручка ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'restaurantsRevenue',
@@ -1191,15 +1035,8 @@
 					min: 0,
 					calc: () => {
 						calcFields.totalRevenues.calc()
-						calcFields.restaurantsRevenuePerSqMeter.calc()
 					}
 				},
-				// {
-				// 	label: 'Выручка на 1 м² ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'restaurantsRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'Выручка СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'spaAndGymRevenue',
@@ -1207,15 +1044,8 @@
 					min: 0,
 					calc: () => {
 						calcFields.totalRevenues.calc()
-						calcFields.spaAndGymRevenuePerSqMeter.calc()
 					}
 				},
-				// {
-				// 	label: 'Выручка на 1 м² СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'spaAndGymRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'Выручка аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'aquaparkRevenue',
@@ -1223,15 +1053,8 @@
 					min: 0,
 					calc: () => {
 						calcFields.totalRevenues.calc()
-						calcFields.aquaparkRevenuePerSqMeter.calc()
 					}
 				},
-				// {
-				// 	label: 'Выручка на 1 м² аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'aquaparkRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'Выручка инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'glkRevenue',
@@ -1239,12 +1062,6 @@
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
-				// {
-				// 	label: 'Выручка на 1 м² инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'glkRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'Выручка парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'amusementsRevenue',
@@ -1252,15 +1069,8 @@
 					min: 0,
 					calc: () => {
 						calcFields.totalRevenues.calc()
-						calcFields.amusementsRevenuePerSqMeter.calc()
 					}
 				},
-				// {
-				// 	label: 'Выручка на 1 м² парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'amusementsRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'Выручка прочее, тыс. руб. в год после выхода на проектную нагрузку',
 					name: 'otherRevenue',
@@ -1268,12 +1078,6 @@
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
-				// {
-				// 	label: 'Выручка на 1 м² прочее, тыс. руб. в год после выхода на проектную нагрузку',
-				// 	name: 'otherRevenuePerSqMeter',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
 				{
 					label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
 					name: 'revPAR',
@@ -1287,11 +1091,10 @@
 					disabled: true
 				},
 				{
-					label: 'Количество новых рабочих мест, чел.',
-					name: 'numberOfNewJobs',
+					label: 'Общее количество новых рабочих мест, чел.',
+					name: 'totalNumberOfNewJobs',
 					type: 'number',
-					min: 0,
-					calc: () => calcFields.staffPerRoom.calc()
+					disabled: true
 				},
 				{
 					label: 'Количество сотрудников на 1 номер, чел.',
@@ -1452,6 +1255,204 @@
 		}
 	]
 
+	const objectFields = [
+		{
+			label: 'Звездность гостиницы',
+			name: 'hotelRating',
+			type: 'select',
+			options: [
+				{
+					title: '3*',
+					name: '3'
+				},
+				{
+					title: '4*',
+					name: '4'
+				},
+				{
+					title: '5*',
+					name: '5'
+				},
+			]
+		},
+		{
+			label: 'Количество номеров в КСР, шт.',
+			name: 'numberOfRooms',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalNumberOfRooms.calc()
+		},
+		{
+			label: 'Количество новых рабочих мест, чел.',
+			name: 'numberOfNewJobs',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalNumberOfNewJobs.calc()
+		},
+		{
+			label: 'Площадь гостиницы, м²',
+			name: 'hotelArea',
+			type: 'number',
+			disabled: true
+		},
+		{
+			label: 'Площадь номерного фонда, включая апартаменты и места общего пользования, м²',
+			name: 'roomsArea',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.hotelArea.calc()
+		},
+		{
+			label: 'Площадь ресторанов, м²',
+			name: 'restaurantsArea',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.hotelArea.calc()
+		},
+		{
+			label: 'Площадь конференц-залов, м²',
+			name: 'confRoomsArea',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.hotelArea.calc()
+		},
+		{
+			label: 'Площадь СПА и фитнес центров, м²',
+			name: 'spaAndGymArea',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.hotelArea.calc()
+		},
+		{
+			label: 'Площадь бассейнов, м²',
+			name: 'poolsArea',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.hotelArea.calc()
+		},
+		{
+			label: 'Площадь иных объектов, м²',
+			name: 'hotelOthersArea',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.hotelArea.calc()
+		},
+		{
+			label: 'Стоимость строительства гостиницы, тыс. руб.',
+			name: 'totalCostOfBuilding',
+			type: 'number',
+			disabled: true
+		},
+		{
+			label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования, тыс. руб.',
+			name: 'totalCostOfBuildingRooms',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuilding.calc()
+		},
+		{
+			label: 'Стоимость строительства ресторанов, тыс. руб.',
+			name: 'totalCostOfBuildingRestaurants',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuilding.calc()
+		},
+		{
+			label: 'Стоимость строительства конференц-залов, тыс. руб.',
+			name: 'totalCostOfBuildingConfRooms',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuilding.calc()
+		},
+		{
+			label: 'Стоимость строительства СПА и фитнес центров, тыс. руб.',
+			name: 'totalCostOfBuildingSpaAndGym',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuilding.calc()
+		},
+		{
+			label: 'Стоимость строительства бассейнов, тыс. руб.',
+			name: 'totalCostOfBuildingPools',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuilding.calc()
+		},
+		{
+			label: 'Стоимость строительства иных объектов, тыс. руб.',
+			name: 'totalCostOfBuildingHotelOthers',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuilding.calc()
+		},
+	]
+
+	const objectInfrastructureFields = [
+		{
+			label: 'Тип дополнительной инфраструктуры',
+			name: 'infrastructureType',
+			type: 'select',
+			options: [
+				{
+					title: 'Аквапарк',
+					name: 'aquapark'
+				},
+				{
+					title: 'Физкультурно-оздоровительный комплекс',
+					name: 'sportComplex'
+				},
+				{
+					title: 'Парк развлечений',
+					name: 'amusementPark'
+				},
+				{
+					title: 'Термальный комплекс',
+					name: 'thermalComplex'
+				},
+				{
+					title: 'Термальный комплекс',
+					name: 'thermalComplex'
+				},
+				{
+					title: 'Горнолыжный комплекс',
+					name: 'glkComplex'
+				},
+				{
+					title: 'Иное',
+					name: 'other'
+				},
+			]
+		},
+		{
+			label: 'Площадь объекта дополнительной инфраструктуры, м²',
+			name: 'area',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.infrastructureArea.calc()
+		},
+		{
+			label: 'Стоимость строительства объекта дополнительной инфраструктуры, тыс. руб.',
+			name: 'cost',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalCostOfBuildingInfrastructure.calc()
+		},
+		{
+			label: 'Общая протяженность ГЛК, м',
+			name: 'totalLengthGLK',
+			type: 'number',
+			min: 0,
+			condition: object => object.infrastructureType === 'glkComplex'
+		},
+		{
+			label: 'Количество новых рабочих мест, чел.',
+			name: 'numberOfNewJobs',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.totalNumberOfNewJobs.calc()
+		},
+	]
+
 	function setProject(data) {
 		if (!data?.project)
 			return
@@ -1459,12 +1460,30 @@
 		project = data.project
 		highlightSave = false
 		activeProjectTab = 1
+		activeObject = 0
+
+		if (!project.objects || !project.objects.length)
+			addObject()
 
 		project.regionsTitle = getTitleFromDirByValue('regions', 'title', project.region)
 		project.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', project.buildingType)
 		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
 
 		Object.values(calcFields).forEach(field => field.calc())
+	}
+
+	function addObject() {
+		project.objects = [...(project.objects || []), {
+			title: 'Гостиница'
+		}]
+		activeObject = project.objects.length - 1
+	}
+
+	function removeObject() {
+		if (project.objects.length === 1)
+			return
+		project.objects = project.objects.filter((row, i) => i !== activeObject)
+		activeObject = activeObject === project.objects.length ? activeObject - 1 : activeObject
 	}
 
 	function saveProject() {
@@ -1591,6 +1610,72 @@
 		        bind:value={project.buildingCategory}
 		/>
 	</div>
+	{#if project.buildingType === 'complex' || project.objects.length > 1}
+		<div class="flex justify-between">
+			<div class="">
+				<div class="text-xl mb-2">Объекты:</div>
+				<ul class="w-full">
+					{#each project.objects as object, i}
+						<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
+						    class:bg-base-200={activeObject === i}
+						    on:click={() => activeObject = i}>
+							{i + 1}. {object.title} {object.hotelRating ? object.hotelRating + '*' : ''}
+						</li>
+					{/each}
+				</ul>
+			</div>
+			<button class="btn btn-outline"
+			        on:click={addObject}>Добавить объект
+			</button>
+		</div>
+	{/if}
+	<div class="flex justify-between">
+		<div>
+			{#each objectFields as field}
+				<div class="max-w-lg p-5">
+					{#if field.disabled}
+						<div class="form-control w-full">
+							<label class="label" for="object-{field.name}">
+								<span class="label-text">{field.label}</span>
+							</label>
+							<input id="object-{field.name}" type="number" placeholder=""
+							       value={project.objects[activeObject][field.name]} disabled
+							       class="input input-bordered w-full"/>
+						</div>
+					{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+						<Input {...field}
+						       name="object-{field.name}"
+						       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+						       bind:value={project.objects[activeObject][field.name]}/>
+					{:else if field.type === 'check'}
+						<Check {...field}
+						       name="object-{field.name}"
+						       on:change={() => (highlightSave = true)}
+						       bind:checked={project.objects[activeObject][field.name]}/>
+					{:else if field.type === 'select'}
+						<Select {...field}
+						        name="object-{field.name}"
+						        on:change={() => (highlightSave = true)}
+						        bind:value={project.objects[activeObject][field.name]}/>
+					{/if}
+				</div>
+				{#if errors[field.name]}
+					<div class="alert alert-warning shadow-lg">
+						<div>
+							<svg xmlns="http://www.w3.org/2000/svg"
+							     class="stroke-current flex-shrink-0 h-6 w-6"
+							     fill="none" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+							</svg>
+							<span>{errors[field.name]}</span>
+						</div>
+					</div>
+				{/if}
+			{/each}
+		</div>
+		<button class="btn btn-accent" on:click={removeObject}>Удалить объект</button>
+	</div>
 	<div class="tabs mt-10">
 		{#if project.scoring}
 			<a class="tab tab-lifted"
@@ -1599,10 +1684,10 @@
 			>Стоп-факторы</a>
 		{/if}
 		{#each tabs as tab}
-			<a class="tab tab-lifted"
+			<div class="tab tab-lifted"
 			   class:tab-active={activeProjectTab === tab.ind}
 			   on:click={() => activeProjectTab = tab.ind}
-			>{tab.title}</a>
+			>{tab.title}</div>
 		{/each}
 	</div>
 	<div>

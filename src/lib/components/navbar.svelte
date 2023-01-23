@@ -1,6 +1,8 @@
 <div class="navbar bg-base-100 shadow-md px-10">
 	<div class="flex-1">
-		<a href="/projects" class="font-medium text-xl">Туризм РФ</a>
+		<a href="/projects" class="font-medium text-xl">
+			<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
+		</a>
 	</div>
 	<div class="flex-none gap-10">
 		<ul class="menu menu-horizontal px-1 gap-5">
