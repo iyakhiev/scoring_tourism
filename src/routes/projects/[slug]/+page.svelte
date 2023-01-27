@@ -33,7 +33,7 @@
 				return [true, valueRow.value]
 
 		const dirTitle = $DIRs[dirName] ? $DIRs[dirName].title : dirName
-		const searchFieldsStr = `${project.regionsTitle}, ${project.buildingTypeTitle}`
+		const searchFieldsStr = `${project.regionTitle}, ${project.buildingTypeTitle}`
 			+ (project.buildingCategoryTitle ? `, ${project.buildingCategoryTitle}` : '')
 		return [false, `В справочнике "${dirTitle}" не указано значение по параметрам: ${searchFieldsStr}.`]
 	}
@@ -893,6 +893,10 @@
 				// 	disabled: true
 				// },
 				{
+					label: 'Дата поступления анкеты',
+					name: 'applicationSubmissionDate',
+					type: 'date',
+				},				{
 					label: 'Дата начала подготовки ПСД',
 					name: 'startDateOfPSDPreparation',
 					type: 'date',
@@ -1454,7 +1458,7 @@
 
 		project = data.project
 		highlightSave = false
-		activeProjectTab = 1
+		activeProjectTab = 4
 		activeObject = 0
 		activeInfrastructureObject = null
 
@@ -1463,7 +1467,7 @@
 		if (!project.infrastructureObjects)
 			project.infrastructureObjects = []
 
-		project.regionsTitle = getTitleFromDirByValue('regions', 'title', project.region)
+		project.regionTitle = getTitleFromDirByValue('regions', 'title', project.region)
 		project.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', project.buildingType)
 		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
 
@@ -1556,10 +1560,23 @@
 	}
 
 	function estimateStopFactors() {
-		console.log('estimateStopFactors(), project', project)
-		project.scoring = estimate(project)
-		activeProjectTab = 0
-		console.log('estimateStopFactors(), scoring', project.scoring)
+		fetch('/api/check_stop_factors', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ project })
+		})
+			.then(res => res.json())
+			.then(res => {
+				console.log('check_stop_factors', res)
+				console.log('project', res.project)
+				console.log('dirs', res.dirs)
+				console.log('scoring', res.scoring)
+			})
+
+		// console.log('estimateStopFactors(), project', project)
+		// project.scoring = estimate(project)
+		// activeProjectTab = 0
+		// console.log('estimateStopFactors(), scoring', project.scoring)
 	}
 
 	function deleteProject(showModal = true) {
