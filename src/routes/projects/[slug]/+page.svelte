@@ -8,7 +8,7 @@
 	import { goto } from '$app/navigation'
 
 	// todo check tab problem
-	// todo check calc staffPerRoom
+	// todo check RevPAC, which touristFlow use to calc?
 
 	export let data
 
@@ -149,7 +149,8 @@
 				let value = 0
 
 				if (project.hotelArea || project.infrastructureArea)
-					value = parseFloat(project.hotelArea || 0) + parseFloat(project.infrastructureArea || 0)
+					value = parseFloat(project.hotelArea || 0)
+						+ parseFloat(project.infrastructureArea || 0)
 
 				updateProjectProp(this.name, value)
 				calcFields.costPerSqMeter.calc()
@@ -261,24 +262,41 @@
 			label: 'Occupancy (OCC) — реальная заполняемость, %',
 			name: 'occ',
 			calc: function () {
-				if (!project.totalRoomsOccupied || !project.numberOfRooms)
-					return updateProjectProp(this.name)
-				const value = (project.totalRoomsOccupied / project.numberOfRooms) * 100
-				updateProjectProp(this.name, +value.toFixed(2))
+				if (project.objects && project.objects.length) {
+					for (const key in project.objects) {
+						const object = project.objects[key]
+
+						if (!object.totalRoomsOccupied || !object.numberOfRooms)
+							continue
+
+						let value = (object.totalRoomsOccupied / object.numberOfRooms) * 100
+						value = +value.toFixed(2)
+						object[this.name] = value
+
+						// project.objects[key] = object
+					}
+				}
 			}
 		},
 		doubleOcc: {
 			label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
 			name: 'doubleOcc',
 			calc: function () {
-				if (!project.totalRoomsOccupied || !project.totalGuestsInHouse) {
-					updateProjectProp(this.name)
-					calcFields.touristFlow.calc()
-					calcFields.touristPerNightFlow.calc()
-					return
+				if (project.objects && project.objects.length) {
+					for (const key in project.objects) {
+						const object = project.objects[key]
+
+						if (!object.totalRoomsOccupied || !object.numberOfRooms)
+							continue
+
+						let value = object.totalGuestsInHouse / object.totalRoomsOccupied
+						value = +value.toFixed(2)
+						object[this.name] = value
+
+						// project.objects[key] = object
+					}
 				}
-				const value = project.totalGuestsInHouse / project.totalRoomsOccupied
-				updateProjectProp(this.name, +value.toFixed(2))
+
 				calcFields.touristFlow.calc()
 				calcFields.touristPerNightFlow.calc()
 			}
@@ -331,6 +349,7 @@
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.revPAC.calc()
 				calcFields.revenuePerSqMeter.calc()
+				calcFields.EBITDA.calc()
 			}
 		},
 		revPAR: {
@@ -362,7 +381,7 @@
 			label: 'Количество сотрудников на 1 номер, чел.',
 			name: 'staffPerRoom',
 			calc: function () {
-				let value = ''
+				let value = 0
 
 				if (project.objects && project.objects.length) {
 					const total = {
@@ -379,15 +398,17 @@
 						total.numberOfNewJobs += numberOfNewJobs
 						total.numberOfRooms += numberOfRooms
 
-						let value = numberOfNewJobs / numberOfRooms
-						value = +value.toFixed(2)
-						object[this.name] = value
-
-						// project.objects[key] = object
+						if (numberOfRooms) {
+							let value = numberOfNewJobs / numberOfRooms
+							value = +value.toFixed(2)
+							object[this.name] = value
+						}
 					}
 
-					value = total.numberOfNewJobs / total.numberOfRooms
-					value = +value.toFixed(2)
+					if (total.numberOfRooms) {
+						value = total.numberOfNewJobs / total.numberOfRooms
+						value = +value.toFixed(2)
+					}
 				}
 
 				updateProjectProp(this.name, value)
@@ -411,7 +432,6 @@
 				const value = parseFloat(project.ownFunds || 0) + parseFloat(project.bankLoanAmount || 0)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.creditFundsShare.calc()
-				calcFields.EBITDA.calc()
 			}
 		},
 		ownFunds: {
@@ -469,16 +489,16 @@
 			}
 		},
 		EBITDA: {
-			label: 'EBITDA, руб. (за год после ввода в эксплуатацию)',
+			label: 'EBITDA, тыс. руб. (за год после ввода в эксплуатацию)',
 			name: 'EBITDA',
 			calc: function () {
-				if (!project.totalFunds || !project.marginEBITDA) {
+				if (!project.totalRevenues || !project.marginEBITDA) {
 					updateProjectProp(this.name)
 					calcFields.debtCoverageRatio.calc()
 					return
 				}
 
-				const value = project.totalFunds * project.marginEBITDA
+				const value = project.totalRevenues * project.marginEBITDA
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
@@ -499,7 +519,7 @@
 			}
 		},
 		loanBodyPayments: {
-			label: 'Выплаты тела кредита, руб. в год (D)',
+			label: 'Выплаты тела кредита, тыс. руб. в год (D)',
 			name: 'loanBodyPayments',
 			calc: function () {
 				if (!project.bankLoanAmount || !project.loanTerm) {
@@ -945,33 +965,10 @@
 					min: 0
 				},
 				{
-					label: 'ADR — отпускной тариф, руб./сутки',
-					name: 'adr',
-					type: 'number',
-					min: 0
-				},
-				{
-					label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
-					name: 'marginEBITDA',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.EBITDA.calc()
-				},
-				{
 					label: 'Occupancy (OCC) — реальная заполняемость, %',
 					name: 'occ',
 					type: 'number',
 					disabled: true
-				},
-				{
-					label: 'Общее количество занятых номеров Total Rooms Occupied (за период)',
-					name: 'totalRoomsOccupied',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.occ.calc()
-						calcFields.doubleOcc.calc()
-					}
 				},
 				{
 					label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
@@ -984,13 +981,6 @@
 					name: 'touristPerNightFlow',
 					type: 'number',
 					disabled: true
-				},
-				{
-					label: 'Количество гостей Total Guests In-House (за период)',
-					name: 'totalGuestsInHouse',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.doubleOcc.calc()
 				},
 				{
 					label: 'Турпоток, чел./год',
@@ -1130,14 +1120,20 @@
 					name: 'investorContributionCash',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.ownFunds.calc()
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
 				},
 				{
 					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме), тыс. руб.',
 					name: 'investorContributionNotCash',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.ownFunds.calc()
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
 				},
 				{
 					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме), тыс. руб.',
@@ -1158,14 +1154,20 @@
 					name: 'corporationContributionCash',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.ownFunds.calc()
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
 				},
 				{
 					label: 'Корпорация Туризм.РФ  (заем), тыс. руб.',
 					name: 'corporationLoan',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.ownFunds.calc()
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
 				},
 				{
 					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо), тыс. руб.',
@@ -1205,7 +1207,7 @@
 				},
 				{
 					label: 'Потребность в льготном кредите (в т.ч. Постановление №141), тыс. руб.',
-					name: 'needOfPreferentialLoan',
+					name: 'needOfSoftLoan',
 					type: 'check',
 				},
 				{
@@ -1233,7 +1235,7 @@
 					disabled: true
 				},
 				{
-					label: 'EBITDA, руб. (за год после ввода в эксплуатацию)',
+					label: 'EBITDA, тыс. руб. (за год после ввода в эксплуатацию)',
 					name: 'EBITDA',
 					type: 'number',
 					disabled: true
@@ -1245,7 +1247,7 @@
 					disabled: true
 				},
 				{
-					label: 'Выплаты тела кредита, руб. в год (D)',
+					label: 'Выплаты тела кредита, тыс. руб. в год (D)',
 					name: 'loanBodyPayments',
 					type: 'number',
 					disabled: true
@@ -1259,20 +1261,7 @@
 			label: 'Звездность гостиницы',
 			name: 'hotelRating',
 			type: 'select',
-			options: [
-				{
-					title: '3*',
-					name: '3'
-				},
-				{
-					title: '4*',
-					name: '4'
-				},
-				{
-					title: '5*',
-					name: '5'
-				},
-			]
+			options: $DIRs['hotelRating'].values,
 		},
 		{
 			label: 'Количество номеров в КСР, шт.',
@@ -1287,6 +1276,42 @@
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalNumberOfNewJobs.calc()
+		},
+		{
+			label: 'Количество сотрудников на 1 номер, чел.',
+			name: 'staffPerRoom',
+			type: 'number',
+			disabled: true
+		},
+		{
+			label: 'Общее количество занятых номеров Total Rooms Occupied (за период)',
+			name: 'totalRoomsOccupied',
+			type: 'number',
+			min: 0,
+			calc: () => {
+				calcFields.occ.calc()
+				calcFields.doubleOcc.calc()
+			}
+		},
+		{
+			label: 'Количество гостей Total Guests In-House (за период)',
+			name: 'totalGuestsInHouse',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.doubleOcc.calc()
+		},
+		{
+			label: 'ADR — отпускной тариф, руб./сутки',
+			name: 'adr',
+			type: 'number',
+			min: 0
+		},
+		{
+			label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
+			name: 'marginEBITDA',
+			type: 'number',
+			min: 0,
+			calc: () => calcFields.EBITDA.calc()
 		},
 		{
 			label: 'Площадь гостиницы, м²',
@@ -1458,7 +1483,7 @@
 
 		project = data.project
 		highlightSave = false
-		activeProjectTab = 4
+		activeProjectTab = 1
 		activeObject = 0
 		activeInfrastructureObject = null
 

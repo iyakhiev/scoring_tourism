@@ -20,8 +20,13 @@ export const POST = async function ({ request }) {
 const noValueMsg = 'Нет данных для оценки.'
 const noRegionMsg = 'Не указан регион.'
 const noBuildingTypeMsg = 'Не указан тип объекта.'
+const noBuildingCategoryMsg = 'Не указана категория объекта.'
+const noHotelRatingMsg = 'Не указана звездность гостиницы.'
 
-function checkFields(project, estimatingFields, checkRegion = false, checkBuildingType = false) {
+function checkFields(project, estimatingFields,
+                     checkRegion = false,
+                     checkBuildingType = false,
+                     checkBuildingCategory = false) {
 	const errors = []
 
 	for (const field of estimatingFields)
@@ -34,6 +39,8 @@ function checkFields(project, estimatingFields, checkRegion = false, checkBuildi
 		errors.push(noRegionMsg)
 	if (checkBuildingType && !project.buildingType)
 		errors.push(noBuildingTypeMsg)
+	if (checkBuildingCategory && !project.buildingCategory)
+		errors.push(noBuildingCategoryMsg)
 	return errors
 }
 
@@ -597,6 +604,28 @@ const indicators = [
 		}
 	},
 	{
+		label: 'Общее количество номеров в КСР, шт.',
+		name: 'totalNumberOfRooms',
+		stopFactor: {
+			type: 'common',
+			title: 'Недостаточное количество номеров в КСР'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 120
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
 		label: 'Дата начала подготовки ПСД',
 		name: 'startDateOfPSDPreparation',
 		stopFactor: {
@@ -817,12 +846,498 @@ const indicators = [
 			return res
 		}
 	},
+	{
+		label: 'ADR — отпускной тариф, руб./сутки',
+		name: 'adr',
+		stopFactor: {
+			type: 'additional',
+			title: 'Отклонение показателя ADR от среднего рыночного значения'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { values: [] }
+
+			const errors = checkFields(project, [], true, true)
+			if (errors.length)
+				res.errors = errors
+			else if (project.objects) {
+				for (const object of project.objects) {
+					const objectRes = {
+						hotelRating: object.hotelRating
+					}
+
+					if (!object.hotelRating)
+						objectRes.errors = [noHotelRatingMsg]
+					else {
+						const fields = [
+							{
+								name: 'region',
+								value: project.region,
+								title: project.regionTitle,
+							},
+							{
+								name: 'buildingCategory',
+								value: project.buildingCategory,
+								title: project.buildingCategoryTitle,
+							},
+							{
+								name: 'hotelRating',
+								value: object.hotelRating,
+								title: object.hotelRating + '*',
+							},
+						]
+						const { error, dirValue } = getDirValue(dirs, 'adr', fields)
+						if (error)
+							objectRes.errors = [error]
+						else {
+							objectRes.value = object[this.name]
+
+							const condition = Math.abs(objectRes.value / dirValue.value - 1) * 100 > 10
+							if (condition)
+								objectRes.stopFactor = this.stopFactor
+						}
+					}
+
+					res.values.push(objectRes)
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		// todo
+		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
+		name: 'marginEBITDA',
+		stopFactor: {
+			type: 'common',
+			title: 'Отклонение показателя EBITDA от средего рыночного значения'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { values: [] }
+
+			const errors = checkFields(project, [], true, true)
+			if (errors.length)
+				res.errors = errors
+			else if (project.objects) {
+				for (const object of project.objects) {
+					const objectRes = {
+						hotelRating: object.hotelRating
+					}
+
+					if (!object.hotelRating)
+						objectRes.errors = [noHotelRatingMsg]
+					else {
+						const fields = [
+							{
+								name: 'region',
+								value: project.region,
+								title: project.regionTitle,
+							},
+							{
+								name: 'buildingType',
+								value: project.buildingType,
+								title: project.buildingTypeTitle,
+							},
+							{
+								name: 'hotelRating',
+								value: object.hotelRating,
+								title: object.hotelRating + '*',
+							},
+						]
+						const { error, dirValue } = getDirValue(dirs, 'marginEBITDA', fields)
+						if (error)
+							objectRes.errors = [error]
+						else {
+							objectRes.value = object[this.name]
+
+							const condition = Math.abs(objectRes.value / dirValue.value - 1) * 100 > 20
+							if (condition)
+								objectRes.stopFactor = this.stopFactor
+						}
+					}
+
+					res.values.push(objectRes)
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		// todo
+		label: 'Occupancy (OCC) — реальная заполняемость, %',
+		name: 'occ',
+		stopFactor: {
+			type: 'common',
+			title: 'Завышена ожидаемость по загрузке'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { values: [] }
+
+			const errors = checkFields(project, [], true, true)
+			if (errors.length)
+				res.errors = errors
+			else if (project.objects) {
+				for (const object of project.objects) {
+					const objectRes = {
+						hotelRating: object.hotelRating
+					}
+
+					if (!object.hotelRating)
+						objectRes.errors = [noHotelRatingMsg]
+					else {
+						const fields = [
+							{
+								name: 'region',
+								value: project.region,
+								title: project.regionTitle,
+							},
+							{
+								name: 'hotelRating',
+								value: object.hotelRating,
+								title: object.hotelRating + '*',
+							},
+						]
+						const { error, dirValue } = getDirValue(dirs, 'occ', fields)
+						if (error)
+							objectRes.errors = [error]
+						else {
+							objectRes.value = object[this.name]
+
+							const condition = Math.abs(objectRes.value / dirValue.value - 1) * 100 > 20
+							if (condition)
+								objectRes.stopFactor = this.stopFactor
+						}
+					}
+
+					res.values.push(objectRes)
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
+		name: 'doubleOcc',
+		stopFactor: {
+			type: 'additional',
+			title: 'Отклонение показателя Double Occupancy от установленного значения'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name], false, false, true)
+			if (errors.length)
+				res.errors = errors
+			else {
+				const fields = [
+					{
+						name: 'buildingCategory',
+						value: project.buildingCategory,
+						title: project.buildingCategoryTitle,
+					},
+				]
+				const { error, dirValue } = getDirValue(dirs, 'doubleOcc', fields)
+				if (error)
+					res.errors = [error]
+				else {
+					const condition = res.value < dirValue.from || res.value > dirValue.to
+					if (condition)
+						res.stopFactor = this.stopFactor
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		// todo
+		label: 'Участие в проекте гостиничного оператора (вознаграждение за управление проектируемым объектом)',
+		name: 'remunerationForManagement',
+		stopFactor: {
+			type: 'additional',
+			title: 'Завышена стоимость услуг за управление объектом'
+		},
+	},
+	{
+		// todo
+		label: 'Общее количество новых рабочих мест, чел.',
+		name: 'totalNumberOfNewJobs',
+		stopFactor: {
+			type: 'additional',
+			title: 'Отклонение показателя кол-во новых рабочих мест от среднего значения'
+		},
+	},
+	{
+		label: 'Количество сотрудников на 1 номер, чел.',
+		name: 'staffPerRoom',
+		stopFactor: {
+			type: 'additional',
+			title: 'Необходимо уточнить обеспеченность трудовыми ресурсами'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { values: [] }
+
+			const errors = checkFields(project, [], true, true)
+			if (errors.length)
+				res.errors = errors
+			else if (project.objects) {
+				for (const object of project.objects) {
+					const objectRes = {
+						hotelRating: object.hotelRating
+					}
+
+					if (!object.hotelRating)
+						objectRes.errors = [noHotelRatingMsg]
+					else {
+						const fields = [
+							{
+								name: 'region',
+								value: project.region,
+								title: project.regionTitle,
+							},
+							{
+								name: 'buildingType',
+								value: project.buildingType,
+								title: project.buildingTypeTitle,
+							},
+							{
+								name: 'hotelRating',
+								value: object.hotelRating,
+								title: object.hotelRating + '*',
+							},
+						]
+						const { error, dirValue } = getDirValue(dirs, 'staffPerRoom', fields)
+						if (error)
+							objectRes.errors = [error]
+						else {
+							const numberOfNewJobs = parseFloat(object.numberOfNewJobs || 0)
+							const numberOfRooms = parseFloat(object.numberOfRooms || 0)
+
+							objectRes.value = numberOfNewJobs / numberOfRooms
+							objectRes.value = +objectRes.value.toFixed(2)
+
+							const condition = objectRes.value < dirValue.from || objectRes.value > dirValue.to
+							if (condition)
+								objectRes.stopFactor = this.stopFactor
+						}
+					}
+
+					res.values.push(objectRes)
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
+		name: 'corporationFundsShare',
+		stopFactor: {
+			type: 'additional',
+			title: 'Завышен риск миноритарного участника'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 25
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		label: 'Доля кредитных средств в объеме финансирования, %',
+		name: 'creditFundsShare',
+		stopFactor: {
+			type: 'additional',
+			title: 'Высокий уровень закредитованности проекта'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value > 90
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
+		name: 'debtCoverageRatio',
+		stopFactor: {
+			type: 'common',
+			title: 'Высокий уровень закредитованности проекта'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 1.3
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		label: 'Тип проекта',
+		name: 'buildingType',
+		stopFactor: {
+			type: 'additional',
+			title: 'Тип проекта не соответствует требованиям программы льготного кредитования'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const condition = !res.value
+			if (condition)
+				res.stopFactor = this.stopFactor
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		isForHotel: true,
+		label: 'Размер номерного фонда',
+		name: 'totalNumberOfRooms',
+		stopFactor: {
+			type: 'additional',
+			title: 'Размер номерного фонда не соответствует требованиям программы льготного кредитования'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 120
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		isForHotel: true,
+		label: 'Площадь гостиницы',
+		name: 'hotelArea',
+		stopFactor: {
+			type: 'additional',
+			title: 'Площадь гостиницы не соответствует требованиям программы льготного кредитования'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 5000
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		label: 'Соответствие установленному размеру льготного кредита',
+		name: 'bankLoanAmount',
+		stopFactor: {
+			type: 'additional',
+			title: 'Не выполнено требование по критерию размера льготного кредита'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 100000 || res.value > 70000000
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		label: 'Всесезонность',
+		name: 'numberOfOperationMonths',
+		stopFactor: {
+			type: 'additional',
+			title: 'Не выполнено требование программы льготного кредитования по круглогодичности функционирования'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name])
+			if (errors.length)
+				res.errors = errors
+			else {
+				const condition = res.value < 12
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		label: 'Вид работ по проекту (строительство или реконструкция)',
+		name: 'typeOfWork',
+		stopFactor: {
+			type: 'additional',
+			title: 'Вид работ по проекту не соответствует требованиям программы льготного кредитования'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const condition = !res.value
+			if (condition)
+				res.stopFactor = this.stopFactor
+
+			return res
+		}
+	},
 ]
 
 function checkStopFactors(project, dirs) {
 	const scoring = []
 
 	for (const indicator of indicators) {
+		if (indicator.isForSoftLoan && !project.needOfSoftLoan)
+			continue
+		if (indicator.isForHotel && project.buildingType !== 'hotel')
+			continue
+
 		const nestedScoring = []
 
 		if (indicator.indicators)
@@ -846,14 +1361,18 @@ function checkStopFactor(indicator, project, dirs, scoring) {
 
 	const res = indicator.calc(project, dirs, scoring)
 	if (res) {
-		const { value, errors, stopFactor } = res
+		const { value, errors, stopFactor, values } = res
 
-		scoringResult.value = value
+		if (values)
+			scoringResult.values = values
+		else {
+			scoringResult.value = value
 
-		if (errors)
-			scoringResult.errors = errors
-		if (stopFactor)
-			scoringResult.stopFactor = stopFactor
+			if (errors)
+				scoringResult.errors = errors
+			if (stopFactor)
+				scoringResult.stopFactor = stopFactor
+		}
 	}
 
 	return scoringResult

@@ -12,13 +12,6 @@
 		},
 		{
 			type: 'dir',
-			dirName: 'buildingTypes',
-			name: 'buildingType',
-			title: 'Тип объект',
-			default: 'Выберите тип объекта'
-		},
-		{
-			type: 'dir',
 			dirName: 'buildingCategory',
 			name: 'buildingCategory',
 			title: 'Категория объекта',

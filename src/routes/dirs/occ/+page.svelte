@@ -12,18 +12,10 @@
 		},
 		{
 			type: 'dir',
-			dirName: 'buildingTypes',
-			name: 'buildingType',
-			title: 'Тип объект',
-			default: 'Выберите тип объекта'
-		},
-		{
-			type: 'dir',
-			dirName: 'buildingCategory',
-			name: 'buildingCategory',
-			title: 'Категория объекта',
-			default: 'Выберите категорию объекта',
-			defaultEnabled: true
+			dirName: 'hotelRating',
+			name: 'hotelRating',
+			title: 'Звездность гостиницы',
+			default: 'Выберите тип',
 		},
 		{
 			type: 'value',

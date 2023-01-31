@@ -15,9 +15,11 @@
 </script>
 
 <div class="form-control">
-	<label class="label" for="select-{name}">
-		<span class="label-text">{label}</span>
-	</label>
+	{#if label}
+		<label class="label" for="select-{name}">
+			<span class="label-text">{label}</span>
+		</label>
+	{/if}
 	<select class="select select-bordered w-full" id="select-{name}"
 	        on:change={() => dispatch('change')}
 	        bind:value>

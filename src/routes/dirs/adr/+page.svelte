@@ -8,14 +8,14 @@
 			dirName: 'regions',
 			name: 'region',
 			title: 'Регион',
-			default: 'Выберите регион'
+			default: 'Выберите регион',
 		},
 		{
 			type: 'dir',
-			dirName: 'buildingTypes',
-			name: 'buildingType',
-			title: 'Тип объект',
-			default: 'Выберите тип объекта'
+			dirName: 'hotelRating',
+			name: 'hotelRating',
+			title: 'Звездность гостиницы',
+			default: 'Выберите тип',
 		},
 		{
 			type: 'dir',

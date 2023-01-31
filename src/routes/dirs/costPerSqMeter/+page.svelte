@@ -11,14 +11,6 @@
 			default: 'Выберите регион'
 		},
 		{
-			type: 'dir',
-			dirName: 'buildingTypes',
-			name: 'buildingType',
-			title: 'Тип объект',
-			default: 'Выберите тип объекта',
-			defaultEnabled: true
-		},
-		{
 			type: 'value',
 			name: 'value',
 			title: 'Стоимость 1 м², тыс. руб.',

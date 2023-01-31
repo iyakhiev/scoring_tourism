@@ -1,5 +1,6 @@
 <script>
 	import { DIRs } from '$lib/stores'
+	import Select from '$lib/components/select.svelte'
 
 	export let type
 	export let structure
@@ -84,18 +85,12 @@
 						{#each structure as row}
 							{#if row.type === 'dir'}
 								<td>
-									<select class="select select-bordered w-full"
+									<Select name={row.name}
+									        title={row.default}
+									        options={row.options || $DIRs[row.dirName]?.values || []}
+									        on:change={() => highlightSave = true}
 									        bind:value={value[row.name]}
-									        on:change={() => highlightSave = true}>
-										{#if row.defaultEnabled}
-											<option selected value="">{row.default}</option>
-										{:else}
-											<option disabled selected value="">{row.default}</option>
-										{/if}
-										{#each $DIRs[row.dirName]?.values || [] as dirValue}
-											<option value="{dirValue.name}">{dirValue.title}</option>
-										{/each}
-									</select>
+									/>
 								</td>
 							{:else}
 								{#if row.fields.length === 1}
