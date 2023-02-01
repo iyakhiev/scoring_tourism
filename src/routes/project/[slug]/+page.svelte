@@ -9,6 +9,7 @@
 
 	// todo check tab problem
 	// todo check RevPAC, which touristFlow use to calc?
+	// todo add another touristFlow?
 
 	export let data
 
@@ -19,10 +20,787 @@
 	let activeInfrastructureObject = null
 	let errors = {}
 
-	$: {
-		console.log('projects/[slug], data', data)
-		setProject(data)
-	}
+	const tabs = [
+		{
+			ind: 2,
+			title: 'Информация о заявителе',
+			name: 'applicantInfo',
+			fields: [
+				{
+					label: 'Фамилия контактного лица',
+					name: 'applicantFamilyName',
+					type: 'text'
+				},
+				{
+					label: 'Имя контактного лица',
+					name: 'applicantName',
+					type: 'text'
+				},
+				{
+					label: 'Электронная почта',
+					name: 'applicantEmail',
+					type: 'text'
+				},
+				{
+					label: 'Номер телефона',
+					name: 'applicantPhone',
+					type: 'number'
+				},
+				{
+					label: 'Наименование юридического лица',
+					name: 'applicantLegalEntityName',
+					type: 'text'
+				},
+				{
+					label: 'ОГРН',
+					name: 'applicantOGRN',
+					type: 'number'
+				},
+				{
+					label: 'ИНН',
+					name: 'applicantINN',
+					type: 'number'
+				}
+			]
+		},
+		{
+			ind: 3,
+			title: 'Данные бухгалтерского баланса',
+			name: 'balanceSheetData',
+			fields: [
+				{
+					label: 'Краткосрочные финансовые вложения',
+					name: 'kfv',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+					}
+				},
+				{
+					label: 'Денежные средства и их эквиваленты',
+					name: 'ds',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+					}
+				},
+				{
+					label: 'Краткосрочные обязательства',
+					name: 'ko',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+						calcFields.currentLiqRatio.calc()
+						calcFields.debtToEquityRatio.calc()
+						calcFields.solvencyRatio.calc()
+						calcFields.doAndKoSum.calc()
+					}
+				},
+				{
+					label: 'Коэффициент абсолютной ликвидности',
+					name: 'absLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Краткосрочная дебиторская задолженность',
+					name: 'kdz',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.fastLiqRatio.calc()
+				},
+				{
+					label: 'Коэффициент быстрой ликвидности',
+					name: 'fastLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Оборотные активы',
+					name: 'oa',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.currentLiqRatio.calc()
+				},
+				{
+					label: 'Коэффициент текущей ликвидности',
+					name: 'currentLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Собственный капитал',
+					name: 'sk',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.debtToEquityRatio.calc()
+				},
+				{
+					label: 'Коэфициент соотношения заемных и собственных средств',
+					name: 'debtToEquityRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Капитал и резервы',
+					name: 'kr',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.solvencyRatio.calc()
+				},
+				{
+					label: 'Коэффициент общей платежеспособности',
+					name: 'solvencyRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Долгосрочные обязательства',
+					name: 'do',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.debtToEquityRatio.calc()
+						calcFields.solvencyRatio.calc()
+						calcFields.doAndKoSum.calc()
+					}
+				},
+				{
+					label: 'Сумма долгосрочных и краткосрочных обязательств',
+					name: 'doAndKoSum',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
+					name: 'hasOwnershipRight',
+					type: 'check',
+				},
+				{
+					label: 'Наличие обременения на имущество (объекты, земельные участки) вносимое в виде имущественного взноса',
+					name: 'hasPropertyEncumbrance',
+					type: 'check',
+				},
+				{
+					label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
+					name: 'hasSourceOfFundsDocs',
+					type: 'check',
+				},
+				{
+					label: 'Участие в уставном капитале инвестора резидента недружественной страны',
+					name: 'hasUnfriendlyCountryCapital',
+					type: 'check',
+				},
+				{
+					label: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем',
+					name: 'noFinancialReportsForLastYear',
+					type: 'check',
+				},
+				{
+					label: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников: ни одного или один сотрудник, являющийся руководителем',
+					name: 'reportWithNoEmployeesForLastYear',
+					type: 'check',
+				},
+				{
+					label: 'Отсутствие штата персонала',
+					name: 'hasLackOfStaff',
+					type: 'check',
+				},
+				{
+					label: 'Отсутствие материальных и финансовых ресурсов',
+					name: 'noFunds',
+					type: 'check',
+				},
+				{
+					label: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности, в т.ч. способе получения сведений об инвесторе (сайте, реклама в СМИ, отзывы в Интернете, рекомендации)',
+					name: 'noEconomicActivity',
+					type: 'check',
+				},
+				{
+					label: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет',
+					name: 'hasLossesForLast2Years',
+					type: 'check',
+				},
+				{
+					label: 'Ответчик в судах на сумму свыше 300 тыс. руб.',
+					name: 'isDefendantInCourts',
+					type: 'check',
+				},
+				{
+					label: 'Предстоящее исключение из ЕГРЮЛ',
+					name: 'upcomingExclusionFromEGRUL',
+					type: 'check',
+				},
+				{
+					label: 'Признание сведений в ЕГРЮЛ недостоверными',
+					name: 'hasUnreliableInfoInEGRUL',
+					type: 'check',
+				},
+				{
+					label: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)',
+					name: 'hasEnforcementProceedings',
+					type: 'check',
+				},
+				{
+					label: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года',
+					name: 'hasTaxDebts',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре сведений о банкротстве',
+					name: 'hasRegisteredBankruptcy',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре недобросовестных поставщиков',
+					name: 'registeredAsUnscrupulousSupplier',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре обеспечительных мер',
+					name: 'inRegisterOfInterimMeasures',
+					type: 'check',
+				},
+				{
+					label: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке',
+					name: 'notAbleToParticipateInOrgByJudicialProceeding',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в реестре дисквалифицированных лиц',
+					name: 'inRegisterOfDisqualifiedPersons',
+					type: 'check',
+				},
+				{
+					label: 'Наличие информации о судимости',
+					name: 'hasCriminalRecords',
+					type: 'check',
+				},
+				{
+					label: 'Наличие информации об актуальных возбужднных уголовных делах',
+					name: 'hasInitiatedCriminalCases',
+					type: 'check',
+				},
+				{
+					label: 'Наличие конфликта интересов, аффилированности с работником Корпорации',
+					name: 'hasConflictOfInterest',
+					type: 'check',
+				},
+				{
+					label: 'Нахождение в списке лиц, попадающих под условия, предусмотренные подпунктом "ф" пункта 1 статьи 23 Закона о регистрации (Федеральный закон от 08.08.2001 № 129-ФЗ)',
+					name: 'fallingUnderArticle231f',
+					type: 'check',
+				},
+			]
+		},
+		{
+			ind: 4,
+			title: 'Общая информация о проекте',
+			name: 'projectInfo',
+			fields: [
+				{
+					label: 'Наименование проекта',
+					name: 'projectName',
+					type: 'text',
+				},
+				{
+					label: 'Субъект Российской Федерации',
+					name: 'region',
+					type: 'select',
+					options: $DIRs['regions'].values,
+				},
+				{
+					label: 'Населенный пункт',
+					name: 'locality',
+					type: 'text'
+				},
+				{
+					label: 'Адрес объекта',
+					name: 'address',
+					type: 'text'
+				},
+				{
+					label: 'Статус СПК',
+					name: 'statusOfSPK',
+					type: 'select',
+					options: [
+						{
+							name: 'new',
+							title: 'Новая',
+						},
+						{
+							name: 'operating',
+							title: 'Действующая',
+						},
+					]
+				},
+				{
+					label: 'Соответствие категории и вида разрешенного использования земельного участка целям проекта',
+					name: 'complianceOfLandTypeWithProject',
+					type: 'check',
+				},
+				{
+					label: 'Дата поступления анкеты',
+					name: 'applicationSubmissionDate',
+					type: 'date',
+				},
+				{
+					label: 'Дата начала подготовки ПСД',
+					name: 'startDateOfPSDPreparation',
+					type: 'date',
+				},
+				{
+					label: 'Дата окончания подготовки ПСД',
+					name: 'endDateOfPSDPreparation',
+					type: 'date',
+				},
+				{
+					label: 'Дата начала СМР',
+					name: 'startDateOfSMR',
+					type: 'date',
+				},
+				{
+					label: 'Дата окончания СМР',
+					name: 'endDateOfSMR',
+					type: 'date',
+				},
+				{
+					label: 'Дата ввода в эксплуатацию',
+					name: 'commissioningDate',
+					type: 'date',
+				},
+				{
+					label: 'Расходы pre-opening, тыс. руб.',
+					name: 'preOpeningCost',
+					type: 'number',
+					min: 0
+				},
+			]
+		},
+		{
+			ind: 5,
+			title: 'Транспортная доступность',
+			name: 'transportAccessibility',
+			fields: [
+				{
+					label: 'Растояние от границы земельного участка до аэропорта',
+					name: 'distanceToAirport',
+					type: 'number',
+					min: 0
+				},
+				{
+					label: 'Растояние от границы земельного участка до автомобильной дороги регионального / федерального значения',
+					name: 'distanceToHighway',
+					type: 'number',
+					min: 0
+				},
+				{
+					label: 'Растояние от границы земельного участка до ж/д вокзала (станции)',
+					name: 'distanceToRailwayStation',
+					type: 'number',
+					min: 0
+				},
+				{
+					label: 'Расстояние до морского / речного порта',
+					name: 'distanceToSeaPort',
+					type: 'number',
+					min: 0
+				}
+			]
+		},
+		{
+			ind: 6,
+			title: 'Информация об объектах в составе проекта',
+			name: 'objectsInfo',
+			fields: [
+				{
+					label: 'Вид работ по проекту',
+					name: 'typeOfWork',
+					type: 'select',
+					options: [
+						{
+							title: 'Строительство',
+							name: 'construction'
+						},
+						{
+							title: 'Реконструкция',
+							name: 'reconstruction'
+						},
+					]
+				},
+				{
+					label: 'Общее количество номеров в КСР, шт.',
+					name: 'totalNumberOfRooms',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Доля площадей КСР в составе объекта (для МФК), %',
+					name: 'shareOfRoomsArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общая площадь объектов и дополнительной инфраструктуры, м²',
+					name: 'totalArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Площадь гостиниц(ы), м²',
+					name: 'hotelArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
+					name: 'infrastructureArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость 1 м² объекта, тыс. руб.',
+					name: 'costPerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость 1 номера, тыс. руб.',
+					name: 'costPerRoom',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
+					name: 'totalCost',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость строительства гостиниц(ы), тыс. руб.',
+					name: 'totalCostOfBuilding',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
+					name: 'totalCostOfBuildingInfrastructure',
+					type: 'number',
+					disabled: true
+				},
+			]
+		},
+		{
+			ind: 7,
+			title: 'Экономические показатели',
+			name: 'economicIndicators',
+			fields: [
+				{
+					label: 'Количество месяцев функционирования в году',
+					name: 'numberOfOperationMonths',
+					type: 'number',
+					min: 0
+				},
+				{
+					label: 'Occupancy (OCC) — реальная заполняемость, %',
+					name: 'occ',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
+					name: 'doubleOcc',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Турпоток, чел./ночей за год',
+					name: 'touristPerNightFlow',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Турпоток, чел./год',
+					name: 'touristFlow',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общее количество внешних гостей',
+					name: 'totalExternalGuests',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.touristFlow.calc()
+				},
+				{
+					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
+					name: 'revenuePerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'totalRevenues',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выручка от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'roomRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+						calcFields.revPAR.calc()
+					}
+				},
+				{
+					label: 'Выручка ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'restaurantsRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+					}
+				},
+				{
+					label: 'Выручка СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'spaAndGymRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+					}
+				},
+				{
+					label: 'Выручка аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'aquaparkRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+					}
+				},
+				{
+					label: 'Выручка инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'glkRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.totalRevenues.calc()
+				},
+				{
+					label: 'Выручка парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'amusementsRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalRevenues.calc()
+					}
+				},
+				{
+					label: 'Выручка прочее, тыс. руб. в год после выхода на проектную нагрузку',
+					name: 'otherRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.totalRevenues.calc()
+				},
+				{
+					label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
+					name: 'revPAR',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, тыс. руб.',
+					name: 'revPAC',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общее количество новых рабочих мест, чел.',
+					name: 'totalNumberOfNewJobs',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Количество сотрудников на 1 номер, чел.',
+					name: 'staffPerRoom',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Участие в проекте гостиничного оператора (вознаграждение за управление проектируемым объектом)',
+					name: 'remunerationForManagement',
+					type: 'number',
+					min: 0,
+				},
+			]
+		},
+		{
+			ind: 8,
+			title: 'Финансирование',
+			name: 'financing',
+			fields: [
+				{
+					label: 'Общий объем финансирования (Total Founds), тыс. руб.',
+					name: 'totalFunds',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Собственные средства, тыс. руб.',
+					name: 'ownFunds',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Взнос Инвестора в уставный капитал СПК в денежной форме, тыс. руб.',
+					name: 'investorContributionCash',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
+				},
+				{
+					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме), тыс. руб.',
+					name: 'investorContributionNotCash',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
+				},
+				{
+					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме), тыс. руб.',
+					name: 'investorContributionCashNotInCapital',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Инвестор (заем), тыс. руб.',
+					name: 'investorLoan',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Корпорация Туризм.РФ  (взнос в уставный капитал СПК), тыс. руб.',
+					name: 'corporationContributionCash',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
+				},
+				{
+					label: 'Корпорация Туризм.РФ  (заем), тыс. руб.',
+					name: 'corporationLoan',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.ownFunds.calc()
+						calcFields.corporationFundsShare.calc()
+					}
+				},
+				{
+					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо), тыс. руб.',
+					name: 'landSaleRevenue',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.ownFunds.calc()
+				},
+				{
+					label: 'Кредит банка (DEBT), тыс. руб.',
+					name: 'bankLoanAmount',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.totalFunds.calc()
+						calcFields.creditFundsShare.calc()
+						calcFields.interestPayments.calc()
+						calcFields.loanBodyPayments.calc()
+					}
+				},
+				{
+					label: 'Планируемая ставка по кредиту, %',
+					name: 'plannedLoanRate',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.interestPayments.calc()
+				},
+				{
+					label: 'Срок кредита, лет',
+					name: 'loanTerm',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.interestPayments.calc()
+						calcFields.loanBodyPayments.calc()
+					}
+				},
+				{
+					label: 'Потребность в льготном кредите (в т.ч. Постановление №141), тыс. руб.',
+					name: 'needOfSoftLoan',
+					type: 'check',
+				},
+				{
+					label: 'Наличие банка кредитора (наименование)',
+					name: 'bankName',
+					type: 'text',
+					min: 0,
+				},
+				{
+					label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
+					name: 'corporationFundsShare',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Доля кредитных средств в объеме финансирования, %',
+					name: 'creditFundsShare',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
+					name: 'debtCoverageRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'EBITDA, тыс. руб. (за год после ввода в эксплуатацию)',
+					name: 'EBITDA',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Процентные платежи в год (I), тыс. руб.',
+					name: 'interestPayments',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Выплаты тела кредита, тыс. руб. в год (D)',
+					name: 'loanBodyPayments',
+					type: 'number',
+					disabled: true
+				},
+			],
+		}
+	]
+
+	$: setProject(data)
 
 	function getDirValue(dirName) {
 		const values = $DIRs[dirName]?.values || []
@@ -108,6 +886,14 @@
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
+		doAndKoSum: {
+			label: 'Сумма долгосрочных и краткосрочных обязательств',
+			name: 'doAndKoSum',
+			calc: function () {
+				const value = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
+				updateProjectProp(this.name, value)
+			}
+		},
 		costPerSqMeter: {
 			label: 'Стоимость 1 м² объекта, тыс. руб.',
 			name: 'costPerSqMeter',
@@ -136,9 +922,16 @@
 			label: 'Доля площадей КСР в составе объекта (для МФК), %',
 			name: 'shareOfRoomsArea',
 			calc: function () {
-				if (!project.totalArea || !project.roomsArea)
+				if (!project.totalArea)
 					return updateProjectProp(this.name)
-				const value = (project.roomsArea / project.totalArea) * 100
+
+				const roomsArea = project.objects
+					&& project.objects.reduce((acc, object) => {
+						acc += parseFloat(object.roomsArea || 0)
+						return acc
+					}, 0)
+
+				const value = (roomsArea / project.totalArea) * 100
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -575,17 +1368,11 @@
 		},
 	}
 
-	const tabs = [
+	const tabs1 = [
 		{
 			ind: 2,
 			title: 'Оценка Инвестора',
 			fields: [
-				{
-					label: 'Коэффициент абсолютной ликвидности',
-					name: 'absLiqRatio',
-					type: 'number',
-					disabled: true
-				},
 				{
 					label: 'Краткосрочные финансовые вложения',
 					name: 'kfv',
@@ -620,8 +1407,8 @@
 					}
 				},
 				{
-					label: 'Коэффициент быстрой ликвидности',
-					name: 'fastLiqRatio',
+					label: 'Коэффициент абсолютной ликвидности',
+					name: 'absLiqRatio',
 					type: 'number',
 					disabled: true
 				},
@@ -633,8 +1420,8 @@
 					calc: () => calcFields.fastLiqRatio.calc()
 				},
 				{
-					label: 'Коэффициент текущей ликвидности',
-					name: 'currentLiqRatio',
+					label: 'Коэффициент быстрой ликвидности',
+					name: 'fastLiqRatio',
 					type: 'number',
 					disabled: true
 				},
@@ -646,8 +1433,8 @@
 					calc: () => calcFields.currentLiqRatio.calc()
 				},
 				{
-					label: 'Коэфициент соотношения заемных и собственных средств',
-					name: 'debtToEquityRatio',
+					label: 'Коэффициент текущей ликвидности',
+					name: 'currentLiqRatio',
 					type: 'number',
 					disabled: true
 				},
@@ -662,6 +1449,12 @@
 					}
 				},
 				{
+					label: 'Сумма долгосрочных и краткосрочных обязательств',
+					name: 'doAndKoSum',
+					type: 'number',
+					disabled: true
+				},
+				{
 					label: 'Собственный капитал',
 					name: 'sk',
 					type: 'number',
@@ -669,8 +1462,8 @@
 					calc: () => calcFields.debtToEquityRatio.calc()
 				},
 				{
-					label: 'Коэффициент общей платежеспособности',
-					name: 'solvencyRatio',
+					label: 'Коэфициент соотношения заемных и собственных средств',
+					name: 'debtToEquityRatio',
 					type: 'number',
 					disabled: true
 				},
@@ -680,6 +1473,12 @@
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.solvencyRatio.calc()
+				},
+				{
+					label: 'Коэффициент общей платежеспособности',
+					name: 'solvencyRatio',
+					type: 'number',
+					disabled: true
 				},
 				{
 					label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
@@ -838,12 +1637,6 @@
 			title: 'ТЭП, CAPEX',
 			fields: [
 				{
-					label: 'Общее количество номеров в КСР, шт.',
-					name: 'totalNumberOfRooms',
-					type: 'number',
-					disabled: true
-				},
-				{
 					label: 'Вид работ по проекту',
 					name: 'typeOfWork',
 					type: 'select',
@@ -857,6 +1650,36 @@
 							name: 'reconstruction'
 						},
 					]
+				},
+				{
+					label: 'Общее количество номеров в КСР, шт.',
+					name: 'totalNumberOfRooms',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Доля площадей КСР в составе объекта (для МФК), %',
+					name: 'shareOfRoomsArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общая площадь объектов и дополнительной инфраструктуры, м²',
+					name: 'totalArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Площадь гостиниц(ы), м²',
+					name: 'hotelArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
+					name: 'infrastructureArea',
+					type: 'number',
+					disabled: true
 				},
 				{
 					label: 'Стоимость 1 м² объекта, тыс. руб.',
@@ -877,20 +1700,8 @@
 					disabled: true
 				},
 				{
-					label: 'Общая площадь объектов и дополнительной инфраструктуры, м²',
-					name: 'totalArea',
-					type: 'number',
-					disabled: true
-				},
-				{
 					label: 'Стоимость строительства гостиниц(ы), тыс. руб.',
 					name: 'totalCostOfBuilding',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Площадь гостиниц(ы), м²',
-					name: 'hotelArea',
 					type: 'number',
 					disabled: true
 				},
@@ -901,22 +1712,11 @@
 					disabled: true
 				},
 				{
-					label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
-					name: 'infrastructureArea',
-					type: 'number',
-					disabled: true
-				},
-				// {
-				// 	label: 'Доля площадей КСР в составе объекта (для МФК), %',
-				// 	name: 'shareOfRoomsArea',
-				// 	type: 'number',
-				// 	disabled: true
-				// },
-				{
 					label: 'Дата поступления анкеты',
 					name: 'applicationSubmissionDate',
 					type: 'date',
-				},				{
+				},
+				{
 					label: 'Дата начала подготовки ПСД',
 					name: 'startDateOfPSDPreparation',
 					type: 'date',
@@ -1478,6 +2278,8 @@
 	]
 
 	function setProject(data) {
+		console.log('setProject, data', data)
+
 		if (!data?.project)
 			return
 
@@ -1641,318 +2443,11 @@
 </script>
 
 {#if project}
-	<div class="flex items-center gap-5">
-		<div class="text-2xl">{project.name}</div>
-		<div class="flex items-center gap-5 ml-auto shrink-0">
-			<button class="btn btn-accent btn-outline"
-			        on:click={deleteProject}>
-				Удалить
-			</button>
-			<button class="btn btn-primary"
-			        class:btn-outline={!highlightSave}
-			        on:click={saveProject}>
-				Сохранить
-			</button>
-			<button class="btn btn-outline"
-			        on:click={estimateStopFactors}>
-				Провести оценку
-			</button>
-		</div>
-	</div>
-	<div class="my-10 flex flex-col gap-2">
-		<Input name="theProjectName"
-		       label="Название"
-		       placeholder="Название проекта"
-		       on:change={() => highlightSave = true}
-		       bind:value={project.name}/>
-		<Select name="theProjectRegion"
-		        label="Регион"
-		        title="Выберите регион"
-		        options={$DIRs['regions']?.values}
-		        on:change={() => highlightSave = true}
-		        bind:value={project.region}
-		/>
-		<Select name="theProjectBuildingType"
-		        label="Тип объекта"
-		        title="Выберите тип объекта"
-		        options={$DIRs['buildingTypes']?.values}
-		        on:change={() => highlightSave = true}
-		        bind:value={project.buildingType}
-		/>
-		<Select name="theProjectBuildingCategory"
-		        label="Категория объекта"
-		        title="Выберите категорию объекта"
-		        options={$DIRs['buildingCategory']?.values}
-		        defaultDisabled={false}
-		        on:change={() => highlightSave = true}
-		        bind:value={project.buildingCategory}
-		/>
-	</div>
-	<div class="tabs mt-10">
-		{#if project.scoring}
-			<a class="tab tab-lifted"
-			   class:tab-active={activeProjectTab === 0}
-			   on:click={() => activeProjectTab = 0}
-			>Стоп-факторы</a>
-		{/if}
-		<a class="tab tab-lifted"
-		   class:tab-active={activeProjectTab === 1}
-		   on:click={() => activeProjectTab = 1}
-		>Объекты</a>
-		{#each tabs as tab}
-			<div class="tab tab-lifted"
-			     class:tab-active={activeProjectTab === tab.ind}
-			     on:click={() => activeProjectTab = tab.ind}
-			>{tab.title}</div>
-		{/each}
-	</div>
-	<div>
-		<div class="flex overflow-hidden">
-			<div class="shrink-0 w-full overflow-hidden transition-all"
-			     class:h-0={activeProjectTab !== 0}
-			     style="margin-left: {-activeProjectTab * 100}%">
-				{#if project.scoring}
-					<div class="overflow-x-auto mt-10">
-						<table class="table w-full">
-							<!-- head -->
-							<thead>
-							<tr>
-								<th>Раздел</th>
-								<th>Наименование показателя</th>
-								<th>Значение</th>
-								<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
-							</tr>
-							<tr>
-								<th class="w-2/12"></th>
-								<th class="w-3/12"></th>
-								<th class="w-1/12"></th>
-								<th class="w-3/12 text-center">Общий</th>
-								<th class="w-3/12 text-center">Дополнительный</th>
-							</tr>
-							</thead>
-							<tbody>
-							{#each project.scoring as scoringRow}
-								<tr>
-									<td class="whitespace-pre-wrap">{scoringRow.section}</td>
-									<td class="whitespace-pre-wrap">{scoringRow.fieldName}</td>
-									<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
-									{#if scoringRow.error}
-										<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
-											{scoringRow.error}
-										</td>
-									{:else if scoringRow.stopFactor?.type === 'common'}
-										<td class="whitespace-pre-wrap bg-red-300 text-center">
-											{scoringRow.stopFactor.text}
-										</td>
-										<td></td>
-									{:else if scoringRow.stopFactor?.type === 'additional'}
-										<td></td>
-										<td class="whitespace-pre-wrap bg-yellow-300 text-center">
-											{scoringRow.stopFactor.text}
-										</td>
-									{:else}
-										<td colspan="2" class="text-center">Соответствует критериям</td>
-									{/if}
-								</tr>
-							{/each}
-							</tbody>
-						</table>
-					</div>
-				{/if}
-			</div>
-			<div class="shrink-0 w-full overflow-hidden transition-all"
-			     class:h-0={activeProjectTab !== 1}>
-				<div class="p-5 py-10">
-					<div class="flex">
-						<div class="mr-10">
-							<div class="text-xl mb-2">Гостиницы:</div>
-							<ul class="w-full">
-								{#each project.objects as object, i}
-									<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
-									    class:bg-base-200={activeObject === i}
-									    on:click={() => selectObject(i)}>
-										{i + 1}. {object.title} {object.hotelRating ? object.hotelRating + '*' : ''}
-									</li>
-								{/each}
-							</ul>
-						</div>
-						<div class="">
-							<div class="text-xl mb-2">Объекты инфраструктуры:</div>
-							<ul class="w-full">
-								{#each project.infrastructureObjects || [] as object, i}
-									<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
-									    class:bg-base-200={activeInfrastructureObject === i}
-									    on:click={() => selectObject(i, true)}>
-										{i + 1}. {object.title}
-									</li>
-								{/each}
-							</ul>
-						</div>
-						<div class="flex flex-col gap-5 ml-auto">
-							{#if project.buildingType === 'complex'}
-								<button class="btn btn-outline"
-								        on:click={addObject}>
-									Добавить гостиницу
-								</button>
-							{/if}
-							<button class="btn btn-outline"
-							        on:click={addInfrastructureObject}>
-								Добавить инфраструктуру
-							</button>
-						</div>
-					</div>
-					<div class="divider"></div>
-					{#if activeObject !== null}
-						<div class="flex justify-between">
-							<div>
-								{#each objectFields as field}
-									<div class="max-w-lg p-5">
-										{#if field.disabled}
-											<div class="form-control w-full">
-												<label class="label" for="object-{field.name}">
-													<span class="label-text">{field.label}</span>
-												</label>
-												<input id="object-{field.name}" type="number" placeholder=""
-												       value={project.objects[activeObject][field.name]} disabled
-												       class="input input-bordered w-full"/>
-											</div>
-										{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-											<Input {...field}
-											       name="object-{field.name}"
-											       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-											       bind:value={project.objects[activeObject][field.name]}/>
-										{:else if field.type === 'check'}
-											<Check {...field}
-											       name="object-{field.name}"
-											       on:change={() => (highlightSave = true)}
-											       bind:checked={project.objects[activeObject][field.name]}/>
-										{:else if field.type === 'select'}
-											<Select {...field}
-											        name="object-{field.name}"
-											        on:change={() => (highlightSave = true)}
-											        bind:value={project.objects[activeObject][field.name]}/>
-										{/if}
-									</div>
-									{#if errors[field.name]}
-										<div class="alert alert-warning shadow-lg">
-											<div>
-												<svg xmlns="http://www.w3.org/2000/svg"
-												     class="stroke-current flex-shrink-0 h-6 w-6"
-												     fill="none" viewBox="0 0 24 24">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-													      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-												</svg>
-												<span>{errors[field.name]}</span>
-											</div>
-										</div>
-									{/if}
-								{/each}
-							</div>
-							<button class="btn btn-accent" on:click={removeObject}>Удалить объект</button>
-						</div>
-					{/if}
-					{#if activeInfrastructureObject !== null}
-						<div class="flex justify-between">
-							<div>
-								{#each objectInfrastructureFields as field}
-									<div class="max-w-lg p-5">
-										{#if field.disabled}
-											<div class="form-control w-full">
-												<label class="label" for="object-{field.name}">
-													<span class="label-text">{field.label}</span>
-												</label>
-												<input id="infrastructure-{field.name}" type="number" placeholder=""
-												       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
-												       disabled
-												       class="input input-bordered w-full"/>
-											</div>
-										{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-											<Input {...field}
-											       name="infrastructure-{field.name}"
-											       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-										{:else if field.type === 'check'}
-											<Check {...field}
-											       name="infrastructure-{field.name}"
-											       on:change={() => (highlightSave = true)}
-											       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-										{:else if field.type === 'select'}
-											<Select {...field}
-											        name="infrastructure-{field.name}"
-											        on:change={() => (highlightSave = true)}
-											        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-										{/if}
-									</div>
-									{#if errors[field.name]}
-										<div class="alert alert-warning shadow-lg">
-											<div>
-												<svg xmlns="http://www.w3.org/2000/svg"
-												     class="stroke-current flex-shrink-0 h-6 w-6"
-												     fill="none" viewBox="0 0 24 24">
-													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-													      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-												</svg>
-												<span>{errors[field.name]}</span>
-											</div>
-										</div>
-									{/if}
-								{/each}
-							</div>
-							<button class="btn btn-accent" on:click={removeInfrastructureObject}>Удалить объект</button>
-						</div>
-					{/if}
-				</div>
-			</div>
-			{#each tabs as tab}
-				{#if tab.fields.length}
-					<div class="shrink-0 w-full overflow-hidden transition-all"
-					     class:h-10={activeProjectTab !== tab.ind}>
-						{#each tab.fields as field}
-							<div class="max-w-lg p-5">
-								{#if field.disabled}
-									<div class="form-control w-full">
-										<label class="label" for="{field.name}">
-											<span class="label-text">{field.label}</span>
-										</label>
-										<input id="{field.name}" type="number" placeholder=""
-										       value={project[field.name]} disabled
-										       class="input input-bordered w-full"/>
-									</div>
-								{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-									<Input {...field}
-									       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-									       bind:value={project[field.name]}/>
-								{:else if field.type === 'check'}
-									<Check {...field}
-									       on:change={() => (highlightSave = true)}
-									       bind:checked={project[field.name]}/>
-								{:else if field.type === 'select'}
-									<Select {...field}
-									        on:change={() => (highlightSave = true)}
-									        bind:value={project[field.name]}/>
-								{/if}
-							</div>
-							{#if errors[field.name]}
-								<div class="alert alert-warning shadow-lg">
-									<div>
-										<svg xmlns="http://www.w3.org/2000/svg"
-										     class="stroke-current flex-shrink-0 h-6 w-6"
-										     fill="none" viewBox="0 0 24 24">
-											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-											      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-										</svg>
-										<span>{errors[field.name]}</span>
-									</div>
-								</div>
-							{/if}
-						{/each}
-					</div>
-				{/if}
-			{/each}
-		</div>
-		<div class="flex items-center gap-5 mt-10 sticky bottom-10">
-			<div class="flex flex-col gap-5 ml-auto">
-				<button class="btn btn-sm btn-accent btn-outline"
+	<div class="p-10">
+		<div class="flex items-center gap-5">
+			<div class="text-2xl">{project.name}</div>
+			<div class="flex items-center gap-5 ml-auto shrink-0">
+				<button class="btn btn-accent btn-outline"
 				        on:click={deleteProject}>
 					Удалить
 				</button>
@@ -1965,10 +2460,323 @@
 				        on:click={estimateStopFactors}>
 					Провести оценку
 				</button>
-				<button class="btn btn-outline btn-secondary"
-				        on:click={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-					Наверх
-				</button>
+			</div>
+		</div>
+		<div class="my-10 flex flex-col gap-2">
+			<Input name="theProjectName"
+			       label="Название"
+			       placeholder="Название проекта"
+			       on:change={() => highlightSave = true}
+			       bind:value={project.name}/>
+			<Select name="theProjectRegion"
+			        label="Регион"
+			        title="Выберите регион"
+			        options={$DIRs['regions']?.values}
+			        on:change={() => highlightSave = true}
+			        bind:value={project.region}
+			/>
+			<Select name="theProjectBuildingType"
+			        label="Тип объекта"
+			        title="Выберите тип объекта"
+			        options={$DIRs['buildingTypes']?.values}
+			        on:change={() => highlightSave = true}
+			        bind:value={project.buildingType}
+			/>
+			<Select name="theProjectBuildingCategory"
+			        label="Категория объекта"
+			        title="Выберите категорию объекта"
+			        options={$DIRs['buildingCategory']?.values}
+			        defaultDisabled={false}
+			        on:change={() => highlightSave = true}
+			        bind:value={project.buildingCategory}
+			/>
+		</div>
+		<div class="tabs mt-10">
+			{#if project.scoring}
+				<a class="tab tab-lifted"
+				   class:tab-active={activeProjectTab === 0}
+				   on:click={() => activeProjectTab = 0}
+				>Стоп-факторы</a>
+			{/if}
+			<a class="tab tab-lifted"
+			   class:tab-active={activeProjectTab === 1}
+			   on:click={() => activeProjectTab = 1}
+			>Объекты</a>
+			{#each tabs as tab}
+				<div class="tab tab-lifted"
+				     class:tab-active={activeProjectTab === tab.ind}
+				     on:click={() => activeProjectTab = tab.ind}
+				>{tab.title}</div>
+			{/each}
+		</div>
+		<div>
+			<div class="flex overflow-hidden">
+				<div class="shrink-0 w-full overflow-hidden transition-all"
+				     class:h-0={activeProjectTab !== 0}
+				     style="margin-left: {-activeProjectTab * 100}%">
+					{#if project.scoring}
+						<div class="overflow-x-auto mt-10">
+							<table class="table w-full">
+								<!-- head -->
+								<thead>
+								<tr>
+									<th>Раздел</th>
+									<th>Наименование показателя</th>
+									<th>Значение</th>
+									<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
+								</tr>
+								<tr>
+									<th class="w-2/12"></th>
+									<th class="w-3/12"></th>
+									<th class="w-1/12"></th>
+									<th class="w-3/12 text-center">Общий</th>
+									<th class="w-3/12 text-center">Дополнительный</th>
+								</tr>
+								</thead>
+								<tbody>
+								{#each project.scoring as scoringRow}
+									<tr>
+										<td class="whitespace-pre-wrap">{scoringRow.section}</td>
+										<td class="whitespace-pre-wrap">{scoringRow.fieldName}</td>
+										<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
+										{#if scoringRow.error}
+											<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
+												{scoringRow.error}
+											</td>
+										{:else if scoringRow.stopFactor?.type === 'common'}
+											<td class="whitespace-pre-wrap bg-red-300 text-center">
+												{scoringRow.stopFactor.text}
+											</td>
+											<td></td>
+										{:else if scoringRow.stopFactor?.type === 'additional'}
+											<td></td>
+											<td class="whitespace-pre-wrap bg-yellow-300 text-center">
+												{scoringRow.stopFactor.text}
+											</td>
+										{:else}
+											<td colspan="2" class="text-center">Соответствует критериям</td>
+										{/if}
+									</tr>
+								{/each}
+								</tbody>
+							</table>
+						</div>
+					{/if}
+				</div>
+				<div class="shrink-0 w-full overflow-hidden transition-all"
+				     class:h-0={activeProjectTab !== 1}>
+					<div class="p-5 py-10">
+						<div class="flex">
+							<div class="mr-10">
+								<div class="text-xl mb-2">Гостиницы:</div>
+								<ul class="w-full">
+									{#each project.objects as object, i}
+										<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
+										    class:bg-base-200={activeObject === i}
+										    on:click={() => selectObject(i)}>
+											{i + 1}. {object.title} {object.hotelRating ? object.hotelRating + '*' : ''}
+										</li>
+									{/each}
+								</ul>
+							</div>
+							<div class="">
+								<div class="text-xl mb-2">Объекты инфраструктуры:</div>
+								<ul class="w-full">
+									{#each project.infrastructureObjects || [] as object, i}
+										<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
+										    class:bg-base-200={activeInfrastructureObject === i}
+										    on:click={() => selectObject(i, true)}>
+											{i + 1}. {object.title}
+										</li>
+									{/each}
+								</ul>
+							</div>
+							<div class="flex flex-col gap-5 ml-auto">
+								{#if project.buildingType === 'complex'}
+									<button class="btn btn-outline"
+									        on:click={addObject}>
+										Добавить гостиницу
+									</button>
+								{/if}
+								<button class="btn btn-outline"
+								        on:click={addInfrastructureObject}>
+									Добавить инфраструктуру
+								</button>
+							</div>
+						</div>
+						<div class="divider"></div>
+						{#if activeObject !== null}
+							<div class="flex justify-between">
+								<div>
+									{#each objectFields as field}
+										<div class="max-w-lg p-5">
+											{#if field.disabled}
+												<div class="form-control w-full">
+													<label class="label" for="object-{field.name}">
+														<span class="label-text">{field.label}</span>
+													</label>
+													<input id="object-{field.name}" type="number" placeholder=""
+													       value={project.objects[activeObject][field.name]} disabled
+													       class="input input-bordered w-full"/>
+												</div>
+											{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+												<Input {...field}
+												       name="object-{field.name}"
+												       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+												       bind:value={project.objects[activeObject][field.name]}/>
+											{:else if field.type === 'check'}
+												<Check {...field}
+												       name="object-{field.name}"
+												       on:change={() => (highlightSave = true)}
+												       bind:checked={project.objects[activeObject][field.name]}/>
+											{:else if field.type === 'select'}
+												<Select {...field}
+												        name="object-{field.name}"
+												        on:change={() => (highlightSave = true)}
+												        bind:value={project.objects[activeObject][field.name]}/>
+											{/if}
+										</div>
+										{#if errors[field.name]}
+											<div class="alert alert-warning shadow-lg">
+												<div>
+													<svg xmlns="http://www.w3.org/2000/svg"
+													     class="stroke-current flex-shrink-0 h-6 w-6"
+													     fill="none" viewBox="0 0 24 24">
+														<path stroke-linecap="round" stroke-linejoin="round"
+														      stroke-width="2"
+														      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+													</svg>
+													<span>{errors[field.name]}</span>
+												</div>
+											</div>
+										{/if}
+									{/each}
+								</div>
+								<button class="btn btn-accent" on:click={removeObject}>Удалить объект</button>
+							</div>
+						{/if}
+						{#if activeInfrastructureObject !== null}
+							<div class="flex justify-between">
+								<div>
+									{#each objectInfrastructureFields as field}
+										<div class="max-w-lg p-5">
+											{#if field.disabled}
+												<div class="form-control w-full">
+													<label class="label" for="object-{field.name}">
+														<span class="label-text">{field.label}</span>
+													</label>
+													<input id="infrastructure-{field.name}" type="number" placeholder=""
+													       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
+													       disabled
+													       class="input input-bordered w-full"/>
+												</div>
+											{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+												<Input {...field}
+												       name="infrastructure-{field.name}"
+												       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+												       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											{:else if field.type === 'check'}
+												<Check {...field}
+												       name="infrastructure-{field.name}"
+												       on:change={() => (highlightSave = true)}
+												       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											{:else if field.type === 'select'}
+												<Select {...field}
+												        name="infrastructure-{field.name}"
+												        on:change={() => (highlightSave = true)}
+												        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											{/if}
+										</div>
+										{#if errors[field.name]}
+											<div class="alert alert-warning shadow-lg">
+												<div>
+													<svg xmlns="http://www.w3.org/2000/svg"
+													     class="stroke-current flex-shrink-0 h-6 w-6"
+													     fill="none" viewBox="0 0 24 24">
+														<path stroke-linecap="round" stroke-linejoin="round"
+														      stroke-width="2"
+														      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+													</svg>
+													<span>{errors[field.name]}</span>
+												</div>
+											</div>
+										{/if}
+									{/each}
+								</div>
+								<button class="btn btn-accent"
+								        on:click={removeInfrastructureObject}>Удалить объект
+								</button>
+							</div>
+						{/if}
+					</div>
+				</div>
+				{#each tabs as tab}
+					{#if tab.fields.length}
+						<div class="shrink-0 w-full overflow-hidden transition-all"
+						     class:h-10={activeProjectTab !== tab.ind}>
+							{#each tab.fields as field}
+								<div class="max-w-lg p-5">
+									{#if field.disabled}
+										<div class="form-control w-full">
+											<label class="label" for="{field.name}">
+												<span class="label-text">{field.label}</span>
+											</label>
+											<input id="{field.name}" type="number" placeholder=""
+											       value={project[field.name]} disabled
+											       class="input input-bordered w-full"/>
+										</div>
+									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+										<Input {...field}
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'check'}
+										<Check {...field}
+										       on:change={() => (highlightSave = true)}
+										       bind:checked={project[field.name]}/>
+									{:else if field.type === 'select'}
+										<Select {...field}
+										        on:change={() => (highlightSave = true)}
+										        bind:value={project[field.name]}/>
+									{/if}
+								</div>
+								{#if errors[field.name]}
+									<div class="alert alert-warning shadow-lg">
+										<div>
+											<svg xmlns="http://www.w3.org/2000/svg"
+											     class="stroke-current flex-shrink-0 h-6 w-6"
+											     fill="none" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+												      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+											</svg>
+											<span>{errors[field.name]}</span>
+										</div>
+									</div>
+								{/if}
+							{/each}
+						</div>
+					{/if}
+				{/each}
+			</div>
+			<div class="flex items-center gap-5 mt-10 sticky bottom-10">
+				<div class="flex flex-col gap-5 ml-auto">
+					<button class="btn btn-sm btn-accent btn-outline"
+					        on:click={deleteProject}>
+						Удалить
+					</button>
+					<button class="btn btn-primary"
+					        class:btn-outline={!highlightSave}
+					        on:click={saveProject}>
+						Сохранить
+					</button>
+					<button class="btn btn-outline"
+					        on:click={estimateStopFactors}>
+						Провести оценку
+					</button>
+					<button class="btn btn-outline btn-secondary"
+					        on:click={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+						Наверх
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
