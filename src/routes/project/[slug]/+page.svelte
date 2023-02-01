@@ -2398,6 +2398,9 @@
 				console.log('project', res.project)
 				console.log('dirs', res.dirs)
 				console.log('scoring', res.scoring)
+
+				project.scoring = res.scoring
+				activeProjectTab = 0
 			})
 
 		// console.log('estimateStopFactors(), project', project)
@@ -2520,13 +2523,13 @@
 								<!-- head -->
 								<thead>
 								<tr>
-									<th>Раздел</th>
+<!--									<th>Раздел</th>-->
 									<th>Наименование показателя</th>
 									<th>Значение</th>
 									<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)</th>
 								</tr>
 								<tr>
-									<th class="w-2/12"></th>
+<!--									<th class="w-2/12"></th>-->
 									<th class="w-3/12"></th>
 									<th class="w-1/12"></th>
 									<th class="w-3/12 text-center">Общий</th>
@@ -2536,8 +2539,8 @@
 								<tbody>
 								{#each project.scoring as scoringRow}
 									<tr>
-										<td class="whitespace-pre-wrap">{scoringRow.section}</td>
-										<td class="whitespace-pre-wrap">{scoringRow.fieldName}</td>
+<!--										<td class="whitespace-pre-wrap">{scoringRow.section}</td>-->
+										<td class="whitespace-pre-wrap">{scoringRow.label}</td>
 										<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
 										{#if scoringRow.error}
 											<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
@@ -2545,13 +2548,13 @@
 											</td>
 										{:else if scoringRow.stopFactor?.type === 'common'}
 											<td class="whitespace-pre-wrap bg-red-300 text-center">
-												{scoringRow.stopFactor.text}
+												{scoringRow.stopFactor.title}
 											</td>
 											<td></td>
 										{:else if scoringRow.stopFactor?.type === 'additional'}
 											<td></td>
 											<td class="whitespace-pre-wrap bg-yellow-300 text-center">
-												{scoringRow.stopFactor.text}
+												{scoringRow.stopFactor.title}
 											</td>
 										{:else}
 											<td colspan="2" class="text-center">Соответствует критериям</td>
