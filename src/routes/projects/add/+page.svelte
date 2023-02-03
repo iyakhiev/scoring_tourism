@@ -39,6 +39,14 @@
 	}
 </script>
 
+<div class="my-10 mx-auto max-w-xl text-center text-lg">
+	Уважаемый инициатор инвестиционного проекта!
+	<br>
+	Для проведения оценки вашего проекта предлагаем заполнить анкету, содержащую набор необходимых показателей.
+	<br>
+	Нажимая кнопку "Продолжить", вы соглашаетесь с обработкой представленных данных.
+	АО «Корпорация Туризм.РФ» гарантирует сохранность представленных данных.
+</div>
 <div class="flex items-center justify-between my-10 px-3 md:px-10">
 	<div class="text-2xl md:text-3xl">Новый проект</div>
 	<a href="/projects" class="btn btn-outline">Закрыть</a>
@@ -72,6 +80,6 @@
 	<button class="btn btn-outline btn-primary"
 	        on:click={addProject}
 	        class:btn-disabled={!project?.name.trim()}>
-		Добавить
+		Продолжить
 	</button>
 </div>

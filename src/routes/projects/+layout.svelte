@@ -4,5 +4,7 @@
 
 <NavBar/>
 <div class="px-5 md:px-10 pb-20">
-	<slot/>
+	<div class="max-w-7xl mx-auto">
+		<slot/>
+	</div>
 </div>

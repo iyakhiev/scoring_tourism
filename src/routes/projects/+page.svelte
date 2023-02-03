@@ -22,7 +22,6 @@
 				<h2 class="card-title">{project.name}</h2>
 				<div class="card-actions justify-end ml-auto mt-2 md:mt-0">
 					<a href="/project/{project._id}" class="btn btn-secondary btn-outline">Открыть</a>
-					<a href="/project/v2/{project._id}" class="btn btn-secondary btn-outline">Открыть v2</a>
 				</div>
 			</div>
 		</div>
