@@ -1,7 +1,10 @@
 <script>
 	import { page } from '$app/stores'
 
-	let drawer = true
+	let drawer
+
+	$: if ($page.route.id === '/dirs')
+		drawer = true
 
 	const dirs = [
 		{
