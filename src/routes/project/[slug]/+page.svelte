@@ -1,12 +1,11 @@
 <script>
 	import { DIRs, projects } from '$lib/stores'
-	import { estimate } from '$lib/stopFactors'
-	import NavBar from '$lib/components/navbar.svelte'
 	import Input from '$lib/components/input.svelte'
 	import Check from '$lib/components/check.svelte'
 	import Select from '$lib/components/select.svelte'
 	import { openModal } from '$lib/components/modals.svelte'
 	import { goto } from '$app/navigation'
+	import { browser } from '$app/environment'
 
 	// todo check tab problem
 	// todo infra objects for complexes, not for hotels
@@ -16,7 +15,7 @@
 	let project
 	let highlightSave = false
 	let activeProjectTab = 1
-	let activeObject = 0
+	let activeObject = null
 	let activeInfrastructureObject = null
 
 	const tabs = [
@@ -1295,7 +1294,7 @@
 		},
 		{
 			label: 'Название гостиницы',
-			name: 'hotelName',
+			name: 'objectName',
 			type: 'text',
 		},
 		{
@@ -1489,8 +1488,7 @@
 
 	function updateProjectProp(field, value = '') {
 		if (project[field] != value) {
-			console.log(project[field])
-			console.log('update', `"${field}"`, 'current value', `"${project[field]}"`, 'new value', `"${value}"`)
+			console.log('update', `"${field}"`, 'cur', `"${project[field]}"`, 'new', `"${value}"`)
 			project[field] = value
 			highlightSave = true
 		}
@@ -1505,7 +1503,7 @@
 		project = data.project
 		highlightSave = false
 		activeProjectTab = 1
-		activeObject = 0
+		activeObject = null
 		activeInfrastructureObject = null
 
 		if (!project.objects || !project.objects.length)
@@ -1517,8 +1515,8 @@
 		project.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', project.buildingType)
 		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
 
-		console.log(project.doAndKoSum)
-		Object.values(calcFields).forEach(field => field.calc())
+		if (browser)
+			Object.values(calcFields).forEach(field => field.calc())
 	}
 
 	function addObject() {
@@ -1529,7 +1527,20 @@
 		highlightSave = true
 	}
 
-	function removeObject() {
+	function removeObject(showModal = true) {
+		if (showModal)
+			return openModal('Удалить объект?', [
+				{
+					title: 'Удалить',
+					class: 'btn-accent',
+					cb: () => removeObject(false)
+				},
+				{
+					title: 'Отменить',
+					class: 'btn-outline',
+				}
+			])
+
 		if (project.objects.length === 1)
 			return
 		project.objects = project.objects.filter((row, i) => i !== activeObject)
@@ -1548,7 +1559,20 @@
 		highlightSave = true
 	}
 
-	function removeInfrastructureObject() {
+	function removeInfrastructureObject(showModal = true) {
+		if (showModal)
+			return openModal('Удалить объект?', [
+				{
+					title: 'Удалить',
+					class: 'btn-accent',
+					cb: () => removeInfrastructureObject(false)
+				},
+				{
+					title: 'Отменить',
+					class: 'btn-outline',
+				}
+			])
+
 		project.infrastructureObjects = project.infrastructureObjects
 			.filter((row, i) => i !== activeInfrastructureObject)
 
@@ -1570,6 +1594,22 @@
 		} else {
 			activeInfrastructureObject = null
 			activeObject = ind
+		}
+	}
+
+	function getObjectName(object, infrastructure = false) {
+		if (infrastructure) {
+			if (object.infrastructureType)
+				object.title = getTitleFromDirByValue('infrastructureType', 'title', object.infrastructureType)
+			if (object.objectName)
+				return object.objectName
+			else
+				return `${object.title}`
+		} else {
+			if (object.objectName)
+				return object.objectName
+			else
+				return `${object.title} ${object.hotelRating ? object.hotelRating + '*' : ''}`
 		}
 	}
 
@@ -1665,7 +1705,6 @@
 	}
 </script>
 
-<!--calc(100dvh - 80px)-->
 <div class="drawer drawer-mobile">
 	<input id="my-drawer" type="checkbox" class="drawer-toggle"/>
 	<div class="drawer-content flex flex-col" style="scroll-behavior: smooth;">
@@ -1680,244 +1719,201 @@
 				<img src="/hill-line-left.png" alt="" class="max-w-none">
 			</div>
 		</div>
-		<div class="p-5 md:p-10">
+		<div class="px-5 md:px-10 pb-36">
 			{#if project}
-				<div class="">
-					<div class=""
-					     class:h-0={activeProjectTab !== 0}>
-						{#if project.scoring}
-							<div class="overflow-x-auto mt-10">
-								<table class="table w-full">
-									<!-- head -->
-									<thead>
-									<tr>
-										<!--									<th>Раздел</th>-->
-										<th>Наименование показателя</th>
-										<th>Значение</th>
-										<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)
-										</th>
-									</tr>
-									<tr>
-										<!--									<th class="w-2/12"></th>-->
-										<th class="w-3/12"></th>
-										<th class="w-1/12"></th>
-										<th class="w-3/12 text-center">Общий</th>
-										<th class="w-3/12 text-center">Дополнительный</th>
-									</tr>
-									</thead>
-									<tbody>
-									{#each project.scoring as scoringRow}
-										<tr>
-											<!--										<td class="whitespace-pre-wrap">{scoringRow.section}</td>-->
-											<td class="whitespace-pre-wrap">{scoringRow.label}</td>
-											<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
-											{#if scoringRow.error}
-												<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
-													{scoringRow.error}
-												</td>
-											{:else if scoringRow.stopFactor?.type === 'common'}
-												<td class="whitespace-pre-wrap bg-red-300 text-center">
-													{scoringRow.stopFactor.title}
-												</td>
-												<td></td>
-											{:else if scoringRow.stopFactor?.type === 'additional'}
-												<td></td>
-												<td class="whitespace-pre-wrap bg-yellow-300 text-center">
-													{scoringRow.stopFactor.title}
-												</td>
-											{:else}
-												<td colspan="2" class="text-center">Соответствует критериям</td>
-											{/if}
-										</tr>
-									{/each}
-									</tbody>
-								</table>
-							</div>
-						{/if}
-					</div>
-					<div class=""
-					     class:h-0={activeProjectTab !== 1}>
-						<div class="p-5 py-10">
-							<div class="flex">
-								<div class="mr-10">
-									<div class="text-xl mb-2">Гостиницы:</div>
-									<ul class="w-full">
-										{#each project.objects as object, i}
-											<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
-											    class:bg-base-200={activeObject === i}
-											    on:click={() => selectObject(i)}>
-												{i + 1}
-												. {object.title} {object.hotelRating ? object.hotelRating + '*' : ''}
-											</li>
-										{/each}
-									</ul>
-								</div>
-								<div class="">
-									<div class="text-xl mb-2">Объекты инфраструктуры:</div>
-									<ul class="w-full">
-										{#each project.infrastructureObjects || [] as object, i}
-											<li class="px-5 py-2 cursor-pointer w-full hover:bg-base-200"
-											    class:bg-base-200={activeInfrastructureObject === i}
-											    on:click={() => selectObject(i, true)}>
-												{i + 1}. {object.title}
-											</li>
-										{/each}
-									</ul>
-								</div>
-								<div class="flex flex-col gap-5 ml-auto">
-									{#if project.buildingType === 'complex'}
-										<button class="btn btn-outline"
-										        on:click={addObject}>
-											Добавить гостиницу
-										</button>
+				{#if project.scoring}
+					<div class="overflow-x-auto mt-10">
+						<table class="table w-full">
+							<!-- head -->
+							<thead>
+							<tr>
+								<!--									<th>Раздел</th>-->
+								<th>Наименование показателя</th>
+								<th>Значение</th>
+								<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)
+								</th>
+							</tr>
+							<tr>
+								<!--									<th class="w-2/12"></th>-->
+								<th class="w-3/12"></th>
+								<th class="w-1/12"></th>
+								<th class="w-3/12 text-center">Общий</th>
+								<th class="w-3/12 text-center">Дополнительный</th>
+							</tr>
+							</thead>
+							<tbody>
+							{#each project.scoring as scoringRow}
+								<tr>
+									<!--										<td class="whitespace-pre-wrap">{scoringRow.section}</td>-->
+									<td class="whitespace-pre-wrap">{scoringRow.label}</td>
+									<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
+									{#if scoringRow.error}
+										<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
+											{scoringRow.error}
+										</td>
+									{:else if scoringRow.stopFactor?.type === 'common'}
+										<td class="whitespace-pre-wrap bg-red-300 text-center">
+											{scoringRow.stopFactor.title}
+										</td>
+										<td></td>
+									{:else if scoringRow.stopFactor?.type === 'additional'}
+										<td></td>
+										<td class="whitespace-pre-wrap bg-yellow-300 text-center">
+											{scoringRow.stopFactor.title}
+										</td>
+									{:else}
+										<td colspan="2" class="text-center">Соответствует критериям</td>
 									{/if}
-									<button class="btn btn-outline"
-									        on:click={addInfrastructureObject}>
-										Добавить инфраструктуру
-									</button>
-								</div>
-							</div>
-							<div class="divider"></div>
-							{#if activeObject !== null}
-								<div class="flex justify-between">
-									<div>
-										{#each objectFields as field}
-											<div class="max-w-lg p-5">
-												{#if field.disabled}
-													<div class="form-control w-full">
-														<label class="label" for="object-{field.name}">
-															<span class="label-text">{field.label}</span>
-														</label>
-														<input id="object-{field.name}" type="number" placeholder=""
-														       value={project.objects[activeObject][field.name]}
-														       disabled
-														       class="input input-bordered w-full"/>
-													</div>
-												{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-													<Input {...field}
-													       name="object-{field.name}"
-													       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-													       bind:value={project.objects[activeObject][field.name]}/>
-												{:else if field.type === 'check'}
-													<Check {...field}
-													       name="object-{field.name}"
-													       on:change={() => (highlightSave = true)}
-													       bind:checked={project.objects[activeObject][field.name]}/>
-												{:else if field.type === 'select'}
-													<Select {...field}
-													        name="object-{field.name}"
-													        on:change={() => (highlightSave = true)}
-													        bind:value={project.objects[activeObject][field.name]}/>
-												{/if}
-											</div>
-										{/each}
-									</div>
-									<button class="btn btn-accent" on:click={removeObject}>Удалить объект</button>
-								</div>
-							{/if}
-							{#if activeInfrastructureObject !== null}
-								<div class="flex justify-between">
-									<div>
-										{#each objectInfrastructureFields as field}
-											<div class="max-w-lg p-5">
-												{#if field.disabled}
-													<div class="form-control w-full">
-														<label class="label" for="object-{field.name}">
-															<span class="label-text">{field.label}</span>
-														</label>
-														<input id="infrastructure-{field.name}" type="number"
-														       placeholder=""
-														       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
-														       disabled
-														       class="input input-bordered w-full"/>
-													</div>
-												{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-													<Input {...field}
-													       name="infrastructure-{field.name}"
-													       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-													       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-												{:else if field.type === 'check'}
-													<Check {...field}
-													       name="infrastructure-{field.name}"
-													       on:change={() => (highlightSave = true)}
-													       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-												{:else if field.type === 'select'}
-													<Select {...field}
-													        name="infrastructure-{field.name}"
-													        on:change={() => (highlightSave = true)}
-													        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-												{/if}
-											</div>
-										{/each}
-									</div>
-									<button class="btn btn-accent"
-									        on:click={removeInfrastructureObject}>Удалить объект
-									</button>
-								</div>
-							{/if}
-						</div>
+								</tr>
+							{/each}
+							</tbody>
+						</table>
 					</div>
-					{#each tabs as tab}
-						<a id="{tab.name}"></a>
-						<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">{tab.title}</p>
-						{#if tab.fields.length}
-							{#each tab.fields as field}
-								<div class="max-w-lg p-5">
+				{/if}
+				{#each tabs as tab}
+					<a id="{tab.name}"></a>
+					<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">{tab.title}</p>
+					{#if tab.fields.length}
+						{#each tab.fields as field}
+							<div class="max-w-lg p-2">
+								{#if field.disabled}
+									<div class="form-control w-full">
+										<label class="label" for="{field.name}">
+											<span class="label-text">{field.label}</span>
+										</label>
+										<input id="{field.name}" type="number" placeholder=""
+										       value={project[field.name]} disabled
+										       class="input input-bordered w-full"/>
+									</div>
+								{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+									<Input {...field}
+									       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+									       bind:value={project[field.name]}/>
+								{:else if field.type === 'check'}
+									<Check {...field}
+									       on:change={() => (highlightSave = true)}
+									       bind:checked={project[field.name]}/>
+								{:else if field.type === 'select'}
+									<Select {...field}
+									        on:change={() => (highlightSave = true)}
+									        bind:value={project[field.name]}/>
+								{/if}
+							</div>
+						{/each}
+					{/if}
+					{#if tab.name === 'objectsInfo'}
+						<a id="objects"></a>
+						<div class="divider"></div>
+						<div class="flex flex-col md:flex-row gap-5">
+							{#if project.buildingType === 'complex'}
+								<button class="btn btn-outline"
+								        on:click={addObject}>
+									Добавить гостиницу
+								</button>
+								<button class="btn btn-outline"
+								        on:click={addInfrastructureObject}>
+									Добавить инфраструктуру
+								</button>
+							{/if}
+							<div class="w-full md:w-auto ml-auto">
+								{#if activeObject !== null}
+									<button class="btn btn-accent btn-outline w-full"
+									        on:click={removeObject}>
+										Удалить объект
+									</button>
+								{/if}
+								{#if activeInfrastructureObject !== null}
+									<button class="btn btn-accent btn-outline w-full"
+									        on:click={removeInfrastructureObject}>
+										Удалить объект
+									</button>
+								{/if}
+							</div>
+						</div>
+						<div class="divider"></div>
+						{#if activeObject !== null}
+							{#each objectFields as field}
+								<div class="max-w-lg p-2">
 									{#if field.disabled}
 										<div class="form-control w-full">
-											<label class="label" for="{field.name}">
+											<label class="label" for="object-{field.name}">
 												<span class="label-text">{field.label}</span>
 											</label>
-											<input id="{field.name}" type="number" placeholder=""
-											       value={project[field.name]} disabled
+											<input id="object-{field.name}" type="number" placeholder=""
+											       value={project.objects[activeObject][field.name]}
+											       disabled
 											       class="input input-bordered w-full"/>
 										</div>
 									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
 										<Input {...field}
+										       name="object-{field.name}"
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project[field.name]}/>
+										       bind:value={project.objects[activeObject][field.name]}/>
 									{:else if field.type === 'check'}
 										<Check {...field}
+										       name="object-{field.name}"
 										       on:change={() => (highlightSave = true)}
-										       bind:checked={project[field.name]}/>
+										       bind:checked={project.objects[activeObject][field.name]}/>
 									{:else if field.type === 'select'}
 										<Select {...field}
+										        name="object-{field.name}"
 										        on:change={() => (highlightSave = true)}
-										        bind:value={project[field.name]}/>
+										        bind:value={project.objects[activeObject][field.name]}/>
 									{/if}
 								</div>
 							{/each}
 						{/if}
-					{/each}
-				</div>
-				<div class="flex items-center gap-5 mt-10 sticky bottom-10">
-					<div class="flex flex-col gap-5 ml-auto">
-						<label for="my-drawer" class="btn btn-primary drawer-button lg:hidden">Открыть меню</label>
-						<button class="btn btn-sm btn-accent btn-outline"
-						        on:click={deleteProject}>
-							Удалить
-						</button>
-						<button class="btn btn-primary"
-						        class:btn-outline={!highlightSave}
-						        on:click={saveProject}>
-							Сохранить
-						</button>
-						<button class="btn btn-outline"
-						        on:click={estimateStopFactors}>
-							Провести оценку
-						</button>
-						<button class="btn btn-outline btn-secondary"
-						        on:click={() => document.querySelector('.drawer-content').scrollTo({top: 0, behavior: 'smooth'})}>
-							Наверх
-						</button>
-					</div>
+						{#if activeInfrastructureObject !== null}
+							{#each objectInfrastructureFields as field}
+								<div class="max-w-lg p-2">
+									{#if field.disabled}
+										<div class="form-control w-full">
+											<label class="label" for="object-{field.name}">
+												<span class="label-text">{field.label}</span>
+											</label>
+											<input id="infrastructure-{field.name}" type="number"
+											       placeholder=""
+											       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
+											       disabled
+											       class="input input-bordered w-full"/>
+										</div>
+									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+										<Input {...field}
+										       name="infrastructure-{field.name}"
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+									{:else if field.type === 'check'}
+										<Check {...field}
+										       name="infrastructure-{field.name}"
+										       on:change={() => (highlightSave = true)}
+										       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+									{:else if field.type === 'select'}
+										<Select {...field}
+										        name="infrastructure-{field.name}"
+										        on:change={() => (highlightSave = true)}
+										        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+									{/if}
+								</div>
+							{/each}
+						{/if}
+					{/if}
+				{/each}
+				<div class="flex flex-col gap-3 fixed bottom-5 md:bottom-10 right-5 md:right-10 opacity-75">
+					<button class="btn btn-ghost bg-base-200/50"
+					        on:click={() => document.querySelector('.drawer-content').scrollTo({top: 0, behavior: 'smooth'})}>
+						<img class="w-5 md:w-6" src="/up.svg" alt="Наверх">
+					</button>
+					<label for="my-drawer"
+					       class="btn btn-ghost bg-base-200/75 lg:hidden">
+						<img class="w-5 md:w-6" src="/menu.svg" alt="Меню">
+					</label>
 				</div>
 			{/if}
 		</div>
 	</div>
 	<div class="drawer-side shadow-2xl">
 		<label for="my-drawer" class="drawer-overlay"></label>
-		<aside class="w-[22rem] h-full flex flex-col bg-base-100">
+		<aside class="w-80 h-full flex flex-col bg-base-100 lg:!max-w-full" style="max-width: 90%;">
 			<div class="flex items-center justify-center h-20 relative">
 				<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
 				<div class="absolute inset-0 flex items-end justify-start overflow-hidden">
@@ -1926,28 +1922,60 @@
 			</div>
 			<p class="text-center p-8 font-medium text-xl text-secondary">{project.name}</p>
 			<div class="divider my-0 mx-10 h-0"></div>
-			<ul class="menu menu-compact p-4">
-				{#each tabs as tab}
-					<li>
-						<a href="#{tab.name}" class="text-lg font-bold text-secondary uppercase">{tab.title}</a>
-					</li>
-				{/each}
-			</ul>
-			<div class="flex flex-col items-center p-10 gap-5 mt-auto">
-				<button class="btn btn-outline w-full"
+			<div class="flex flex-col items-stretch px-10 py-5 gap-2 w-full">
+				<button class="btn btn-outline btn-secondary"
 				        on:click={estimateStopFactors}>
 					Провести оценку
 				</button>
-				<button class="btn btn-primary w-full"
-				        class:btn-outline={!highlightSave}
-				        on:click={saveProject}>
-					Сохранить
-				</button>
-				<button class="btn btn-accent btn-outline w-full"
-				        on:click={deleteProject}>
-					Удалить
-				</button>
+				<div class="flex gap-2">
+					<button class="btn btn-ghost bg-base-200/50 text-accent"
+					        on:click={deleteProject}>
+						<img src="/trash.svg" alt="Удалить">
+					</button>
+					<button class="btn btn-outline btn-primary w-full shrink"
+					        class:btn-outline={!highlightSave}
+					        on:click={saveProject}>
+						Сохранить
+					</button>
+				</div>
 			</div>
+			<div class="divider my-0 mx-10 h-0"></div>
+			<ul class="p-4">
+				{#each tabs as tab}
+					<li class="flex flex-col items-stretch">
+						<a href="#{tab.name}"
+						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase">
+							{tab.title}
+						</a>
+						{#if tab.name === 'objectsInfo'}
+							<ul class="pl-4">
+								{#each project.objects as object, i}
+									<li class="flex hover:bg-base-200 rounded my-0.5"
+									    class:bg-base-200={activeObject === i}
+									    on:click={() => selectObject(i)}>
+										<a href="#objects"
+										   class="px-5 py-2 w-full font-medium text-secondary uppercase">
+											{getObjectName(object)}
+										</a>
+									</li>
+								{/each}
+							</ul>
+							<ul class="pl-4">
+								{#each project.infrastructureObjects || [] as object, i}
+									<li class="flex hover:bg-base-200 rounded my-0.5"
+									    class:bg-base-200={activeInfrastructureObject === i}
+									    on:click={() => selectObject(i, true)}>
+										<a href="#objects"
+										   class="px-5 py-2 w-full font-medium text-secondary uppercase">
+											{getObjectName(object, true)}
+										</a>
+									</li>
+								{/each}
+							</ul>
+						{/if}
+					</li>
+				{/each}
+			</ul>
 		</aside>
 	</div>
 </div>
