@@ -1,10 +1,12 @@
 <script>
 	export let progress
-	const angle = 360 * progress
-	const color = progress < 0.25 ? 'red' : progress < 0.5 ? 'orange' : progress < 0.75 ? 'yellowgreen' : 'green'
+	$: angle = 360 * progress
+	$: color = progress < 0.25 ? 'red' :
+		progress < 0.5 ? 'orange' :
+			progress < 0.75 ? 'yellowgreen' : 'green'
 
 	// Adapt the logic according to the approach
-	const background = `radial-gradient(white 50%, transparent 51%),
+	$: background = `radial-gradient(white 50%, transparent 51%),
     conic-gradient(transparent 0deg ${angle}deg, gainsboro ${angle}deg 360deg),
     ${color};`
 
@@ -19,7 +21,7 @@
         height: 50px;
         transition: all 500ms ease-in;
         will-change: transform;
-	    flex-shrink: 0;
+        flex-shrink: 0;
     }
 </style>
 

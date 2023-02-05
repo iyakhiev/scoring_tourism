@@ -52,9 +52,9 @@
 </script>
 
 {#if currentDir}
-	<div class="flex items-center gap-5">
-		<div class="text-2xl">{currentDir.title}</div>
-		<button class="btn btn-primary ml-auto"
+	<div class="flex flex-col md:flex-row items-end md:items-center gap-5">
+		<div class="text-2xl mr-auto">{currentDir.title}</div>
+		<button class="btn btn-primary"
 		        class:btn-outline={!highlightSave}
 		        on:click={save}>
 			Сохранить
@@ -78,8 +78,8 @@
 				<tbody>
 				{#each currentDir.values as value}
 					<tr>
-						<td>
-							<img class="h-10 opacity-20 hover:opacity-60 cursor-pointer p-3" src="/x.svg" alt="Remove"
+						<td class="p-0">
+							<img class="w-4 mx-auto opacity-20 hover:opacity-60 cursor-pointer" src="/trash.svg" alt="Remove"
 							     on:click={() => remove(value)}>
 						</td>
 						{#each structure as row}

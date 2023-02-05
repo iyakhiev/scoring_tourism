@@ -17,6 +17,7 @@
 	let highlightSave = false
 	let activeObject = null
 	let activeInfrastructureObject = null
+	let drawer
 
 	const tabs = [
 		{
@@ -1594,6 +1595,7 @@
 			activeInfrastructureObject = null
 			activeObject = ind
 		}
+		drawer = false
 	}
 
 	function getObjectName(object, infrastructure = false) {
@@ -1686,7 +1688,7 @@
 
 					curSection.list.push(row)
 
-					if (row.stopFactor)
+					if (row.stopFactor || row.errors)
 						curSection.factors++
 					curSection.progress = (curSection.list.length - curSection.factors) / curSection.list.length
 					if (curSection.progress < 0.1)
@@ -1697,7 +1699,7 @@
 
 				location.hash = ''
 				setTimeout(() => location.hash = 'scoring')
-
+				drawer = false
 				console.log(project.scoringSections)
 			})
 	}
@@ -1739,6 +1741,7 @@
 
 	function goToTop() {
 		document.querySelector('.drawer-content').scrollTo({ top: 0, behavior: 'smooth' })
+		document.querySelector('.drawer-side').scrollTo({ top: 0, behavior: 'smooth' })
 		location.hash = ''
 	}
 
@@ -1752,7 +1755,7 @@
 </script>
 
 <div class="drawer drawer-mobile">
-	<input id="my-drawer" type="checkbox" class="drawer-toggle"/>
+	<input id="my-drawer" type="checkbox" class="drawer-toggle" bind:checked={drawer}/>
 	<div class="drawer-content flex flex-col" style="scroll-behavior: smooth;">
 		<div class="navbar bg-base-100 relative justify-center shrink-0 h-20 md:px-24">
 			<div class="flex items-center justify-center h-full w-full max-w-7xl z-10">
@@ -1767,8 +1770,8 @@
 		</div>
 		<div class="px-5 md:px-10 pb-36">
 			{#if project}
-				<a id="scoring"></a>
 				{#if project.scoring}
+					<a id="scoring"></a>
 					<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">Предварительная оценка</p>
 					<div class="flex flex-col gap-5">
 						{#each project.scoringSections as section}
@@ -1776,8 +1779,9 @@
 								<input type="checkbox"/>
 								<div class="collapse-title text-xl font-medium">
 									<div class="flex items-center gap-5">
-										<CircleProgress progress={+section.progress}/>
-										<p class="shrink-0">{(section.list.length - section.factors)} / {section.list.length}</p>
+										<CircleProgress progress={section.progress}/>
+										<p class="shrink-0">{(section.list.length - section.factors)}
+											/ {section.list.length}</p>
 										<p class="text-base sm:text-xl">{section.title}</p>
 									</div>
 								</div>
@@ -1972,9 +1976,8 @@
 					<img src="/hill-line-left.png" alt="" class="max-w-none">
 				</div>
 			</div>
-			<p class="text-center p-8 font-medium text-xl text-secondary">{project.name}</p>
-			<div class="divider my-0 mx-10 h-0"></div>
-			<div class="flex flex-col items-stretch px-10 py-5 gap-2 w-full">
+			<p class="text-center p-4 pt-8 font-medium text-xl text-secondary">{project.name}</p>
+			<div class="flex flex-col items-stretch px-10 py-4 gap-2 w-full">
 				<button class="btn btn-outline btn-secondary"
 				        on:click={estimateStopFactors}>
 					Провести оценку
@@ -1991,7 +1994,6 @@
 					</button>
 				</div>
 			</div>
-			<div class="divider my-0 mx-10 h-0"></div>
 			<ul class="p-4">
 				{#if project.scoring}
 					<li class="flex flex-col items-stretch">
@@ -2004,6 +2006,7 @@
 				{#each tabs as tab}
 					<li class="flex flex-col items-stretch">
 						<a href="#{tab.name}"
+						   on:click={() => drawer = false}
 						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase">
 							{tab.title}
 						</a>
