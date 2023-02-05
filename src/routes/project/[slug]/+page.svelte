@@ -8,7 +8,7 @@
 	import { browser } from '$app/environment'
 
 	// todo check tab problem
-	// todo infra objects for complexes, not for hotels
+	// todo check fields visibility by buildingType
 
 	export let data
 
@@ -1715,8 +1715,8 @@
 					<li><a class="btn btn-ghost text-secondary text-base font-medium" href="/dirs">Справочники</a></li>
 				</ul>
 			</div>
-			<div class="absolute inset-0 items-end justify-end overflow-hidden -mr-14 md:mr-0">
-				<img src="/hill-line-left.png" alt="" class="max-w-none">
+			<div class="absolute inset-0 items-end justify-end overflow-hidden">
+				<img src="/hill-line-left.png" alt="" class="max-w-none -mr-14 md:mr-0">
 			</div>
 		</div>
 		<div class="px-5 md:px-10 pb-36">
