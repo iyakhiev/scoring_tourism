@@ -3,6 +3,7 @@
 	import Input from '$lib/components/input.svelte'
 	import Check from '$lib/components/check.svelte'
 	import Select from '$lib/components/select.svelte'
+	import CircleProgress from '$lib/components/circle-progress.svelte'
 	import { openModal } from '$lib/components/modals.svelte'
 	import { goto } from '$app/navigation'
 	import { browser } from '$app/environment'
@@ -14,7 +15,6 @@
 
 	let project
 	let highlightSave = false
-	let activeProjectTab = 1
 	let activeObject = null
 	let activeInfrastructureObject = null
 
@@ -1502,8 +1502,7 @@
 
 		project = data.project
 		highlightSave = false
-		activeProjectTab = 1
-		activeObject = null
+		activeObject = 0
 		activeInfrastructureObject = null
 
 		if (!project.objects || !project.objects.length)
@@ -1660,13 +1659,38 @@
 				console.log('scoring', res.scoring)
 
 				project.scoring = res.scoring
-				activeProjectTab = 0
-			})
+				project.scoringSections = res.scoring.reduce((acc, row) => {
+					let curSection
 
-		// console.log('estimateStopFactors(), project', project)
-		// project.scoring = estimate(project)
-		// activeProjectTab = 0
-		// console.log('estimateStopFactors(), scoring', project.scoring)
+					for (const section of acc)
+						if (section.title === row.section) {
+							curSection = section
+							break
+						}
+
+					if (!curSection) {
+						curSection = {
+							title: row.section,
+							list: [],
+							factors: 0
+						}
+						acc.push(curSection)
+					}
+
+					curSection.list.push(row)
+					if (row.stopFactor)
+						curSection.factors++
+					curSection.progress = (curSection.list.length - curSection.factors) / curSection.list.length
+					if (curSection.progress < 0.1)
+						curSection.progress = 0.1
+					return acc
+				}, [])
+
+				location.hash = ''
+				setTimeout(() => location.hash = 'scoring')
+
+				console.log(project.scoringSections)
+			})
 	}
 
 	function deleteProject(showModal = true) {
@@ -1703,6 +1727,19 @@
 				}
 			})
 	}
+
+	function goToTop() {
+		document.querySelector('.drawer-content').scrollTo({ top: 0, behavior: 'smooth' })
+		location.hash = ''
+	}
+
+	if (browser) {
+		const hash = location.hash
+		if (hash) {
+			location.hash = ''
+			setTimeout(() => location.hash = hash)
+		}
+	}
 </script>
 
 <div class="drawer drawer-mobile">
@@ -1721,53 +1758,72 @@
 		</div>
 		<div class="px-5 md:px-10 pb-36">
 			{#if project}
+				<a id="scoring"></a>
 				{#if project.scoring}
-					<div class="overflow-x-auto mt-10">
-						<table class="table w-full">
-							<!-- head -->
-							<thead>
-							<tr>
-								<!--									<th>Раздел</th>-->
-								<th>Наименование показателя</th>
-								<th>Значение</th>
-								<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)
-								</th>
-							</tr>
-							<tr>
-								<!--									<th class="w-2/12"></th>-->
-								<th class="w-3/12"></th>
-								<th class="w-1/12"></th>
-								<th class="w-3/12 text-center">Общий</th>
-								<th class="w-3/12 text-center">Дополнительный</th>
-							</tr>
-							</thead>
-							<tbody>
-							{#each project.scoring as scoringRow}
-								<tr>
-									<!--										<td class="whitespace-pre-wrap">{scoringRow.section}</td>-->
-									<td class="whitespace-pre-wrap">{scoringRow.label}</td>
-									<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
-									{#if scoringRow.error}
-										<td colspan="2" class="whitespace-pre-wrap text-center text-accent">
-											{scoringRow.error}
-										</td>
-									{:else if scoringRow.stopFactor?.type === 'common'}
-										<td class="whitespace-pre-wrap bg-red-300 text-center">
-											{scoringRow.stopFactor.title}
-										</td>
-										<td></td>
-									{:else if scoringRow.stopFactor?.type === 'additional'}
-										<td></td>
-										<td class="whitespace-pre-wrap bg-yellow-300 text-center">
-											{scoringRow.stopFactor.title}
-										</td>
-									{:else}
-										<td colspan="2" class="text-center">Соответствует критериям</td>
-									{/if}
-								</tr>
-							{/each}
-							</tbody>
-						</table>
+					<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">Предварительная оценка</p>
+					<div class="flex flex-col gap-5">
+						{#each project.scoringSections as section}
+							<div class="collapse collapse-arrow border rounded">
+								<input type="checkbox"/>
+								<div class="collapse-title text-xl font-medium">
+									<div class="flex items-center gap-5">
+										<CircleProgress progress={+section.progress}/>
+										<p>{(section.list.length - section.factors)} / {section.list.length}</p>
+										{section.title}
+									</div>
+								</div>
+								<div class="collapse-content">
+									<div class="overflow-x-auto mt-10">
+										<table class="table w-full">
+											<!-- head -->
+											<thead>
+											<tr>
+												<!--									<th>Раздел</th>-->
+												<th>Наименование показателя</th>
+												<th>Значение</th>
+												<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)
+												</th>
+											</tr>
+											<tr>
+												<!--									<th class="w-2/12"></th>-->
+												<th class="w-3/12"></th>
+												<th class="w-1/12"></th>
+												<th class="w-3/12 text-center">Общий</th>
+												<th class="w-3/12 text-center">Дополнительный</th>
+											</tr>
+											</thead>
+											<tbody>
+											{#each section.list as scoringRow}
+												<tr>
+													<!--										<td class="whitespace-pre-wrap">{scoringRow.section}</td>-->
+													<td class="whitespace-pre-wrap">{scoringRow.label}</td>
+													<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
+													{#if scoringRow.error}
+														<td colspan="2"
+														    class="whitespace-pre-wrap text-center text-accent">
+															{scoringRow.error}
+														</td>
+													{:else if scoringRow.stopFactor?.type === 'common'}
+														<td class="whitespace-pre-wrap bg-red-300 text-center">
+															{scoringRow.stopFactor.title}
+														</td>
+														<td></td>
+													{:else if scoringRow.stopFactor?.type === 'additional'}
+														<td></td>
+														<td class="whitespace-pre-wrap bg-yellow-300 text-center">
+															{scoringRow.stopFactor.title}
+														</td>
+													{:else}
+														<td colspan="2" class="text-center">Соответствует критериям</td>
+													{/if}
+												</tr>
+											{/each}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						{/each}
 					</div>
 				{/if}
 				{#each tabs as tab}
@@ -1830,6 +1886,9 @@
 							<div class="divider"></div>
 						{/if}
 						{#if activeObject !== null}
+							<p class="text-xl font-bold text-secondary mt-5 mb-5 uppercase">
+								{getObjectName(project.objects[activeObject])}
+							</p>
 							{#each objectFields as field}
 								<div class="max-w-lg p-2">
 									{#if field.disabled}
@@ -1862,6 +1921,9 @@
 							{/each}
 						{/if}
 						{#if activeInfrastructureObject !== null}
+							<p class="text-xl font-bold text-secondary mt-5 mb-5 uppercase">
+								{getObjectName(project.infrastructureObjects[activeInfrastructureObject])}
+							</p>
 							{#each objectInfrastructureFields as field}
 								<div class="max-w-lg p-2">
 									{#if field.disabled}
@@ -1898,7 +1960,7 @@
 				{/each}
 				<div class="flex flex-col gap-3 fixed bottom-5 md:bottom-10 right-5 md:right-10 opacity-75">
 					<button class="btn btn-ghost bg-base-200/50"
-					        on:click={() => document.querySelector('.drawer-content').scrollTo({top: 0, behavior: 'smooth'})}>
+					        on:click={goToTop}>
 						<img class="w-5 md:w-6" src="/up.svg" alt="Наверх">
 					</button>
 					<label for="my-drawer"
@@ -1939,6 +2001,14 @@
 			</div>
 			<div class="divider my-0 mx-10 h-0"></div>
 			<ul class="p-4">
+				{#if project.scoring}
+					<li class="flex flex-col items-stretch">
+						<a href="#scoring"
+						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase">
+							Предварительная оценка
+						</a>
+					</li>
+				{/if}
 				{#each tabs as tab}
 					<li class="flex flex-col items-stretch">
 						<a href="#{tab.name}"
@@ -1949,7 +2019,6 @@
 							<ul class="pl-4">
 								{#each project.objects as object, i}
 									<li class="flex hover:bg-base-200 rounded my-0.5"
-									    class:bg-base-200={activeObject === i}
 									    on:click={() => selectObject(i)}>
 										<a href="#objects"
 										   class="px-5 py-2 w-full font-medium text-secondary uppercase">
@@ -1961,7 +2030,6 @@
 							<ul class="pl-4">
 								{#each project.infrastructureObjects || [] as object, i}
 									<li class="flex hover:bg-base-200 rounded my-0.5"
-									    class:bg-base-200={activeInfrastructureObject === i}
 									    on:click={() => selectObject(i, true)}>
 										<a href="#objects"
 										   class="px-5 py-2 w-full font-medium text-secondary uppercase">

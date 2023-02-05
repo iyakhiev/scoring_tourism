@@ -9,7 +9,7 @@
 	$: {
 		// console.log('layout, data', data)
 		setDirs(data?.dirs)
-		console.log('layout, $DIRs', $DIRs)
+		// console.log('layout, $DIRs', $DIRs)
 	}
 </script>
 

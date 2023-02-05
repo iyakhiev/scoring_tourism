@@ -82,6 +82,7 @@ const indicators = [
 	{
 		label: 'Платежеспособность Инвестора',
 		name: '',
+		sectionTitle: 'Оценка Инвестора',
 		stopFactor: {
 			type: 'common',
 			title: 'Выявлены признак неплатежеспособности Инвестора'
@@ -255,6 +256,7 @@ const indicators = [
 	{
 		label: 'Благонадежность (инвестора, бенефециара(ов), связанных с бенефециаром(ами) юр.лиц, в зависимости от фазы)',
 		name: '',
+		sectionTitle: 'Оценка Инвестора',
 		stopFactor: {
 			type: 'common',
 			title: 'Выявлены признак неблагонадежности Инвестора'
@@ -606,6 +608,7 @@ const indicators = [
 	{
 		label: 'Общее количество номеров в КСР, шт.',
 		name: 'totalNumberOfRooms',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'common',
 			title: 'Недостаточное количество номеров в КСР'
@@ -628,6 +631,7 @@ const indicators = [
 	{
 		label: 'Дата начала подготовки ПСД',
 		name: 'startDateOfPSDPreparation',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'additional',
 			title: 'Начало проектно-изыскательских работ более 12 месяцев с даты поступления анкеты'
@@ -663,6 +667,7 @@ const indicators = [
 	{
 		label: 'Дата окончания подготовки ПСД',
 		name: 'endDateOfPSDPreparation',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'additional',
 			title: 'Завершение проектно-изыскательских работ  после начала СМР'
@@ -692,6 +697,7 @@ const indicators = [
 	{
 		label: 'Дата начала СМР',
 		name: 'startDateOfSMR',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'additional',
 			title: 'Начало СМР до завершения проектно-изыскательских работ'
@@ -721,6 +727,7 @@ const indicators = [
 	{
 		label: 'Дата окончания СМР',
 		name: 'endDateOfSMR',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'additional',
 			title: 'Дата окончания СМР после 2030 года'
@@ -749,6 +756,7 @@ const indicators = [
 	{
 		label: 'Дата ввода в эксплуатацию',
 		name: 'commissioningDate',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'additional',
 			title: 'Дата ввода в эксплуатацию после 2030 года'
@@ -777,6 +785,7 @@ const indicators = [
 	{
 		label: 'Соответствие категории и вида разрешенного использования земельного участка целям проекта',
 		name: 'complianceOfLandTypeWithProject',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'additional',
 			title: 'Выявлено несоответствие  категории и вида разрешенного использования земельного участка целям проекта'
@@ -793,6 +802,7 @@ const indicators = [
 	{
 		label: 'Стоимость 1 м² объекта, тыс. руб.',
 		name: 'costPerSqMeter',
+		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
 			type: 'common',
 			title: 'Отклонение значения стоимости 1 кв.м. объекта от среднего значения по региону'
@@ -827,6 +837,7 @@ const indicators = [
 	{
 		label: 'Количество месяцев функционирования в году',
 		name: 'numberOfOperationMonths',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'common',
 			title: 'Проект не соответствует критериям всесезонности'
@@ -849,6 +860,7 @@ const indicators = [
 	{
 		label: 'ADR — отпускной тариф, руб./сутки',
 		name: 'adr',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'additional',
 			title: 'Отклонение показателя ADR от среднего рыночного значения'
@@ -908,6 +920,7 @@ const indicators = [
 		// todo
 		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
 		name: 'marginEBITDA',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'common',
 			title: 'Отклонение показателя EBITDA от средего рыночного значения'
@@ -967,6 +980,7 @@ const indicators = [
 		// todo
 		label: 'Occupancy (OCC) — реальная заполняемость, %',
 		name: 'occ',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'common',
 			title: 'Завышена ожидаемость по загрузке'
@@ -1020,6 +1034,7 @@ const indicators = [
 	{
 		label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
 		name: 'doubleOcc',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'additional',
 			title: 'Отклонение показателя Double Occupancy от установленного значения'
@@ -1055,6 +1070,7 @@ const indicators = [
 		// todo
 		label: 'Участие в проекте гостиничного оператора (вознаграждение за управление проектируемым объектом)',
 		name: 'remunerationForManagement',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'additional',
 			title: 'Завышена стоимость услуг за управление объектом'
@@ -1064,6 +1080,7 @@ const indicators = [
 		// todo
 		label: 'Общее количество новых рабочих мест, чел.',
 		name: 'totalNumberOfNewJobs',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'additional',
 			title: 'Отклонение показателя кол-во новых рабочих мест от среднего значения'
@@ -1072,6 +1089,7 @@ const indicators = [
 	{
 		label: 'Количество сотрудников на 1 номер, чел.',
 		name: 'staffPerRoom',
+		sectionTitle: 'Экономические показатели',
 		stopFactor: {
 			type: 'additional',
 			title: 'Необходимо уточнить обеспеченность трудовыми ресурсами'
@@ -1134,6 +1152,7 @@ const indicators = [
 	{
 		label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
 		name: 'corporationFundsShare',
+		sectionTitle: 'Финансирование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Завышен риск миноритарного участника'
@@ -1156,6 +1175,7 @@ const indicators = [
 	{
 		label: 'Доля кредитных средств в объеме финансирования, %',
 		name: 'creditFundsShare',
+		sectionTitle: 'Финансирование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Высокий уровень закредитованности проекта'
@@ -1178,6 +1198,7 @@ const indicators = [
 	{
 		label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
 		name: 'debtCoverageRatio',
+		sectionTitle: 'Финансирование',
 		stopFactor: {
 			type: 'common',
 			title: 'Высокий уровень закредитованности проекта'
@@ -1201,6 +1222,7 @@ const indicators = [
 		isForSoftLoan: true,
 		label: 'Тип проекта',
 		name: 'buildingType',
+		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Тип проекта не соответствует требованиям программы льготного кредитования'
@@ -1220,6 +1242,7 @@ const indicators = [
 		isForHotel: true,
 		label: 'Размер номерного фонда',
 		name: 'totalNumberOfRooms',
+		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Размер номерного фонда не соответствует требованиям программы льготного кредитования'
@@ -1244,6 +1267,7 @@ const indicators = [
 		isForHotel: true,
 		label: 'Площадь гостиницы',
 		name: 'hotelArea',
+		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Площадь гостиницы не соответствует требованиям программы льготного кредитования'
@@ -1267,6 +1291,7 @@ const indicators = [
 		isForSoftLoan: true,
 		label: 'Соответствие установленному размеру льготного кредита',
 		name: 'bankLoanAmount',
+		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Не выполнено требование по критерию размера льготного кредита'
@@ -1290,6 +1315,7 @@ const indicators = [
 		isForSoftLoan: true,
 		label: 'Всесезонность',
 		name: 'numberOfOperationMonths',
+		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Не выполнено требование программы льготного кредитования по круглогодичности функционирования'
@@ -1313,6 +1339,7 @@ const indicators = [
 		isForSoftLoan: true,
 		label: 'Вид работ по проекту (строительство или реконструкция)',
 		name: 'typeOfWork',
+		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
 			type: 'additional',
 			title: 'Вид работ по проекту не соответствует требованиям программы льготного кредитования'
@@ -1342,7 +1369,10 @@ function checkStopFactors(project, dirs) {
 
 		if (indicator.indicators)
 			for (const nestedIndicator of indicator.indicators)
-				nestedScoring.push(checkStopFactor(nestedIndicator, project, dirs))
+				nestedScoring.push(checkStopFactor({
+					...nestedIndicator,
+					sectionTitle: indicator.sectionTitle
+				}, project, dirs))
 
 		if (indicator.calc)
 			scoring.push(checkStopFactor(indicator, project, dirs, nestedScoring))
@@ -1357,6 +1387,7 @@ function checkStopFactor(indicator, project, dirs, scoring) {
 	const scoringResult = {
 		name: indicator.name,
 		label: indicator.label,
+		section: indicator.sectionTitle,
 	}
 
 	const res = indicator.calc(project, dirs, scoring)
