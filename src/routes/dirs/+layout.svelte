@@ -1,8 +1,7 @@
 <script>
-	import NavBar from '$lib/components/navbar.svelte'
 	import { page } from '$app/stores'
 
-	let drawer
+	let drawer = true
 
 	const dirs = [
 		{

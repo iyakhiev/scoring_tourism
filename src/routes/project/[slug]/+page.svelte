@@ -17,7 +17,7 @@
 	let highlightSave = false
 	let activeObject = null
 	let activeInfrastructureObject = null
-	let drawer
+	let drawer = true
 
 	const tabs = [
 		{
