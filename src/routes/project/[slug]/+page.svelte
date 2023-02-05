@@ -1804,33 +1804,31 @@
 					{#if tab.name === 'objectsInfo'}
 						<a id="objects"></a>
 						<div class="divider"></div>
-						<div class="flex flex-col md:flex-row gap-5">
-							{#if project.buildingType === 'complex'}
+						{#if project.buildingType === 'complex'}
+							<div class="flex flex-col md:flex-row items-stretch gap-5">
 								<button class="btn btn-outline"
 								        on:click={addObject}>
 									Добавить гостиницу
 								</button>
-								<button class="btn btn-outline"
+								<button class="btn btn-outline md:mr-auto"
 								        on:click={addInfrastructureObject}>
 									Добавить инфраструктуру
 								</button>
-							{/if}
-							<div class="w-full md:w-auto ml-auto">
 								{#if activeObject !== null}
-									<button class="btn btn-accent btn-outline w-full"
+									<button class="btn btn-accent btn-outline"
 									        on:click={removeObject}>
 										Удалить объект
 									</button>
 								{/if}
 								{#if activeInfrastructureObject !== null}
-									<button class="btn btn-accent btn-outline w-full"
+									<button class="btn btn-accent btn-outline"
 									        on:click={removeInfrastructureObject}>
 										Удалить объект
 									</button>
 								{/if}
 							</div>
-						</div>
-						<div class="divider"></div>
+							<div class="divider"></div>
+						{/if}
 						{#if activeObject !== null}
 							{#each objectFields as field}
 								<div class="max-w-lg p-2">
