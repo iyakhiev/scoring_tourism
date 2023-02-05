@@ -206,7 +206,7 @@ const indicators = [
 					title: 'Не представлены правоустанавливающие документы'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (!res.value)
 						res.stopFactor = this.stopFactor
@@ -222,7 +222,7 @@ const indicators = [
 					title: 'Имущество находится под обременением'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -238,7 +238,7 @@ const indicators = [
 					title: 'Отсутствует подтверждение происхождения доходов (имущества)'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (!res.value)
 						res.stopFactor = this.stopFactor
@@ -270,7 +270,7 @@ const indicators = [
 					title: 'Выявлен факт участия в уставном капитале инвестора резидента недружественной страны'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -286,7 +286,7 @@ const indicators = [
 					title: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -302,7 +302,7 @@ const indicators = [
 					title: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -318,7 +318,7 @@ const indicators = [
 					title: 'Отсутствие штата персонала'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -334,7 +334,7 @@ const indicators = [
 					title: 'Отсутствие материальных и финансовых ресурсов'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -350,7 +350,7 @@ const indicators = [
 					title: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -366,7 +366,7 @@ const indicators = [
 					title: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -382,7 +382,7 @@ const indicators = [
 					title: 'Ответчик в судах на сумму свыше 300 тыс. руб.'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -398,7 +398,7 @@ const indicators = [
 					title: 'Предстоящее исключение из ЕГРЮЛ'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -414,7 +414,7 @@ const indicators = [
 					title: 'Признание сведений в ЕГРЮЛ недостоверными'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -430,7 +430,7 @@ const indicators = [
 					title: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -446,7 +446,7 @@ const indicators = [
 					title: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -462,7 +462,7 @@ const indicators = [
 					title: 'Нахождение в реестре сведений о банкротстве'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -478,7 +478,7 @@ const indicators = [
 					title: 'Нахождение в реестре недобросовестных поставщиков'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -494,7 +494,7 @@ const indicators = [
 					title: 'Нахождение в реестре обеспечительных мер'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -510,7 +510,7 @@ const indicators = [
 					title: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -526,7 +526,7 @@ const indicators = [
 					title: 'Нахождение в реестре дисквалифицированных лиц'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -542,7 +542,7 @@ const indicators = [
 					title: 'Наличие информации о судимости'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -558,7 +558,7 @@ const indicators = [
 					title: 'Наличие информации об актуальных возбужднных уголовных делах'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -574,7 +574,7 @@ const indicators = [
 					title: 'Наличие конфликта интересов, аффилированности с работником Корпорации'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -590,7 +590,7 @@ const indicators = [
 					title: 'Отказ в государственной регистрации'
 				},
 				calc: function (project, dirs, scoring) {
-					const res = { value: project[this.name] }
+					const res = { value: !!project[this.name] }
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
@@ -791,7 +791,7 @@ const indicators = [
 			title: 'Выявлено несоответствие  категории и вида разрешенного использования земельного участка целям проекта'
 		},
 		calc: function (project, dirs, scoring) {
-			const res = { value: project[this.name] }
+			const res = { value: !!project[this.name] }
 
 			if (!res.value)
 				res.stopFactor = this.stopFactor

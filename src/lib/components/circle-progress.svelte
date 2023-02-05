@@ -19,6 +19,7 @@
         height: 50px;
         transition: all 500ms ease-in;
         will-change: transform;
+	    flex-shrink: 0;
     }
 </style>
 

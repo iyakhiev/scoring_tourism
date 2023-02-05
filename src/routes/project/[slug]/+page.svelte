@@ -1660,6 +1660,13 @@
 
 				project.scoring = res.scoring
 				project.scoringSections = res.scoring.reduce((acc, row) => {
+					if (row.value === true)
+						row.value = 'Да'
+					else if (row.value === false)
+						row.value = 'Нет'
+					if (row.errors)
+						row.error = row.errors.join('\n')
+
 					let curSection
 
 					for (const section of acc)
@@ -1678,11 +1685,13 @@
 					}
 
 					curSection.list.push(row)
+
 					if (row.stopFactor)
 						curSection.factors++
 					curSection.progress = (curSection.list.length - curSection.factors) / curSection.list.length
 					if (curSection.progress < 0.1)
 						curSection.progress = 0.1
+
 					return acc
 				}, [])
 
@@ -1768,54 +1777,37 @@
 								<div class="collapse-title text-xl font-medium">
 									<div class="flex items-center gap-5">
 										<CircleProgress progress={+section.progress}/>
-										<p>{(section.list.length - section.factors)} / {section.list.length}</p>
-										{section.title}
+										<p class="shrink-0">{(section.list.length - section.factors)} / {section.list.length}</p>
+										<p class="text-base sm:text-xl">{section.title}</p>
 									</div>
 								</div>
 								<div class="collapse-content">
 									<div class="overflow-x-auto mt-10">
 										<table class="table w-full">
-											<!-- head -->
 											<thead>
 											<tr>
-												<!--									<th>Раздел</th>-->
 												<th>Наименование показателя</th>
 												<th>Значение</th>
-												<th colspan="2" class="text-center">Стоп-фактор (Предварительная оценка)
-												</th>
-											</tr>
-											<tr>
-												<!--									<th class="w-2/12"></th>-->
-												<th class="w-3/12"></th>
-												<th class="w-1/12"></th>
-												<th class="w-3/12 text-center">Общий</th>
-												<th class="w-3/12 text-center">Дополнительный</th>
+												<th class="text-center">Стоп-фактор (Предварительная оценка)</th>
 											</tr>
 											</thead>
 											<tbody>
 											{#each section.list as scoringRow}
 												<tr>
-													<!--										<td class="whitespace-pre-wrap">{scoringRow.section}</td>-->
-													<td class="whitespace-pre-wrap">{scoringRow.label}</td>
-													<td class="whitespace-pre-wrap">{scoringRow.value || 0}</td>
-													{#if scoringRow.error}
-														<td colspan="2"
-														    class="whitespace-pre-wrap text-center text-accent">
+													<td class="whitespace-pre-wrap w-2/5">{scoringRow.label}</td>
+													<td class="whitespace-pre-wrap w-1/5">{scoringRow.value || 0}</td>
+													<td class="whitespace-pre-wrap text-center w-1/5"
+													    class:bg-red-300={scoringRow.stopFactor?.type === 'common'}
+													    class:bg-yellow-300={scoringRow.stopFactor?.type === 'additional'}
+													    class:text-accent={scoringRow.error}>
+														{#if scoringRow.error}
 															{scoringRow.error}
-														</td>
-													{:else if scoringRow.stopFactor?.type === 'common'}
-														<td class="whitespace-pre-wrap bg-red-300 text-center">
+														{:else if scoringRow.stopFactor}
 															{scoringRow.stopFactor.title}
-														</td>
-														<td></td>
-													{:else if scoringRow.stopFactor?.type === 'additional'}
-														<td></td>
-														<td class="whitespace-pre-wrap bg-yellow-300 text-center">
-															{scoringRow.stopFactor.title}
-														</td>
-													{:else}
-														<td colspan="2" class="text-center">Соответствует критериям</td>
-													{/if}
+														{:else}
+															Соответствует критериям
+														{/if}
+													</td>
 												</tr>
 											{/each}
 											</tbody>
