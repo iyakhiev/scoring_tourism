@@ -325,6 +325,49 @@
 					type: 'text'
 				},
 				{
+					label: 'Тип объекта',
+					name: 'buildingType',
+					type: 'select',
+					options: $DIRs['buildingTypes']?.values
+				},
+				{
+					label: 'Категория объекта',
+					name: 'buildingCategory',
+					type: 'select',
+					options: $DIRs['buildingCategory']?.values
+				},
+				{
+					label: 'Особенности объекта',
+					name: 'projectFeature',
+					type: 'select',
+					options: [
+						{
+							name: 'okn',
+							title: 'В здании ОКН',
+						},
+						{
+							name: 'skiResort',
+							title: 'Курорт горнолыжный',
+						},
+						{
+							name: 'seasideResort',
+							title: 'Курорт морской',
+						},
+						{
+							name: 'sanatoriumResort',
+							title: 'Курорт санаторного типа',
+						},
+						{
+							name: 'hasApartments',
+							title: 'Наличие апартаментов',
+						},
+						{
+							name: 'other',
+							title: 'Иное',
+						},
+					]
+				},
+				{
 					label: 'Статус СПК',
 					name: 'statusOfSPK',
 					type: 'select',
@@ -422,16 +465,7 @@
 					label: 'Вид работ по проекту',
 					name: 'typeOfWork',
 					type: 'select',
-					options: [
-						{
-							title: 'Строительство',
-							name: 'construction'
-						},
-						{
-							title: 'Реконструкция',
-							name: 'reconstruction'
-						},
-					]
+					options: $DIRs['typesOfWork']?.values
 				},
 				{
 					label: 'Общее количество номеров в КСР, шт.',
@@ -520,8 +554,7 @@
 					type: 'number',
 					min: 0,
 					calc: () => {
-						calcFields.touristFlowForHotel.calc()
-						calcFields.touristFlowForMFC.calc()
+						calcFields.touristFlow.calc()
 						calcFields.roomRevenue.calc()
 					}
 				},
@@ -531,30 +564,30 @@
 					type: 'number',
 					min: 0,
 					calc: () => {
-						calcFields.touristFlowForHotel.calc()
-						calcFields.touristFlowForMFC.calc()
+						calcFields.touristFlow.calc()
 					}
 				},
 				{
 					buildingType: 'hotel',
 					label: 'Турпоток, чел./ночей за год',
-					name: 'touristFlowForHotel',
+					name: 'touristFlow',
 					type: 'number',
 					disabled: true
 				},
 				{
 					buildingType: 'complex',
 					label: 'Турпоток, чел./год',
-					name: 'touristFlowForMFC',
+					name: 'touristFlow',
 					type: 'number',
 					disabled: true
 				},
 				{
+					buildingType: 'complex',
 					label: 'Общее количество внешних гостей',
 					name: 'totalExternalGuests',
 					type: 'number',
 					min: 0,
-					calc: () => calcFields.touristFlowForMFC.calc()
+					calc: () => calcFields.touristFlow.calc()
 				},
 				{
 					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
@@ -623,13 +656,6 @@
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
-				},
-				{
-					label: 'Турпоток',
-					name: 'touristFlow',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.revPAC.calc()
 				},
 				{
 					label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
@@ -996,8 +1022,7 @@
 
 				updateProjectProp(this.name, value)
 				calcFields.costPerRoom.calc()
-				calcFields.touristFlowForHotel.calc()
-				calcFields.touristFlowForMFC.calc()
+				calcFields.touristFlow.calc()
 				calcFields.roomRevenue.calc()
 			}
 		},
@@ -1035,30 +1060,22 @@
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
-		touristFlowForHotel: {
+		touristFlow: {
 			buildingType: 'hotel',
 			label: 'Турпоток, чел./ночей за год',
-			name: 'touristFlowForHotel',
+			name: 'touristFlow',
 			calc: function () {
-				if (project.buildingType !== this.buildingType
-					|| !project.totalNumberOfRooms || !project.doubleOcc || !project.occ)
+				if (!project.totalNumberOfRooms || !project.doubleOcc || !project.occ)
 					return updateProjectProp(this.name)
 
-				const value = project.totalNumberOfRooms * project.doubleOcc * 365 * (project.occ / 100) / 100
-				updateProjectProp(this.name, +value.toFixed(2))
-			}
-		},
-		touristFlowForMFC: {
-			buildingType: 'complex',
-			label: 'Турпоток, чел./год',
-			name: 'touristFlowForMFC',
-			calc: function () {
-				if (project.buildingType !== this.buildingType
-					|| !project.totalNumberOfRooms || !project.doubleOcc || !project.occ)
-					return updateProjectProp(this.name)
+				let value = 0
 
-				const value = project.totalNumberOfRooms * project.doubleOcc * 365 * (project.occ / 100) / 100
-					+ parseFloat(project.totalExternalGuests || 0) * 365
+				if (project.buildingType === 'hotel')
+					value = project.totalNumberOfRooms * project.doubleOcc * 365 * (project.occ / 100) / 100
+				else if (project.buildingType === 'complex')
+					value = project.totalNumberOfRooms * project.doubleOcc * 365 * (project.occ / 100) / 100
+						+ parseFloat(project.totalExternalGuests || 0) * 365
+
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -1325,13 +1342,6 @@
 			disabled: true
 		},
 		{
-			label: 'Количество гостей Total Guests In-House (за период)',
-			name: 'totalGuestsInHouse',
-			type: 'number',
-			min: 0,
-			calc: () => calcFields.doubleOcc.calc()
-		},
-		{
 			label: 'ADR — отпускной тариф, руб./сутки',
 			name: 'adr',
 			type: 'number',
@@ -1532,7 +1542,7 @@
 			return openModal('Удалить объект?', [
 				{
 					title: 'Удалить',
-					class: 'btn-accent',
+					class: 'btn-accent btn-outline',
 					cb: () => removeObject(false)
 				},
 				{
@@ -1564,7 +1574,7 @@
 			return openModal('Удалить объект?', [
 				{
 					title: 'Удалить',
-					class: 'btn-accent',
+					class: 'btn-accent btn-outline',
 					cb: () => removeInfrastructureObject(false)
 				},
 				{
@@ -1647,6 +1657,11 @@
 			})
 	}
 
+	function declOfNum(number, titles) {
+		const cases = [2, 0, 1, 1, 1, 2]
+		return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]]
+	}
+
 	function estimateStopFactors() {
 		fetch('/api/check_stop_factors', {
 			method: 'POST',
@@ -1661,46 +1676,19 @@
 				console.log('scoring', res.scoring)
 
 				project.scoring = res.scoring
-				project.scoringSections = res.scoring.reduce((acc, row) => {
-					if (row.value === true)
-						row.value = 'Да'
-					else if (row.value === false)
-						row.value = 'Нет'
-					if (row.errors)
-						row.error = row.errors.join('\n')
-
-					let curSection
-
-					for (const section of acc)
-						if (section.title === row.section) {
-							curSection = section
-							break
-						}
-
-					if (!curSection) {
-						curSection = {
-							title: row.section,
-							list: [],
-							factors: 0
-						}
-						acc.push(curSection)
-					}
-
-					curSection.list.push(row)
-
-					if (row.stopFactor || row.errors)
-						curSection.factors++
-					curSection.progress = (curSection.list.length - curSection.factors) / curSection.list.length
-					if (curSection.progress < 0.1)
-						curSection.progress = 0.1
-
-					return acc
-				}, [])
+				project.scoring.sections.forEach(section => {
+					const d = declOfNum(section.passedCount, [
+						['представлен', 'показатель'],
+						['представлено', 'показателя'],
+						['представлено', 'показателей'],
+					])
+					const part1 = `${d[0]} ${section.passedCount} ${d[1]}`
+					section.status = `(${part1} из ${section.indicators.length})`
+				})
 
 				location.hash = ''
 				setTimeout(() => location.hash = 'scoring')
 				drawer = false
-				console.log(project.scoringSections)
 			})
 	}
 
@@ -1709,7 +1697,7 @@
 			return openModal('Удалить проект?', [
 				{
 					title: 'Удалить',
-					class: 'btn-accent',
+					class: 'btn-accent btn-outline',
 					cb: () => deleteProject(false)
 				},
 				{
@@ -1768,21 +1756,30 @@
 				<img src="/hill-line-left.png" alt="" class="max-w-none -mr-14 md:mr-0">
 			</div>
 		</div>
-		<div class="px-5 md:px-10 pb-36">
+		<div class="px-5 md:px-10 pb-36 w-full max-w-7xl mx-auto">
 			{#if project}
 				{#if project.scoring}
 					<a id="scoring"></a>
 					<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">Предварительная оценка</p>
 					<div class="flex flex-col gap-5">
-						{#each project.scoringSections as section}
+						{#each project.scoring.sections as section}
 							<div class="collapse collapse-arrow border rounded">
 								<input type="checkbox"/>
 								<div class="collapse-title text-xl font-medium">
-									<div class="flex items-center gap-5">
-										<CircleProgress progress={section.progress}/>
-										<p class="shrink-0">{(section.list.length - section.factors)}
-											/ {section.list.length}</p>
-										<p class="text-base sm:text-xl">{section.title}</p>
+									<div class="flex items-center justify-start gap-5">
+										<CircleProgress progress={section.progress}
+										                color={section.hasCommonStops ? 'salmon' : section.hasAdditionalStops ? 'orange' : 'yellowgreen'}/>
+										<div class="">
+											<p class="text-base sm:text-xl">{section.title}</p>
+											<p class="text-sm">{section.status}</p>
+											{#if section.hasCommonStops}
+												<p class="text-sm">Имеются критичные стоп-факторы</p>
+											{:else if section.hasAdditionalStops}
+												<p class="text-sm">Имеются некритичные стоп-факторы</p>
+											{:else}
+												<p class="text-sm">Нет стоп-факторов</p>
+											{/if}
+										</div>
 									</div>
 								</div>
 								<div class="collapse-content">
@@ -1796,18 +1793,18 @@
 											</tr>
 											</thead>
 											<tbody>
-											{#each section.list as scoringRow}
+											{#each section.indicators as indicator}
 												<tr>
-													<td class="whitespace-pre-wrap w-2/5">{scoringRow.label}</td>
-													<td class="whitespace-pre-wrap w-1/5">{scoringRow.value || 0}</td>
+													<td class="whitespace-pre-wrap w-2/5">{indicator.label}</td>
+													<td class="whitespace-pre-wrap w-1/5">{indicator.value || 0}</td>
 													<td class="whitespace-pre-wrap text-center w-1/5"
-													    class:bg-red-300={scoringRow.stopFactor?.type === 'common'}
-													    class:bg-yellow-300={scoringRow.stopFactor?.type === 'additional'}
-													    class:text-accent={scoringRow.error}>
-														{#if scoringRow.error}
-															{scoringRow.error}
-														{:else if scoringRow.stopFactor}
-															{scoringRow.stopFactor.title}
+													    class:bg-red-300={indicator.stopFactor?.type === 'common'}
+													    class:bg-yellow-300={indicator.stopFactor?.type === 'additional'}
+													    class:text-accent={indicator.error}>
+														{#if indicator.error}
+															{indicator.error}
+														{:else if indicator.stopFactor}
+															{indicator.stopFactor.title}
 														{:else}
 															Соответствует критериям
 														{/if}
@@ -1821,36 +1818,39 @@
 							</div>
 						{/each}
 					</div>
+					<div class="divider my-20"></div>
 				{/if}
 				{#each tabs as tab}
 					<a id="{tab.name}"></a>
 					<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">{tab.title}</p>
 					{#if tab.fields.length}
 						{#each tab.fields as field}
-							<div class="max-w-lg p-2">
-								{#if field.disabled}
-									<div class="form-control w-full">
-										<label class="label" for="{field.name}">
-											<span class="label-text">{field.label}</span>
-										</label>
-										<input id="{field.name}" type="number" placeholder=""
-										       value={project[field.name]} disabled
-										       class="input input-bordered w-full"/>
-									</div>
-								{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-									<Input {...field}
-									       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-									       bind:value={project[field.name]}/>
-								{:else if field.type === 'check'}
-									<Check {...field}
-									       on:change={() => (highlightSave = true)}
-									       bind:checked={project[field.name]}/>
-								{:else if field.type === 'select'}
-									<Select {...field}
-									        on:change={() => (highlightSave = true)}
-									        bind:value={project[field.name]}/>
-								{/if}
-							</div>
+							{#if !field.buildingType || project.buildingType === field.buildingType}
+								<div class="max-w-lg p-2">
+									{#if field.disabled}
+										<div class="form-control w-full">
+											<label class="label" for="{field.name}">
+												<span class="label-text">{field.label}</span>
+											</label>
+											<input id="{field.name}" type="number" placeholder=""
+											       value={project[field.name]} disabled
+											       class="input input-bordered w-full"/>
+										</div>
+									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+										<Input {...field}
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'check'}
+										<Check {...field}
+										       on:change={() => (highlightSave = true)}
+										       bind:checked={project[field.name]}/>
+									{:else if field.type === 'select'}
+										<Select {...field}
+										        on:change={() => (highlightSave = true)}
+										        bind:value={project[field.name]}/>
+									{/if}
+								</div>
+							{/if}
 						{/each}
 					{/if}
 					{#if tab.name === 'objectsInfo'}
@@ -1969,7 +1969,7 @@
 	</div>
 	<div class="drawer-side shadow-2xl">
 		<label for="my-drawer" class="drawer-overlay"></label>
-		<aside class="w-80 h-full flex flex-col bg-base-100 lg:!max-w-full" style="max-width: 90%;">
+		<aside class="w-80 xl:w-96 h-full flex flex-col bg-base-100 lg:!max-w-full" style="max-width: 90%;">
 			<div class="flex items-center justify-center h-20 relative">
 				<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
 				<div class="absolute inset-0 flex items-end justify-start overflow-hidden">
@@ -1998,9 +1998,11 @@
 				{#if project.scoring}
 					<li class="flex flex-col items-stretch">
 						<a href="#scoring"
-						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase">
+						   on:click={() => drawer = false}
+						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase text-center underline">
 							Предварительная оценка
 						</a>
+						<div class="divider mx-10"></div>
 					</li>
 				{/if}
 				{#each tabs as tab}

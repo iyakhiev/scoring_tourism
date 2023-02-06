@@ -5,13 +5,6 @@
 	const structure = [
 		{
 			type: 'dir',
-			dirName: 'regions',
-			name: 'region',
-			title: 'Регион',
-			default: 'Выберите регион'
-		},
-		{
-			type: 'dir',
 			dirName: 'buildingCategory',
 			name: 'buildingCategory',
 			title: 'Категория объекта',

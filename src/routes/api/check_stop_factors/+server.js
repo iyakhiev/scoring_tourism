@@ -78,6 +78,15 @@ function getDirValue(dirs, dirName, fields) {
 	return res
 }
 
+function getDirTitle(dirs, dirName, value) {
+	if (!dirs[dirName])
+		return
+
+	const values = dirs[dirName].values.filter(row => row.name === value)
+	if (values.length)
+		return values[0]
+}
+
 const indicators = [
 	{
 		label: 'Платежеспособность Инвестора',
@@ -211,6 +220,8 @@ const indicators = [
 					if (!res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -227,6 +238,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -242,6 +255,8 @@ const indicators = [
 
 					if (!res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -275,6 +290,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -290,6 +307,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -307,6 +326,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -322,6 +343,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -339,6 +362,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -354,6 +379,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -371,6 +398,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -386,6 +415,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -403,6 +434,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -418,6 +451,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -435,6 +470,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -450,6 +487,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -467,6 +506,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -482,6 +523,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -499,6 +542,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -514,6 +559,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -531,6 +578,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -546,6 +595,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -563,6 +614,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -579,6 +632,8 @@ const indicators = [
 					if (res.value)
 						res.stopFactor = this.stopFactor
 
+					res.value = res.value ? 'Да' : 'Нет'
+
 					return res
 				}
 			},
@@ -594,6 +649,8 @@ const indicators = [
 
 					if (res.value)
 						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
 
 					return res
 				}
@@ -796,6 +853,8 @@ const indicators = [
 			if (!res.value)
 				res.stopFactor = this.stopFactor
 
+			res.value = res.value ? 'Да' : 'Нет'
+
 			return res
 		}
 	},
@@ -917,7 +976,7 @@ const indicators = [
 		}
 	},
 	{
-		// todo
+		buildingType: 'hotel',
 		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
 		name: 'marginEBITDA',
 		sectionTitle: 'Экономические показатели',
@@ -926,50 +985,35 @@ const indicators = [
 			title: 'Отклонение показателя EBITDA от средего рыночного значения'
 		},
 		calc: function (project, dirs, scoring) {
-			const res = { values: [] }
+			const res = { value: project[this.name] }
 
-			const errors = checkFields(project, [], true, true)
+			const errors = checkFields(project, [this.name], true)
 			if (errors.length)
 				res.errors = errors
-			else if (project.objects) {
-				for (const object of project.objects) {
-					const objectRes = {
-						hotelRating: object.hotelRating
-					}
-
-					if (!object.hotelRating)
-						objectRes.errors = [noHotelRatingMsg]
+			else {
+				if (!project.objects || !project.objects.length || !project.objects[0].hotelRating)
+					res.errors = [noValueMsg]
+				else {
+					const fields = [
+						{
+							name: 'region',
+							value: project.region,
+							title: project.regionTitle,
+						},
+						{
+							name: 'hotelRating',
+							value: project.objects[0].hotelRating,
+							title: project.objects[0].hotelRating + '*',
+						},
+					]
+					const { error, dirValue } = getDirValue(dirs, 'marginEBITDA', fields)
+					if (error)
+						res.errors = [error]
 					else {
-						const fields = [
-							{
-								name: 'region',
-								value: project.region,
-								title: project.regionTitle,
-							},
-							{
-								name: 'buildingType',
-								value: project.buildingType,
-								title: project.buildingTypeTitle,
-							},
-							{
-								name: 'hotelRating',
-								value: object.hotelRating,
-								title: object.hotelRating + '*',
-							},
-						]
-						const { error, dirValue } = getDirValue(dirs, 'marginEBITDA', fields)
-						if (error)
-							objectRes.errors = [error]
-						else {
-							objectRes.value = object[this.name]
-
-							const condition = Math.abs(objectRes.value / dirValue.value - 1) * 100 > 20
-							if (condition)
-								objectRes.stopFactor = this.stopFactor
-						}
+						const condition = Math.abs(res.value / dirValue.value - 1) * 100 > 20
+						if (condition)
+							res.stopFactor = this.stopFactor
 					}
-
-					res.values.push(objectRes)
 				}
 			}
 
@@ -977,7 +1021,42 @@ const indicators = [
 		}
 	},
 	{
-		// todo
+		buildingType: 'complex',
+		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
+		name: 'marginEBITDA',
+		sectionTitle: 'Экономические показатели',
+		stopFactor: {
+			type: 'common',
+			title: 'Отклонение показателя EBITDA от средего рыночного значения'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name], true)
+			if (errors.length)
+				res.errors = errors
+			else {
+				const fields = [
+					{
+						name: 'region',
+						value: project.region,
+						title: project.regionTitle,
+					},
+				]
+				const { error, dirValue } = getDirValue(dirs, 'marginEBITDA', fields)
+				if (error)
+					res.errors = [error]
+				else {
+					const condition = Math.abs(res.value / dirValue.value - 1) * 100 > 20
+					if (condition)
+						res.stopFactor = this.stopFactor
+				}
+			}
+
+			return res
+		}
+	},
+	{
 		label: 'Occupancy (OCC) — реальная заполняемость, %',
 		name: 'occ',
 		sectionTitle: 'Экономические показатели',
@@ -986,46 +1065,15 @@ const indicators = [
 			title: 'Завышена ожидаемость по загрузке'
 		},
 		calc: function (project, dirs, scoring) {
-			const res = { values: [] }
+			const res = { value: project[this.name] }
 
-			const errors = checkFields(project, [], true, true)
+			const errors = checkFields(project, [])
 			if (errors.length)
 				res.errors = errors
-			else if (project.objects) {
-				for (const object of project.objects) {
-					const objectRes = {
-						hotelRating: object.hotelRating
-					}
-
-					if (!object.hotelRating)
-						objectRes.errors = [noHotelRatingMsg]
-					else {
-						const fields = [
-							{
-								name: 'region',
-								value: project.region,
-								title: project.regionTitle,
-							},
-							{
-								name: 'hotelRating',
-								value: object.hotelRating,
-								title: object.hotelRating + '*',
-							},
-						]
-						const { error, dirValue } = getDirValue(dirs, 'occ', fields)
-						if (error)
-							objectRes.errors = [error]
-						else {
-							objectRes.value = object[this.name]
-
-							const condition = Math.abs(objectRes.value / dirValue.value - 1) * 100 > 20
-							if (condition)
-								objectRes.stopFactor = this.stopFactor
-						}
-					}
-
-					res.values.push(objectRes)
-				}
+			else {
+				const condition = Math.abs(res.value / 65 - 1) * 100 > 17
+				if (condition)
+					res.stopFactor = this.stopFactor
 			}
 
 			return res
@@ -1042,7 +1090,8 @@ const indicators = [
 		calc: function (project, dirs, scoring) {
 			const res = { value: project[this.name] }
 
-			const errors = checkFields(project, [this.name], false, false, true)
+			const errors = checkFields(project, [this.name],
+				false, false, true)
 			if (errors.length)
 				res.errors = errors
 			else {
@@ -1087,6 +1136,7 @@ const indicators = [
 		},
 	},
 	{
+		// todo
 		label: 'Количество сотрудников на 1 номер, чел.',
 		name: 'staffPerRoom',
 		sectionTitle: 'Экономические показатели',
@@ -1228,7 +1278,7 @@ const indicators = [
 			title: 'Тип проекта не соответствует требованиям программы льготного кредитования'
 		},
 		calc: function (project, dirs, scoring) {
-			const res = { value: project[this.name] }
+			const res = { value: project.buildingTypeTitle || project.buildingType }
 
 			const condition = !res.value
 			if (condition)
@@ -1239,7 +1289,7 @@ const indicators = [
 	},
 	{
 		isForSoftLoan: true,
-		isForHotel: true,
+		buildingType: 'hotel',
 		label: 'Размер номерного фонда',
 		name: 'totalNumberOfRooms',
 		sectionTitle: 'Льготное кредитование',
@@ -1264,7 +1314,7 @@ const indicators = [
 	},
 	{
 		isForSoftLoan: true,
-		isForHotel: true,
+		buildingType: 'hotel',
 		label: 'Площадь гостиницы',
 		name: 'hotelArea',
 		sectionTitle: 'Льготное кредитование',
@@ -1289,7 +1339,7 @@ const indicators = [
 	},
 	{
 		isForSoftLoan: true,
-		label: 'Соответствие установленному размеру льготного кредита',
+		label: 'Соответствие установленному размеру льготного кредита, тыс. руб.',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
@@ -1337,6 +1387,27 @@ const indicators = [
 	},
 	{
 		isForSoftLoan: true,
+		label: 'Наличие правоустанавливающих документов на земельные участки (объекты)',
+		name: 'hasOwnershipRight',
+		sectionTitle: 'Льготное кредитование',
+		stopFactor: {
+			type: 'additional',
+			title: 'Отсутствуют правоустанавливающие документы на земельные участки (объекты)'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			const condition = !res.value
+			if (condition)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
 		label: 'Вид работ по проекту (строительство или реконструкция)',
 		name: 'typeOfWork',
 		sectionTitle: 'Льготное кредитование',
@@ -1350,6 +1421,66 @@ const indicators = [
 			const condition = !res.value
 			if (condition)
 				res.stopFactor = this.stopFactor
+			else {
+				const dirValue = getDirTitle(dirs, 'typesOfWork', res.value)
+				if (dirValue)
+					res.value = dirValue.title
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		buildingType: 'hotel',
+		label: 'Размер льготного кредита на номер, тыс. руб.',
+		name: 'bankLoanAmount',
+		sectionTitle: 'Льготное кредитование',
+		stopFactor: {
+			type: 'additional',
+			title: 'Превышен предельный размер льготного кредита на номер'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: '' }
+
+			const errors = checkFields(project, [this.name, 'totalNumberOfRooms'])
+			if (errors.length)
+				res.errors = errors
+			else {
+				res.value = project[this.name] / project.totalNumberOfRooms
+				const condition = res.value > 20000
+				if (condition)
+					res.stopFactor = this.stopFactor
+			}
+
+			return res
+		}
+	},
+	{
+		isForSoftLoan: true,
+		buildingType: 'complex',
+		label: 'Размер льготного кредита на номер, тыс. руб.',
+		name: 'bankLoanAmount',
+		sectionTitle: 'Льготное кредитование',
+		stopFactor: {
+			type: 'additional',
+			title: 'Превышен предельный размер льготного кредита на номер'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: '' }
+
+			const errors = checkFields(project, [this.name, 'totalNumberOfRooms'])
+			if (errors.length)
+				res.errors = errors
+			else {
+				res.value = project[this.name] / project.totalNumberOfRooms
+
+				const condition = res.value > 55000
+				if (condition)
+					res.stopFactor = this.stopFactor
+
+				res.value = +res.value.toFixed(2)
+			}
 
 			return res
 		}
@@ -1357,12 +1488,15 @@ const indicators = [
 ]
 
 function checkStopFactors(project, dirs) {
-	const scoring = []
+	const scoring = {
+		indicators: [],
+		sections: []
+	}
 
 	for (const indicator of indicators) {
 		if (indicator.isForSoftLoan && !project.needOfSoftLoan)
 			continue
-		if (indicator.isForHotel && project.buildingType !== 'hotel')
+		if (indicator.buildingType && project.buildingType !== indicator.buildingType)
 			continue
 
 		const nestedScoring = []
@@ -1375,10 +1509,51 @@ function checkStopFactors(project, dirs) {
 				}, project, dirs))
 
 		if (indicator.calc)
-			scoring.push(checkStopFactor(indicator, project, dirs, nestedScoring))
+			scoring.indicators.push(checkStopFactor(indicator, project, dirs, nestedScoring))
 		if (nestedScoring.length)
-			scoring.push(...nestedScoring)
+			scoring.indicators.push(...nestedScoring)
 	}
+
+	scoring.sections = scoring.indicators.reduce((acc, row) => {
+		if (row.errors)
+			row.error = row.errors.join('\n')
+
+		let curSection
+
+		for (const section of acc)
+			if (section.title === row.section) {
+				curSection = section
+				break
+			}
+
+		if (!curSection) {
+			curSection = {
+				title: row.section,
+				indicators: [],
+				stopCount: 0,
+				passedCount: 0,
+				hasCommonStops: false,
+				hasAdditionalStops: false
+			}
+			acc.push(curSection)
+		}
+
+		curSection.indicators.push(row)
+
+		if (row.stopFactor || row.errors)
+			curSection.stopCount++
+		if (row.stopFactor?.type === 'common')
+			curSection.hasCommonStops = true
+		if (row.stopFactor?.type === 'additional')
+			curSection.hasAdditionalStops = true
+
+		curSection.passedCount = curSection.indicators.length - curSection.stopCount
+		curSection.progress = curSection.passedCount / curSection.indicators.length
+		if (curSection.progress < 0.1)
+			curSection.progress = 0.1
+
+		return acc
+	}, [])
 
 	return scoring
 }

@@ -1,11 +1,9 @@
 <script>
 	export let progress
-	$: angle = 360 * progress
-	$: color = progress < 0.25 ? 'red' :
-		progress < 0.5 ? 'orange' :
-			progress < 0.75 ? 'yellowgreen' : 'green'
+	export let color = 'conic-gradient(orange 0deg, yellow 90deg, lightgreen 180deg, green)'
 
-	// Adapt the logic according to the approach
+	$: angle = 360 * progress
+
 	$: background = `radial-gradient(white 50%, transparent 51%),
     conic-gradient(transparent 0deg ${angle}deg, gainsboro ${angle}deg 360deg),
     ${color};`

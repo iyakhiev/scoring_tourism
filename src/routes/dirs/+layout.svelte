@@ -19,10 +19,10 @@
 			name: 'marginEBITDA',
 			title: 'Рентабельность по EBITDA'
 		},
-		{
-			name: 'occ',
-			title: 'Occupancy - Реальная заполняемость'
-		},
+		// {
+		// 	name: 'occ',
+		// 	title: 'Occupancy - Реальная заполняемость'
+		// },
 		{
 			name: 'doubleOcc',
 			title: 'Double Occupancy — среднее кол-во гостей в номере'
@@ -64,7 +64,7 @@
 	</div>
 	<div class="drawer-side shadow-2xl">
 		<label for="my-drawer" class="drawer-overlay"></label>
-		<aside class="w-80 h-full bg-base-100 lg:!max-w-full" style="max-width: 90%;">
+		<aside class="w-80 xl:w-96 h-full bg-base-100 lg:!max-w-full" style="max-width: 90%;">
 			<div class="flex items-center justify-center h-20 relative">
 				<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
 				<div class="absolute inset-0 flex items-end justify-start overflow-hidden">

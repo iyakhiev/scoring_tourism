@@ -19,6 +19,14 @@
 		},
 		{
 			type: 'dir',
+			dirName: 'buildingCategory',
+			name: 'buildingCategory',
+			title: 'Категория объекта',
+			default: 'Выберите категорию объекта',
+			defaultEnabled: true
+		},
+		{
+			type: 'dir',
 			dirName: 'hotelRating',
 			name: 'hotelRating',
 			title: 'Звездность гостиницы',
