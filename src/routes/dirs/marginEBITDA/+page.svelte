@@ -30,8 +30,14 @@
 			title: 'EBITDA, %',
 			fields: [
 				{
-					name: 'value',
+					name: 'from',
 					placeholder: '%',
+					title: 'от'
+				},
+				{
+					name: 'to',
+					placeholder: '%',
+					title: 'до'
 				}
 			]
 		}

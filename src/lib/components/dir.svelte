@@ -69,7 +69,7 @@
 			<table class="table w-full">
 				<thead>
 				<tr>
-					<th></th>
+					<th class="!relative"></th>
 					{#each structure as row}
 						<th>{row.title}</th>
 					{/each}

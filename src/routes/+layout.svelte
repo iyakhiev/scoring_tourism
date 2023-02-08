@@ -1,5 +1,6 @@
 <script>
 	import '../app.postcss'
+	import 'tippy.js/dist/tippy.css'
 	import { setDirs } from '$lib/stores'
 	import { DIRs } from '$lib/stores'
 	import Modals from '$lib/components/modals.svelte'

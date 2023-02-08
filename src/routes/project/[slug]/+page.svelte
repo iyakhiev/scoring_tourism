@@ -68,7 +68,8 @@
 			name: 'balanceSheetData',
 			fields: [
 				{
-					label: 'Краткосрочные финансовые вложения',
+					label: 'Краткосрочные финансовые вложения, тыс. руб.',
+					tip: 'Строка 1240 бухгалтерского баланса',
 					name: 'kfv',
 					type: 'number',
 					min: 0,
@@ -78,7 +79,8 @@
 					}
 				},
 				{
-					label: 'Денежные средства и их эквиваленты',
+					label: 'Денежные средства и их эквиваленты, тыс. руб.',
+					tip: 'Строка 1250 бухгалтерского баланса',
 					name: 'ds',
 					type: 'number',
 					min: 0,
@@ -88,7 +90,8 @@
 					}
 				},
 				{
-					label: 'Краткосрочные обязательства',
+					label: 'Краткосрочные обязательства, тыс. руб.',
+					tip: 'Итого по разделу V, строка 1500 бухгалтерского баланса',
 					name: 'ko',
 					type: 'number',
 					min: 0,
@@ -108,7 +111,8 @@
 					disabled: true
 				},
 				{
-					label: 'Краткосрочная дебиторская задолженность',
+					label: 'Краткосрочная дебиторская задолженность, тыс. руб.',
+					tip: 'Строка 1520 бухгалтерского баланса',
 					name: 'kdz',
 					type: 'number',
 					min: 0,
@@ -121,7 +125,8 @@
 					disabled: true
 				},
 				{
-					label: 'Оборотные активы',
+					label: 'Оборотные активы, тыс. руб.',
+					tip: 'Строка 1200 бухгалтерского баланса',
 					name: 'oa',
 					type: 'number',
 					min: 0,
@@ -134,14 +139,16 @@
 					disabled: true
 				},
 				{
-					label: 'Собственный капитал',
+					label: 'Собственный капитал, тыс. руб.',
+					tip: 'Строка 1300 бухгалтерского баланса',
 					name: 'sk',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.debtToEquityRatio.calc()
 				},
 				{
-					label: 'Долгосрочные обязательства',
+					label: 'Долгосрочные обязательства, тыс. руб.',
+					tip: 'Строка 1400 бухгалтерского баланса',
 					name: 'do',
 					type: 'number',
 					min: 0,
@@ -152,7 +159,8 @@
 					}
 				},
 				{
-					label: 'Сумма долгосрочных и краткосрочных обязательств',
+					label: 'Сумма долгосрочных и краткосрочных обязательств, тыс. руб.',
+					tip: 'Строки 1410, 1435, 1510, 1520 и 1545 бухгалтерского баланса',
 					name: 'doAndKoSum',
 					type: 'number',
 					disabled: true
@@ -164,7 +172,8 @@
 					disabled: true
 				},
 				{
-					label: 'Капитал и резервы',
+					label: 'Капитал и резервы, тыс. руб.',
+					tip: 'Строка 1300 (итого по разделу III) бухгалтерского баланса',
 					name: 'kr',
 					type: 'number',
 					min: 0,
@@ -178,16 +187,19 @@
 				},
 				{
 					label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
+					tip: 'Выписка из ЕГРН',
 					name: 'hasOwnershipRight',
 					type: 'check',
 				},
 				{
 					label: 'Наличие обременения на имущество (объекты, земельные участки) вносимое в виде имущественного взноса',
+					tip: 'Выписка из ЕГРН',
 					name: 'hasPropertyEncumbrance',
 					type: 'check',
 				},
 				{
 					label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
+					tip: 'Справка  2-НДФЛ, копия  3-НДФЛ',
 					name: 'hasSourceOfFundsDocs',
 					type: 'check',
 				},
@@ -913,7 +925,7 @@
 			}
 		},
 		doAndKoSum: {
-			label: 'Сумма долгосрочных и краткосрочных обязательств',
+			label: 'Сумма долгосрочных и краткосрочных обязательств, тыс. руб.',
 			name: 'doAndKoSum',
 			calc: function () {
 				const value = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
@@ -1773,11 +1785,11 @@
 											<p class="text-base sm:text-xl">{section.title}</p>
 											<p class="text-sm">{section.status}</p>
 											{#if section.hasCommonStops}
-												<p class="text-sm">Имеются критичные стоп-факторы</p>
+												<p class="text-sm">Выявлен(ы) общий(е) стоп-фактор(ы)</p>
 											{:else if section.hasAdditionalStops}
-												<p class="text-sm">Имеются некритичные стоп-факторы</p>
+												<p class="text-sm">Выявлен(ы) дополнительный(е) стоп-фактор(ы)</p>
 											{:else}
-												<p class="text-sm">Нет стоп-факторов</p>
+												<p class="text-sm">Стоп-факторы не выявлены</p>
 											{/if}
 										</div>
 									</div>
@@ -1787,7 +1799,7 @@
 										<table class="table w-full">
 											<thead>
 											<tr>
-												<th>Наименование показателя</th>
+												<th class="!relative">Наименование показателя</th>
 												<th>Значение</th>
 												<th class="text-center">Стоп-фактор (Предварительная оценка)</th>
 											</tr>
@@ -1954,16 +1966,6 @@
 						{/if}
 					{/if}
 				{/each}
-				<div class="flex flex-col gap-3 fixed bottom-5 md:bottom-10 right-5 md:right-10 opacity-75">
-					<button class="btn btn-ghost bg-base-200/50"
-					        on:click={goToTop}>
-						<img class="w-5 md:w-6" src="/up.svg" alt="Наверх">
-					</button>
-					<label for="my-drawer"
-					       class="btn btn-ghost bg-base-200/75 lg:hidden">
-						<img class="w-5 md:w-6" src="/menu.svg" alt="Меню">
-					</label>
-				</div>
 			{/if}
 		</div>
 	</div>
@@ -2041,4 +2043,14 @@
 			</ul>
 		</aside>
 	</div>
+</div>
+<div class="flex flex-col gap-3 fixed bottom-5 md:bottom-10 right-5 md:right-10 opacity-75">
+	<button class="btn btn-ghost bg-base-200/50"
+	        on:click={goToTop}>
+		<img class="w-5 md:w-6" src="/up.svg" alt="Наверх">
+	</button>
+	<label for="my-drawer"
+	       class="btn btn-ghost bg-base-200/75 lg:hidden">
+		<img class="w-5 md:w-6" src="/menu.svg" alt="Меню">
+	</label>
 </div>

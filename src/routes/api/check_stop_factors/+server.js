@@ -987,18 +987,23 @@ const indicators = [
 		calc: function (project, dirs, scoring) {
 			const res = { value: project[this.name] }
 
-			const errors = checkFields(project, [this.name], true)
+			const errors = checkFields(project, [this.name], true, true)
 			if (errors.length)
 				res.errors = errors
 			else {
 				if (!project.objects || !project.objects.length || !project.objects[0].hotelRating)
-					res.errors = [noValueMsg]
+					res.errors = [noHotelRatingMsg]
 				else {
 					const fields = [
 						{
 							name: 'region',
 							value: project.region,
 							title: project.regionTitle,
+						},
+						{
+							name: 'buildingType',
+							value: project.buildingType,
+							title: project.buildingTypeTitle,
 						},
 						{
 							name: 'hotelRating',
@@ -1010,7 +1015,11 @@ const indicators = [
 					if (error)
 						res.errors = [error]
 					else {
-						const condition = Math.abs(res.value / dirValue.value - 1) * 100 > 20
+						let condition = false
+						if (res.value > dirValue.to)
+							condition = Math.abs(res.value / dirValue.to - 1) * 100 > 20
+						else if (res.value < dirValue.from)
+							condition = Math.abs(res.value / dirValue.from - 1) * 100 > 20
 						if (condition)
 							res.stopFactor = this.stopFactor
 					}
@@ -1042,12 +1051,21 @@ const indicators = [
 						value: project.region,
 						title: project.regionTitle,
 					},
+					{
+						name: 'buildingType',
+						value: project.buildingType,
+						title: project.buildingTypeTitle,
+					},
 				]
 				const { error, dirValue } = getDirValue(dirs, 'marginEBITDA', fields)
 				if (error)
 					res.errors = [error]
 				else {
-					const condition = Math.abs(res.value / dirValue.value - 1) * 100 > 20
+					let condition = false
+					if (res.value > dirValue.to)
+						condition = Math.abs(res.value / dirValue.to - 1) * 100 > 20
+					else if (res.value < dirValue.from)
+						condition = Math.abs(res.value / dirValue.from - 1) * 100 > 20
 					if (condition)
 						res.stopFactor = this.stopFactor
 				}

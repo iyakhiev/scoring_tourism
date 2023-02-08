@@ -1,9 +1,11 @@
 <script>
 	import { createEventDispatcher } from 'svelte'
+	import Tooltip from '$lib/components/tooltip.svelte'
 
 	export let name
 	export let value
 	export let label
+	export let tip
 	export let min
 	export let max
 	export let placeholder = ''
@@ -25,6 +27,9 @@
 <div class="form-control w-full">
 	<label class="label" for="input-{name}">
 		<span class="label-text">{@html label}</span>
+		{#if tip}
+			<Tooltip content={tip}/>
+		{/if}
 	</label>
 	<input
 			on:input={handleInput}

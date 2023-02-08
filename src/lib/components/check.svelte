@@ -1,14 +1,16 @@
 <script>
 	import { createEventDispatcher } from 'svelte'
+	import Tooltip from '$lib/components/tooltip.svelte'
 
 	export let label
 	export let name
 	export let checked
+	export let tip
 
 	const dispatch = createEventDispatcher()
 </script>
 
-<div class="form-control">
+<div class="form-control flex-row items-center">
 	<label class="label cursor-pointer flex-row-reverse gap-5 justify-end">
 		<span class="label-text">{label}</span>
 		<input
@@ -18,4 +20,7 @@
 				type="checkbox"
 				class="checkbox checkbox-primary"/>
 	</label>
+	{#if tip}
+		<Tooltip content={tip}/>
+	{/if}
 </div>
