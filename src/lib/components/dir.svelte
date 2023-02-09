@@ -1,6 +1,7 @@
 <script>
 	import { DIRs } from '$lib/stores'
 	import Select from '$lib/components/select.svelte'
+	import { browser } from '$app/environment'
 
 	export let name
 	export let structure
@@ -8,7 +9,25 @@
 	let currentDir
 	let highlightSave = false
 
-	$: currentDir = $DIRs[name]
+	$: name && load()
+
+	function load() {
+		if (!name || !browser)
+			return
+
+		fetch('/api/load_dir', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ name })
+		})
+			.then(res => res.json())
+			.then(res => {
+				console.log('load_dir', res)
+
+				if (res?.res?._id)
+					currentDir = res.res
+			})
+	}
 
 	function save() {
 		fetch('/api/update_dir', {
@@ -54,12 +73,12 @@
 {#if currentDir}
 	<div class="flex flex-col md:flex-row items-end md:items-center gap-5">
 		<div class="text-2xl mr-auto">{currentDir.title}</div>
-		<button class="btn btn-primary"
-		        class:btn-outline={!highlightSave}
+		<button class="btn btn-outline btn-secondary"
+		        class:opacity-50={!highlightSave}
 		        on:click={save}>
 			Сохранить
 		</button>
-		<button class="btn btn-outline"
+		<button class="btn btn-outline btn-secondary"
 		        on:click={add}>
 			Добавить значение
 		</button>
@@ -79,7 +98,8 @@
 				{#each currentDir.values as value}
 					<tr>
 						<td class="p-0">
-							<img class="w-4 mx-auto opacity-20 hover:opacity-60 cursor-pointer" src="/trash.svg" alt="Remove"
+							<img class="w-4 mx-auto opacity-20 hover:opacity-60 cursor-pointer" src="/trash.svg"
+							     alt="Remove"
 							     on:click={() => remove(value)}>
 						</td>
 						{#each structure as row}
@@ -130,7 +150,7 @@
 		<div class="alert shadow-lg">
 			<div>
 				<img src="/pulse.svg" alt="Анимация загрузки" width="30">
-				<span>Загрузка справочников...</span>
+				<span>Загрузка справочника...</span>
 			</div>
 		</div>
 	</div>

@@ -77,9 +77,10 @@
 	/>
 </div>
 <div class="flex justify-end mt-10">
-	<button class="btn btn-outline btn-primary"
+	<button class="btn btn-outline btn-secondary"
 	        on:click={addProject}
-	        class:btn-disabled={!project?.name.trim()}>
+	        class:pointer-events-none={!project?.name.trim()}
+	        class:opacity-50={!project?.name.trim()}>
 		Продолжить
 	</button>
 </div>

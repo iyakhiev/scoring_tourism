@@ -933,7 +933,8 @@ const indicators = [
 			else if (project.objects) {
 				for (const object of project.objects) {
 					const objectRes = {
-						hotelRating: object.hotelRating
+						hotelRating: object.hotelRating,
+						objectName: object.objectName,
 					}
 
 					if (!object.hotelRating)
@@ -1171,7 +1172,8 @@ const indicators = [
 			else if (project.objects) {
 				for (const object of project.objects) {
 					const objectRes = {
-						hotelRating: object.hotelRating
+						hotelRating: object.hotelRating,
+						objectName: object.objectName,
 					}
 
 					if (!object.hotelRating)
@@ -1521,13 +1523,13 @@ function checkStopFactors(project, dirs) {
 
 		if (indicator.indicators)
 			for (const nestedIndicator of indicator.indicators)
-				nestedScoring.push(checkStopFactor({
+				nestedScoring.push(...checkStopFactor({
 					...nestedIndicator,
 					sectionTitle: indicator.sectionTitle
 				}, project, dirs))
 
 		if (indicator.calc)
-			scoring.indicators.push(checkStopFactor(indicator, project, dirs, nestedScoring))
+			scoring.indicators.push(...checkStopFactor(indicator, project, dirs, nestedScoring))
 		if (nestedScoring.length)
 			scoring.indicators.push(...nestedScoring)
 	}
@@ -1577,6 +1579,7 @@ function checkStopFactors(project, dirs) {
 }
 
 function checkStopFactor(indicator, project, dirs, scoring) {
+	const scoringResults = []
 	const scoringResult = {
 		name: indicator.name,
 		label: indicator.label,
@@ -1588,7 +1591,21 @@ function checkStopFactor(indicator, project, dirs, scoring) {
 		const { value, errors, stopFactor, values } = res
 
 		if (values)
-			scoringResult.values = values
+			values.forEach(row => {
+				const objectRes = {
+					...scoringResult,
+					value: row.value,
+					errors: row.errors,
+					stopFactor: row.stopFactor,
+				}
+
+				const objectName = row.objectName ? `, "${row.objectName}"` : ''
+				const hotelRating = row.hotelRating ? `, Гостиница ${row.hotelRating}*` : ', Гостиница'
+
+				objectRes.label = `${objectRes.label}${objectName}${hotelRating}`
+
+				scoringResults.push(objectRes)
+			})
 		else {
 			scoringResult.value = value
 
@@ -1596,8 +1613,10 @@ function checkStopFactor(indicator, project, dirs, scoring) {
 				scoringResult.errors = errors
 			if (stopFactor)
 				scoringResult.stopFactor = stopFactor
+
+			scoringResults.push(scoringResult)
 		}
 	}
 
-	return scoringResult
+	return scoringResults
 }

@@ -11,7 +11,7 @@
 
 <div class="flex items-center justify-between my-10 px-3 md:px-10">
 	<div class="text-2xl md:text-3xl">Проекты:</div>
-	<a href="/projects/add" class="btn btn-outline btn-primary hover:text-white">
+	<a href="/projects/add" class="btn btn-outline btn-secondary hover:text-white">
 		Создать проект
 	</a>
 </div>

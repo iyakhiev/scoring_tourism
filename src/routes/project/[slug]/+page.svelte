@@ -1726,9 +1726,7 @@
 		fetch('/api/delete_project', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				_id: project._id
-			})
+			body: JSON.stringify({ _id: project._id })
 		})
 			.then(res => res.json())
 			.then(res => {
@@ -1983,40 +1981,27 @@
 					<img src="/hill-line-left.png" alt="" class="max-w-none">
 				</div>
 			</div>
-			<p class="text-center p-4 pt-8 font-medium text-xl text-secondary">{project.name}</p>
-			<div class="flex flex-col items-stretch px-10 py-4 gap-2 w-full">
-				<button class="btn btn-outline btn-secondary"
-				        on:click={estimateStopFactors}>
-					Провести оценку
-				</button>
-				<div class="flex gap-2">
-					<button class="btn btn-ghost bg-base-200/50 text-accent"
-					        on:click={deleteProject}>
-						<img src="/trash.svg" alt="Удалить">
-					</button>
-					<button class="btn btn-outline btn-primary w-full shrink"
-					        class:btn-outline={!highlightSave}
-					        on:click={saveProject}>
-						Сохранить
-					</button>
-				</div>
-			</div>
-			<ul class="p-4">
+			<p class="text-center m-4 mt-8 font-bold text-xl text-secondary">{project.name}</p>
+			<button class="btn btn-outline btn-secondary mx-10 my-4"
+			        on:click={estimateStopFactors}>
+				Провести оценку
+			</button>
+			<ul class="m-4">
 				{#if project.scoring}
 					<li class="flex flex-col items-stretch">
 						<a href="#scoring"
 						   on:click={() => drawer = false}
-						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase text-center underline">
+						   class="rounded py-2 px-4 hover:bg-base-200 font-medium text-secondary uppercase">
 							Предварительная оценка
 						</a>
-						<div class="divider mx-10"></div>
+						<div class="divider ml-4 mr-4 my-1"></div>
 					</li>
 				{/if}
 				{#each tabs as tab}
 					<li class="flex flex-col items-stretch">
 						<a href="#{tab.name}"
 						   on:click={() => drawer = false}
-						   class="rounded py-2 px-4 hover:bg-base-200 font-bold text-secondary uppercase">
+						   class="rounded py-2 px-4 hover:bg-base-200 font-medium text-secondary uppercase">
 							{tab.title}
 						</a>
 						{#if tab.name === 'objectsInfo'}
@@ -2025,7 +2010,7 @@
 									<li class="flex hover:bg-base-200 rounded my-0.5"
 									    on:click={() => selectObject(i)}>
 										<a href="#objects"
-										   class="px-5 py-2 w-full font-medium text-secondary uppercase">
+										   class="px-5 py-2 w-full text-secondary uppercase">
 											{getObjectName(object)}
 										</a>
 									</li>
@@ -2036,7 +2021,7 @@
 									<li class="flex hover:bg-base-200 rounded my-0.5"
 									    on:click={() => selectObject(i, true)}>
 										<a href="#objects"
-										   class="px-5 py-2 w-full font-medium text-secondary uppercase">
+										   class="px-5 py-2 w-full text-secondary uppercase">
 											{getObjectName(object, true)}
 										</a>
 									</li>
@@ -2046,6 +2031,10 @@
 					</li>
 				{/each}
 			</ul>
+			<button class="btn btn-outline btn-secondary text-accent mx-10 my-5"
+			        on:click={deleteProject}>
+				Удалить проект
+			</button>
 		</aside>
 	</div>
 </div>
@@ -2053,6 +2042,12 @@
 	<button class="btn btn-ghost bg-base-200/50"
 	        on:click={goToTop}>
 		<img class="w-5 md:w-6" src="/up.svg" alt="Наверх">
+	</button>
+	<button class="btn btn-ghost bg-base-200/50"
+	        class:border={highlightSave}
+	        class:border-black={highlightSave}
+	        on:click={saveProject}>
+		<img class="w-5 md:w-6" src="/save.svg" alt="Наверх">
 	</button>
 	<label for="my-drawer"
 	       class="btn btn-ghost bg-base-200/75 lg:hidden">
