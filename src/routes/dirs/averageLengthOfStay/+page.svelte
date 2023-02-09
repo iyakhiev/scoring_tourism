@@ -1,7 +1,7 @@
 <script>
 	import Dir from '$lib/components/dir.svelte'
 
-	const type = 'averageLengthOfStay'
+	const name = 'averageLengthOfStay'
 	const structure = [
 		{
 			type: 'dir',
@@ -39,4 +39,4 @@
 	]
 </script>
 
-<Dir {type} {structure}/>
+<Dir {name} {structure}/>

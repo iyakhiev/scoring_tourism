@@ -1,7 +1,7 @@
 <script>
 	import Dir from '$lib/components/dir.svelte'
 
-	const type = 'marginEBITDA'
+	const name = 'marginEBITDA'
 	const structure = [
 		{
 			type: 'dir',
@@ -44,4 +44,4 @@
 	]
 </script>
 
-<Dir {type} {structure}/>
+<Dir {name} {structure}/>

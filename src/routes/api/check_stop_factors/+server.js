@@ -8,7 +8,7 @@ export const POST = async function ({ request }) {
 		.toArray()
 
 	const dirsMap = dirsArray.reduce((acc, dir) => {
-		acc[dir.type] = dir
+		acc[dir.name] = dir
 		return acc
 	}, {})
 

@@ -13,7 +13,7 @@ export function setDirs(dirs) {
 			return 0
 		})
 
-		acc[dir.type] = dir
+		acc[dir.name] = dir
 		return acc
 	}, {}))
 }

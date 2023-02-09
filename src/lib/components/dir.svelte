@@ -2,13 +2,13 @@
 	import { DIRs } from '$lib/stores'
 	import Select from '$lib/components/select.svelte'
 
-	export let type
+	export let name
 	export let structure
 
 	let currentDir
 	let highlightSave = false
 
-	$: currentDir = $DIRs[type]
+	$: currentDir = $DIRs[name]
 
 	function save() {
 		fetch('/api/update_dir', {
@@ -25,8 +25,8 @@
 
 				if (res?.res?.modifiedCount || res?.res?.matchedCount) {
 					DIRs.update(dirs => {
-						dirs[type] = {
-							...dirs[type],
+						dirs[name] = {
+							...dirs[name],
 							values: currentDir.values
 						}
 						return dirs

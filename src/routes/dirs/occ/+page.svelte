@@ -1,7 +1,7 @@
 <script>
 	import Dir from '$lib/components/dir.svelte'
 
-	const type = 'occ'
+	const name = 'occ'
 	const structure = [
 		{
 			type: 'dir',
@@ -31,4 +31,4 @@
 	]
 </script>
 
-<Dir {type} {structure}/>
+<Dir {name} {structure}/>

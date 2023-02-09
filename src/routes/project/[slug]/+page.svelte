@@ -1503,6 +1503,11 @@
 	$: setProject(data)
 
 	function getTitleFromDirByValue(dirName, dirTitleField, value) {
+		if (!$DIRs[dirName]) {
+			console.error(`Справочник "${dirName}" не найден.`)
+			return ''
+		}
+
 		const values = $DIRs[dirName].values.filter(row => row.name === value)
 		if (values.length)
 			return values[0][dirTitleField]

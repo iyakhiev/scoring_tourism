@@ -1,7 +1,7 @@
 <script>
 	import Dir from '$lib/components/dir.svelte'
 
-	const type = 'staffPerRoom'
+	const name = 'staffPerRoom'
 	const structure = [
 		{
 			type: 'dir',
@@ -52,4 +52,4 @@
 	]
 </script>
 
-<Dir {type} {structure}/>
+<Dir {name} {structure}/>
