@@ -1771,7 +1771,7 @@
 				<img src="/hill-line-left.png" alt="" class="max-w-none -mr-14 md:mr-0">
 			</div>
 		</div>
-		<div class="px-5 md:px-10 pb-36 w-full max-w-7xl mx-auto">
+		<div class="px-5 md:px-10 pb-48 w-full max-w-7xl mx-auto">
 			{#if project}
 				{#if project.scoring}
 					<a id="scoring"></a>
@@ -2039,7 +2039,7 @@
 	</div>
 </div>
 <div class="flex flex-col gap-3 fixed bottom-5 md:bottom-10 right-5 md:right-10 opacity-75">
-	<button class="btn btn-ghost bg-base-200/50"
+	<button class="btn btn-ghost bg-base-200/30"
 	        on:click={goToTop}>
 		<img class="w-5 md:w-6" src="/up.svg" alt="Наверх">
 	</button>
