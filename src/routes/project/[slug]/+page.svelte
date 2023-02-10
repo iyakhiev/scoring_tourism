@@ -700,7 +700,8 @@
 					label: 'Общее количество новых рабочих мест, чел.',
 					name: 'totalNumberOfNewJobs',
 					type: 'number',
-					disabled: true
+					min: 0,
+					calc: () => calcFields.staffPerRoom.calc()
 				},
 				{
 					label: 'Количество сотрудников на 1 номер, чел.',
@@ -1051,6 +1052,7 @@
 				calcFields.costPerRoom.calc()
 				calcFields.touristFlow.calc()
 				calcFields.roomRevenue.calc()
+				calcFields.staffPerRoom.calc()
 			}
 		},
 		costPerSqMeter: {
@@ -1173,37 +1175,11 @@
 			label: 'Количество сотрудников на 1 номер, чел.',
 			name: 'staffPerRoom',
 			calc: function () {
-				let value = 0
+				if (!project.totalNumberOfRooms || !project.totalNumberOfNewJobs)
+					updateProjectProp(this.name)
 
-				if (project.objects && project.objects.length) {
-					const total = {
-						numberOfNewJobs: 0,
-						numberOfRooms: 0
-					}
-
-					for (const key in project.objects) {
-						const object = project.objects[key]
-
-						const numberOfNewJobs = parseFloat(object.numberOfNewJobs || 0)
-						const numberOfRooms = parseFloat(object.numberOfRooms || 0)
-
-						total.numberOfNewJobs += numberOfNewJobs
-						total.numberOfRooms += numberOfRooms
-
-						if (numberOfRooms) {
-							let value = numberOfNewJobs / numberOfRooms
-							value = +value.toFixed(2)
-							object[this.name] = value
-						}
-					}
-
-					if (total.numberOfRooms) {
-						value = total.numberOfNewJobs / total.numberOfRooms
-						value = +value.toFixed(2)
-					}
-				}
-
-				updateProjectProp(this.name, value)
+				const value = project.totalNumberOfNewJobs / project.totalNumberOfRooms
+				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalFunds: {
@@ -1307,27 +1283,6 @@
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
-		totalNumberOfNewJobs: {
-			label: 'Общее количество новых рабочих мест, чел.',
-			name: 'totalNumberOfNewJobs',
-			calc: function () {
-				let value = 0
-
-				if (project.objects && project.objects.length)
-					value += project.objects.reduce((acc, object) => {
-						acc += parseFloat(object.numberOfNewJobs || 0)
-						return acc
-					}, 0)
-
-				if (project.infrastructureObjects && project.infrastructureObjects.length)
-					value += project.infrastructureObjects.reduce((acc, row) => {
-						acc += parseFloat(row.numberOfNewJobs || 0)
-						return acc
-					}, 0)
-
-				updateProjectProp(this.name, value)
-			}
-		},
 	}
 
 	const objectFields = [
@@ -1347,26 +1302,7 @@
 			name: 'numberOfRooms',
 			type: 'number',
 			min: 0,
-			calc: () => {
-				calcFields.totalNumberOfRooms.calc()
-				calcFields.staffPerRoom.calc()
-			}
-		},
-		{
-			label: 'Количество новых рабочих мест, чел.',
-			name: 'numberOfNewJobs',
-			type: 'number',
-			min: 0,
-			calc: () => {
-				calcFields.totalNumberOfNewJobs.calc()
-				calcFields.staffPerRoom.calc()
-			}
-		},
-		{
-			label: 'Количество сотрудников на 1 номер, чел.',
-			name: 'staffPerRoom',
-			type: 'number',
-			disabled: true
+			calc: () => calcFields.totalNumberOfRooms.calc()
 		},
 		{
 			label: 'ADR — отпускной тариф, руб./сутки',
@@ -1505,13 +1441,6 @@
 			type: 'number',
 			min: 0,
 			condition: object => object.infrastructureType === 'glkComplex'
-		},
-		{
-			label: 'Количество новых рабочих мест, чел.',
-			name: 'numberOfNewJobs',
-			type: 'number',
-			min: 0,
-			calc: () => calcFields.totalNumberOfNewJobs.calc()
 		},
 	]
 
