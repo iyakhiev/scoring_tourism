@@ -5,5 +5,5 @@ export const POST = async function ({ request }) {
 
 	const res = await dirs.findOne({ name })
 
-	return new Response(JSON.stringify({ res }))
+	return new Response(JSON.stringify({ dir: res }))
 }

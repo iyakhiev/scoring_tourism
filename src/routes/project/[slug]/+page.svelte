@@ -59,6 +59,21 @@
 					label: 'ИНН',
 					name: 'applicantINN',
 					type: 'number'
+				},
+				{
+					label: 'Вид заявителя',
+					name: 'applicantType',
+					type: 'select',
+					options: [
+						{
+							name: 'individual',
+							title: 'Физическое лицо',
+						},
+						{
+							name: 'legal',
+							title: 'Юридическое лицо'
+						}
+					]
 				}
 			]
 		},
@@ -1937,32 +1952,34 @@
 							</p>
 							{#each objectInfrastructureFields as field}
 								<div class="max-w-lg p-2">
-									{#if field.disabled}
-										<div class="form-control w-full">
-											<label class="label" for="object-{field.name}">
-												<span class="label-text">{field.label}</span>
-											</label>
-											<input id="infrastructure-{field.name}" type="number"
-											       placeholder=""
-											       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
-											       disabled
-											       class="input input-bordered w-full"/>
-										</div>
-									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
-										<Input {...field}
-										       name="infrastructure-{field.name}"
-										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-									{:else if field.type === 'check'}
-										<Check {...field}
-										       name="infrastructure-{field.name}"
-										       on:change={() => (highlightSave = true)}
-										       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
-									{:else if field.type === 'select'}
-										<Select {...field}
-										        name="infrastructure-{field.name}"
-										        on:change={() => (highlightSave = true)}
-										        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+									{#if !field.condition || field.condition(project.infrastructureObjects[activeInfrastructureObject])}
+										{#if field.disabled}
+											<div class="form-control w-full">
+												<label class="label" for="object-{field.name}">
+													<span class="label-text">{field.label}</span>
+												</label>
+												<input id="infrastructure-{field.name}" type="number"
+												       placeholder=""
+												       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
+												       disabled
+												       class="input input-bordered w-full"/>
+											</div>
+										{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+											<Input {...field}
+											       name="infrastructure-{field.name}"
+											       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+										{:else if field.type === 'check'}
+											<Check {...field}
+											       name="infrastructure-{field.name}"
+											       on:change={() => (highlightSave = true)}
+											       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+										{:else if field.type === 'select'}
+											<Select {...field}
+											        name="infrastructure-{field.name}"
+											        on:change={() => (highlightSave = true)}
+											        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+										{/if}
 									{/if}
 								</div>
 							{/each}

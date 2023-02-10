@@ -31,6 +31,10 @@
 			name: 'staffPerRoom',
 			title: 'Количество сотрудников на 1 номер'
 		},
+		{
+			name: 'numberOfNewJobs',
+			title: 'Количество новых рабочих мест'
+		},
 		// {
 		// 	name: 'averageLengthOfStay',
 		// 	title: 'Средняя продолжительность пребывания'

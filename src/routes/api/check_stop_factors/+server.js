@@ -244,6 +244,7 @@ const indicators = [
 				}
 			},
 			{
+				condition: project => project.applicantType === 'individual',
 				label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
 				name: 'hasSourceOfFundsDocs',
 				stopFactor: {
@@ -978,6 +979,9 @@ const indicators = [
 	},
 	{
 		buildingType: 'hotel',
+		condition: function (project) {
+			return project.buildingType === this.buildingType
+		},
 		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
 		name: 'marginEBITDA',
 		sectionTitle: 'Экономические показатели',
@@ -1032,6 +1036,9 @@ const indicators = [
 	},
 	{
 		buildingType: 'complex',
+		condition: function (project) {
+			return project.buildingType === this.buildingType
+		},
 		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
 		name: 'marginEBITDA',
 		sectionTitle: 'Экономические показатели',
@@ -1289,7 +1296,7 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
+		condition: project => project.needOfSoftLoan,
 		label: 'Тип проекта',
 		name: 'buildingType',
 		sectionTitle: 'Льготное кредитование',
@@ -1308,8 +1315,10 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
 		buildingType: 'hotel',
+		condition: function (project) {
+			return project.needOfSoftLoan && project.buildingType === this.buildingType
+		},
 		label: 'Размер номерного фонда',
 		name: 'totalNumberOfRooms',
 		sectionTitle: 'Льготное кредитование',
@@ -1333,8 +1342,10 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
 		buildingType: 'hotel',
+		condition: function (project) {
+			return project.needOfSoftLoan && project.buildingType === this.buildingType
+		},
 		label: 'Площадь гостиницы',
 		name: 'hotelArea',
 		sectionTitle: 'Льготное кредитование',
@@ -1358,7 +1369,7 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
+		condition: project => project.needOfSoftLoan,
 		label: 'Соответствие установленному размеру льготного кредита, тыс. руб.',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
@@ -1382,7 +1393,7 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
+		condition: project => project.needOfSoftLoan,
 		label: 'Всесезонность',
 		name: 'numberOfOperationMonths',
 		sectionTitle: 'Льготное кредитование',
@@ -1406,7 +1417,7 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
+		condition: project => project.needOfSoftLoan,
 		label: 'Наличие правоустанавливающих документов на земельные участки (объекты)',
 		name: 'hasOwnershipRight',
 		sectionTitle: 'Льготное кредитование',
@@ -1427,7 +1438,7 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
+		condition: project => project.needOfSoftLoan,
 		label: 'Вид работ по проекту (строительство или реконструкция)',
 		name: 'typeOfWork',
 		sectionTitle: 'Льготное кредитование',
@@ -1451,8 +1462,10 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
 		buildingType: 'hotel',
+		condition: function (project) {
+			return project.needOfSoftLoan && project.buildingType === this.buildingType
+		},
 		label: 'Размер льготного кредита на номер, тыс. руб.',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
@@ -1477,8 +1490,10 @@ const indicators = [
 		}
 	},
 	{
-		isForSoftLoan: true,
 		buildingType: 'complex',
+		condition: function (project) {
+			return project.needOfSoftLoan && project.buildingType === this.buildingType
+		},
 		label: 'Размер льготного кредита на номер, тыс. руб.',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
@@ -1514,19 +1529,21 @@ function checkStopFactors(project, dirs) {
 	}
 
 	for (const indicator of indicators) {
-		if (indicator.isForSoftLoan && !project.needOfSoftLoan)
-			continue
-		if (indicator.buildingType && project.buildingType !== indicator.buildingType)
+		if (indicator.condition && !indicator.condition(project))
 			continue
 
 		const nestedScoring = []
 
 		if (indicator.indicators)
-			for (const nestedIndicator of indicator.indicators)
+			for (const nestedIndicator of indicator.indicators) {
+				if (nestedIndicator.condition && !nestedIndicator.condition(project))
+					continue
+
 				nestedScoring.push(...checkStopFactor({
 					...nestedIndicator,
 					sectionTitle: indicator.sectionTitle
 				}, project, dirs))
+			}
 
 		if (indicator.calc)
 			scoring.indicators.push(...checkStopFactor(indicator, project, dirs, nestedScoring))

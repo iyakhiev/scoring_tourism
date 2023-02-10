@@ -24,8 +24,8 @@
 			.then(res => {
 				console.log('load_dir', res)
 
-				if (res?.res?._id)
-					currentDir = res.res
+				if (res?.dir?._id)
+					currentDir = res.dir
 			})
 	}
 
