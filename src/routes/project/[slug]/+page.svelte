@@ -880,7 +880,7 @@
 			label: 'Коэффициент абсолютной ликвидности',
 			name: 'absLiqRatio',
 			calc: function () {
-				if (!project.kfv || !project.ds || !project.ko)
+				if (!project.ko)
 					return updateProjectProp(this.name)
 
 				const a = parseFloat(project.kfv || 0) + parseFloat(project.ds || 0)
@@ -893,7 +893,7 @@
 			label: 'Коэффициент быстрой ликвидности',
 			name: 'fastLiqRatio',
 			calc: function () {
-				if (!project.kdz || !project.kfv || !project.ds || !project.ko)
+				if (!project.ko)
 					return updateProjectProp(this.name)
 
 				const a = parseFloat(project.kdz || 0) + parseFloat(project.kfv || 0) + parseFloat(project.ds || 0)
@@ -906,7 +906,7 @@
 			label: 'Коэффициент текущей ликвидности',
 			name: 'currentLiqRatio',
 			calc: function () {
-				if (!project.oa || !project.ko)
+				if (!project.ko)
 					return updateProjectProp(this.name)
 
 				const value = project.oa / project.ko
@@ -918,7 +918,7 @@
 			label: 'Коэфициент соотношения заемных и собственных средств',
 			name: 'debtToEquityRatio',
 			calc: function () {
-				if (!project.sk || !project.ko || !project.do)
+				if (!project.sk)
 					return updateProjectProp(this.name)
 
 				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
@@ -931,7 +931,7 @@
 			label: 'Коэффициент общей платежеспособности',
 			name: 'solvencyRatio',
 			calc: function () {
-				if (!project.kr || !project.ko || !project.do)
+				if (!project.ko && !project.do)
 					return updateProjectProp(this.name)
 
 				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
@@ -1754,19 +1754,25 @@
 											<tbody>
 											{#each section.indicators as indicator}
 												<tr>
-													<td class="whitespace-pre-wrap w-2/5">{indicator.label}</td>
-													<td class="whitespace-pre-wrap w-1/5">{indicator.value || 0}</td>
-													<td class="whitespace-pre-wrap text-center w-1/5"
-													    class:bg-red-300={indicator.stopFactor?.type === 'common'}
-													    class:bg-yellow-300={indicator.stopFactor?.type === 'additional'}
-													    class:text-accent={indicator.error}>
-														{#if indicator.error}
-															{indicator.error}
-														{:else if indicator.stopFactor}
-															{indicator.stopFactor.title}
-														{:else}
-															Соответствует критериям
-														{/if}
+													<td class="whitespace-pre-wrap w-5/12">{indicator.label}</td>
+													<td class="whitespace-pre-wrap w-2/12">{indicator.value || 0}</td>
+													<td class="whitespace-pre-wrap text-center w-5/12">
+														<div class="flex gap-5 items-center">
+															<div class="w-4 h-4 rounded-full shrink-0"
+															     class:bg-lime-400={!indicator.error && !indicator.stopFactor}
+															     class:bg-rose-400={indicator.stopFactor?.type === 'common'}
+															     class:bg-yellow-400={indicator.stopFactor?.type === 'additional'}
+															     class:bg-zinc-300={indicator.error}></div>
+															<div class="text-center w-full">
+																{#if indicator.error}
+																	{indicator.error}
+																{:else if indicator.stopFactor}
+																	{indicator.stopFactor.title}
+																{:else}
+																	Соответствует критериям
+																{/if}
+															</div>
+														</div>
 													</td>
 												</tr>
 											{/each}

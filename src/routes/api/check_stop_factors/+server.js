@@ -936,11 +936,15 @@ const indicators = [
 					const objectRes = {
 						hotelRating: object.hotelRating,
 						objectName: object.objectName,
+						errors: [],
 					}
 
+					if (!objectRes.value)
+						objectRes.errors.push(noValueMsg)
 					if (!object.hotelRating)
-						objectRes.errors = [noHotelRatingMsg]
-					else {
+						objectRes.errors.push(noHotelRatingMsg)
+
+					if (!objectRes.errors.length) {
 						const fields = [
 							{
 								name: 'region',
@@ -1398,7 +1402,7 @@ const indicators = [
 		name: 'numberOfOperationMonths',
 		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
-			type: 'additional',
+			type: 'common',
 			title: 'Не выполнено требование программы льготного кредитования по круглогодичности функционирования'
 		},
 		calc: function (project, dirs, scoring) {
@@ -1567,7 +1571,7 @@ function checkStopFactors(project, dirs) {
 			curSection = {
 				title: row.section,
 				indicators: [],
-				stopCount: 0,
+				errorsCount: 0,
 				passedCount: 0,
 				hasCommonStops: false,
 				hasAdditionalStops: false
@@ -1577,14 +1581,14 @@ function checkStopFactors(project, dirs) {
 
 		curSection.indicators.push(row)
 
-		if (row.stopFactor || row.errors)
-			curSection.stopCount++
+		if (row.errors)
+			curSection.errorsCount++
 		if (row.stopFactor?.type === 'common')
 			curSection.hasCommonStops = true
 		if (row.stopFactor?.type === 'additional')
 			curSection.hasAdditionalStops = true
 
-		curSection.passedCount = curSection.indicators.length - curSection.stopCount
+		curSection.passedCount = curSection.indicators.length - curSection.errorsCount
 		curSection.progress = curSection.passedCount / curSection.indicators.length
 		if (curSection.progress < 0.1)
 			curSection.progress = 0.1
