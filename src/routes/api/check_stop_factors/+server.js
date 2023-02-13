@@ -1156,7 +1156,7 @@ const indicators = [
 	},
 	{
 		// todo
-		label: 'Общее количество новых рабочих мест, чел.',
+		label: 'Количество новых рабочих мест, чел.',
 		name: 'totalNumberOfNewJobs',
 		sectionTitle: 'Экономические показатели',
 		stopFactor: {
@@ -1165,7 +1165,10 @@ const indicators = [
 		},
 	},
 	{
-		// todo
+		buildingType: 'hotel',
+		condition: function (project) {
+			return project.buildingType === this.buildingType
+		},
 		label: 'Количество сотрудников на 1 номер, чел.',
 		name: 'staffPerRoom',
 		sectionTitle: 'Экономические показатели',
@@ -1174,55 +1177,92 @@ const indicators = [
 			title: 'Необходимо уточнить обеспеченность трудовыми ресурсами'
 		},
 		calc: function (project, dirs, scoring) {
-			const res = { values: [] }
+			const res = { value: project[this.name] }
 
 			const errors = checkFields(project, [this.name], true, true)
 			if (errors.length)
 				res.errors = errors
-			else if (project.objects) {
-				for (const object of project.objects) {
-					const objectRes = {
-						hotelRating: object.hotelRating,
-						objectName: object.objectName,
-					}
-
-					if (!object.hotelRating)
-						objectRes.errors = [noHotelRatingMsg]
+			else {
+				if (!project.objects || !project.objects.length || !project.objects[0].hotelRating)
+					res.errors = [noHotelRatingMsg]
+				else {
+					const fields = [
+						{
+							name: 'region',
+							value: project.region,
+							title: project.regionTitle,
+						},
+						{
+							name: 'buildingType',
+							value: project.buildingType,
+							title: project.buildingTypeTitle,
+						},
+						{
+							name: 'hotelRating',
+							value: project.objects[0].hotelRating,
+							title: project.objects[0].hotelRating + '*',
+						},
+					]
+					const { error, dirValue } = getDirValue(dirs, 'staffPerRoom', fields)
+					if (error)
+						res.errors = [error]
 					else {
-						const fields = [
-							{
-								name: 'region',
-								value: project.region,
-								title: project.regionTitle,
-							},
-							{
-								name: 'buildingType',
-								value: project.buildingType,
-								title: project.buildingTypeTitle,
-							},
-							{
-								name: 'hotelRating',
-								value: object.hotelRating,
-								title: object.hotelRating + '*',
-							},
-						]
-						const { error, dirValue } = getDirValue(dirs, 'staffPerRoom', fields)
-						if (error)
-							objectRes.errors = [error]
-						else {
-							const numberOfNewJobs = parseFloat(object.numberOfNewJobs || 0)
-							const numberOfRooms = parseFloat(object.numberOfRooms || 0)
-
-							objectRes.value = numberOfNewJobs / numberOfRooms
-							objectRes.value = +objectRes.value.toFixed(2)
-
-							const condition = objectRes.value < dirValue.from || objectRes.value > dirValue.to
-							if (condition)
-								objectRes.stopFactor = this.stopFactor
-						}
+						let condition = false
+						if (res.value > dirValue.to)
+							condition = Math.abs(res.value / dirValue.to - 1) * 100 > 20
+						else if (res.value < dirValue.from)
+							condition = Math.abs(res.value / dirValue.from - 1) * 100 > 20
+						if (condition)
+							res.stopFactor = this.stopFactor
 					}
+				}
+			}
 
-					res.values.push(objectRes)
+			return res
+		}
+	},
+	{
+		buildingType: 'complex',
+		condition: function (project) {
+			return project.buildingType === this.buildingType
+		},
+		label: 'Количество сотрудников на 1 номер, чел.',
+		name: 'staffPerRoom',
+		sectionTitle: 'Экономические показатели',
+		stopFactor: {
+			type: 'additional',
+			title: 'Необходимо уточнить обеспеченность трудовыми ресурсами'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: project[this.name] }
+
+			const errors = checkFields(project, [this.name], true)
+			if (errors.length)
+				res.errors = errors
+			else {
+				const fields = [
+					{
+						name: 'region',
+						value: project.region,
+						title: project.regionTitle,
+					},
+					{
+						name: 'buildingType',
+						value: project.buildingType,
+						title: project.buildingTypeTitle,
+					},
+				]
+				const { error, dirValue } = getDirValue(dirs, 'staffPerRoom', fields)
+				if (error)
+					res.errors = [error]
+				else {
+					let condition = false
+					if (res.value > dirValue.to)
+						condition = Math.abs(res.value / dirValue.to - 1) * 100 > 20
+					else if (res.value < dirValue.from)
+						condition = Math.abs(res.value / dirValue.from - 1) * 100 > 20
+					if (condition)
+						res.stopFactor = this.stopFactor
 				}
 			}
 
@@ -1589,8 +1629,6 @@ function checkStopFactors(project, dirs) {
 
 		curSection.passedCount = curSection.indicators.length - curSection.errorsCount
 		curSection.progress = curSection.passedCount / curSection.indicators.length
-		if (curSection.progress < 0.1)
-			curSection.progress = 0.1
 
 		return acc
 	}, [])
