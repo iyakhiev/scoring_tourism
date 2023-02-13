@@ -1176,7 +1176,7 @@ const indicators = [
 		calc: function (project, dirs, scoring) {
 			const res = { values: [] }
 
-			const errors = checkFields(project, [], true, true)
+			const errors = checkFields(project, [this.name], true, true)
 			if (errors.length)
 				res.errors = errors
 			else if (project.objects) {
@@ -1580,7 +1580,7 @@ function checkStopFactors(project, dirs) {
 
 		curSection.indicators.push(row)
 
-		if (row.errors)
+		if (row.errors && row.errors.includes(noValueMsg))
 			curSection.errorsCount++
 		if (row.stopFactor?.type === 'common')
 			curSection.hasCommonStops = true
