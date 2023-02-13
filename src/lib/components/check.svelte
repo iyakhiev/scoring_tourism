@@ -18,7 +18,7 @@
 				bind:checked
 				{name}
 				type="checkbox"
-				class="checkbox checkbox-primary"/>
+				class="checkbox checkbox-secondary"/>
 	</label>
 	{#if tip}
 		<Tooltip content={tip}/>
