@@ -940,9 +940,9 @@ const indicators = [
 						errors: [],
 					}
 
-					if (!object.value)
+					if (!objectRes.value)
 						objectRes.errors.push(noValueMsg)
-					if (!object.hotelRating)
+					if (!objectRes.hotelRating)
 						objectRes.errors.push(noHotelRatingMsg)
 
 					if (!objectRes.errors.length) {
@@ -1096,7 +1096,7 @@ const indicators = [
 		calc: function (project, dirs, scoring) {
 			const res = { value: project[this.name] }
 
-			const errors = checkFields(project, [])
+			const errors = checkFields(project, [this.name])
 			if (errors.length)
 				res.errors = errors
 			else {
@@ -1610,7 +1610,7 @@ function checkStopFactor(indicator, project, dirs, scoring) {
 	if (res) {
 		const { value, errors, stopFactor, values } = res
 
-		if (values)
+		if (!(errors && errors.length) && values)
 			values.forEach(row => {
 				const objectRes = {
 					...scoringResult,
