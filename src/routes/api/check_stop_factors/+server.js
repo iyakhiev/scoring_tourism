@@ -934,12 +934,13 @@ const indicators = [
 			else if (project.objects) {
 				for (const object of project.objects) {
 					const objectRes = {
+						value: object[this.name],
 						hotelRating: object.hotelRating,
 						objectName: object.objectName,
 						errors: [],
 					}
 
-					if (!objectRes.value)
+					if (!object.value)
 						objectRes.errors.push(noValueMsg)
 					if (!object.hotelRating)
 						objectRes.errors.push(noHotelRatingMsg)
@@ -966,8 +967,6 @@ const indicators = [
 						if (error)
 							objectRes.errors = [error]
 						else {
-							objectRes.value = object[this.name]
-
 							const condition = Math.abs(objectRes.value / dirValue.value - 1) * 100 > 10
 							if (condition)
 								objectRes.stopFactor = this.stopFactor
