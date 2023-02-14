@@ -4,7 +4,7 @@
 	export let data
 
 	$: {
-		console.log('projects/layout, data', data)
+		// console.log('projects/layout, data', data)
 		projects.set(data?.projects || [])
 	}
 </script>

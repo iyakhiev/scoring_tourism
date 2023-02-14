@@ -2,9 +2,7 @@ import { dirs } from '$lib/db/dirs'
 
 export async function load() {
 	const res = await dirs
-		.find({
-			type: 'select'
-		})
+		.find({ type: 'select' })
 		.toArray()
 
 	return {

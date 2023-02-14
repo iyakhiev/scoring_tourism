@@ -2,6 +2,7 @@
 	import { DIRs } from '$lib/stores'
 	import Select from '$lib/components/select.svelte'
 	import { browser } from '$app/environment'
+	import { goto } from '$app/navigation'
 
 	export let name
 	export let structure
@@ -32,6 +33,8 @@
 			.then(res => {
 				console.log('load_dir', res, new Date())
 
+				if (res.redirect)
+					goto('/')
 				if (!res?.dir?._id)
 					return
 
@@ -107,6 +110,8 @@
 			.then(res => {
 				console.log('update_dir', res)
 
+				if (res.redirect)
+					goto('/')
 				if (res?.res?.modifiedCount || res?.res?.matchedCount) {
 					DIRs.update(dirs => {
 						dirs[name] = {

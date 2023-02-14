@@ -1467,7 +1467,7 @@
 	}
 
 	function setProject(data) {
-		console.log('setProject, data', data)
+		// console.log('setProject, data', data)
 
 		if (!data?.project)
 			return
@@ -1612,6 +1612,8 @@
 			.then(res => {
 				console.log('update_project(), res', res)
 
+				if (res.redirect)
+					goto('/')
 				if (res?.res?.modifiedCount || res?.res?.matchedCount) {
 					highlightSave = false
 				}
@@ -1632,6 +1634,10 @@
 			.then(res => res.json())
 			.then(res => {
 				console.log('check_stop_factors', res)
+
+				if (res.redirect)
+					goto('/')
+
 				console.log('project', res.project)
 				console.log('dirs', res.dirs)
 				console.log('scoring', res.scoring)
@@ -1676,6 +1682,8 @@
 			.then(res => {
 				console.log('delete_project', res)
 
+				if (res.redirect)
+					goto('/')
 				if (res?.res?.deletedCount) {
 					projects.update(arr => {
 						return arr.filter(row => row._id !== project._id)

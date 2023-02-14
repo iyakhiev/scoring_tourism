@@ -27,6 +27,8 @@
 			.then(res => {
 				console.log('add_project(), res', res)
 
+				if (res.redirect)
+					goto('/')
 				if (res?.res?.insertedId) {
 					project._id = res?.res?.insertedId
 					projects.update(arr => {
