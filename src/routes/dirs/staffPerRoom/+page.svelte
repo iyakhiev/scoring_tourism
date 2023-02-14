@@ -5,14 +5,14 @@
 	const structure = [
 		{
 			type: 'dir',
-			dirName: 'regions',
+			dirName: 'region',
 			name: 'region',
 			title: 'Регион',
 			default: 'Выберите регион'
 		},
 		{
 			type: 'dir',
-			dirName: 'buildingTypes',
+			dirName: 'buildingType',
 			name: 'buildingType',
 			title: 'Тип объект',
 			default: 'Выберите тип объекта'

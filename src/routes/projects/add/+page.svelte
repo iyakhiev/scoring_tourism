@@ -53,13 +53,13 @@
 		<Select name="theProjectRegion"
 		        label="Регион"
 		        title="Выберите регион"
-		        options={$DIRs['regions']?.values}
+		        options={$DIRs['region']?.values}
 		        bind:value={project.region}
 		/>
 		<Select name="theProjectBuildingType"
 		        label="Тип объекта"
 		        title="Выберите тип объекта"
-		        options={$DIRs['buildingTypes']?.values}
+		        options={$DIRs['buildingType']?.values}
 		        bind:value={project.buildingType}
 		/>
 		<Select name="theProjectBuildingCategory"

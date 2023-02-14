@@ -14,7 +14,7 @@
 	const dispatch = createEventDispatcher()
 </script>
 
-<div class="form-control">
+<div class="form-control" style="min-width: 200px">
 	{#if label}
 		<label class="label" for="select-{name}">
 			<span class="label-text">{label}</span>

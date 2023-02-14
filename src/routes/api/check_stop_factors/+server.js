@@ -1496,7 +1496,7 @@ const indicators = [
 			if (condition)
 				res.stopFactor = this.stopFactor
 			else {
-				const dirValue = getDirTitle(dirs, 'typesOfWork', res.value)
+				const dirValue = getDirTitle(dirs, 'typeOfWork', res.value)
 				if (dirValue)
 					res.value = dirValue.title
 			}

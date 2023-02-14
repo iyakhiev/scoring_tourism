@@ -5,7 +5,7 @@
 	const structure = [
 		{
 			type: 'dir',
-			dirName: 'regions',
+			dirName: 'region',
 			name: 'region',
 			title: 'Регион',
 			default: 'Выберите регион'

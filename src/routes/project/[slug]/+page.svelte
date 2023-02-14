@@ -339,7 +339,7 @@
 					label: 'Субъект Российской Федерации',
 					name: 'region',
 					type: 'select',
-					options: $DIRs['regions'].values,
+					options: $DIRs['region'].values,
 				},
 				{
 					label: 'Населенный пункт',
@@ -355,7 +355,7 @@
 					label: 'Тип объекта',
 					name: 'buildingType',
 					type: 'select',
-					options: $DIRs['buildingTypes']?.values
+					options: $DIRs['buildingType']?.values
 				},
 				{
 					label: 'Категория объекта',
@@ -492,7 +492,7 @@
 					label: 'Вид работ по проекту',
 					name: 'typeOfWork',
 					type: 'select',
-					options: $DIRs['typesOfWork']?.values
+					options: $DIRs['typeOfWork']?.values
 				},
 				{
 					label: 'Общее количество номеров в КСР, шт.',
@@ -1482,8 +1482,8 @@
 		if (!project.infrastructureObjects)
 			project.infrastructureObjects = []
 
-		project.regionTitle = getTitleFromDirByValue('regions', 'title', project.region)
-		project.buildingTypeTitle = getTitleFromDirByValue('buildingTypes', 'title', project.buildingType)
+		project.regionTitle = getTitleFromDirByValue('region', 'title', project.region)
+		project.buildingTypeTitle = getTitleFromDirByValue('buildingType', 'title', project.buildingType)
 		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
 
 		if (browser)
@@ -1928,7 +1928,9 @@
 		<label for="my-drawer" class="drawer-overlay"></label>
 		<aside class="w-80 xl:w-96 h-full flex flex-col bg-base-100 lg:!max-w-full" style="max-width: 90%;">
 			<div class="flex items-center justify-center h-20 relative">
-				<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
+				<a href="/projects" class="font-medium text-xl px-5 z-10">
+					<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
+				</a>
 				<div class="absolute inset-0 flex items-end justify-start overflow-hidden">
 					<img src="/hill-line-left.png" alt="" class="max-w-none">
 				</div>

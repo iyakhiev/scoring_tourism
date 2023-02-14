@@ -70,7 +70,9 @@
 		<label for="my-drawer" class="drawer-overlay"></label>
 		<aside class="w-80 xl:w-96 h-full bg-base-100 lg:!max-w-full" style="max-width: 90%;">
 			<div class="flex items-center justify-center h-20 relative">
-				<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
+				<a href="/projects" class="font-medium text-xl px-5 z-10">
+					<img class="h-8" src="/logo.png" alt="Логотип Туризм.РФ">
+				</a>
 				<div class="absolute inset-0 flex items-end justify-start overflow-hidden">
 					<img src="/hill-line-left.png" alt="" class="max-w-none">
 				</div>

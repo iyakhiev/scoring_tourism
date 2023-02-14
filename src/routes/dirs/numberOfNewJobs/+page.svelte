@@ -5,7 +5,7 @@
 	const structure = [
 		{
 			type: 'dir',
-			dirName: 'buildingTypes',
+			dirName: 'buildingType',
 			name: 'buildingType',
 			title: 'Тип объект',
 			default: 'Выберите тип объекта'

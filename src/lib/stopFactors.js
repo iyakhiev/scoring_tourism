@@ -131,13 +131,13 @@ const indicators = {
 					{
 						name: 'region',
 						value: data.region,
-						dirName: 'regions',
+						dirName: 'region',
 						dirValueField: 'name'
 					},
 					{
 						name: 'type',
 						value: data.buildingType,
-						dirName: 'buildingTypes',
+						dirName: 'buildingType',
 						dirValueField: 'name'
 					},
 					{
@@ -277,13 +277,13 @@ const indicators = {
 					{
 						name: 'region',
 						value: data.region,
-						dirName: 'regions',
+						dirName: 'region',
 						dirValueField: 'name'
 					},
 					{
 						name: 'type',
 						value: data.buildingType,
-						dirName: 'buildingTypes',
+						dirName: 'buildingType',
 						dirValueField: 'name'
 					},
 					{
@@ -407,13 +407,13 @@ const indicators = {
 					{
 						name: 'region',
 						value: data.region,
-						dirName: 'regions',
+						dirName: 'region',
 						dirValueField: 'name'
 					},
 					{
 						name: 'type',
 						value: data.buildingType,
-						dirName: 'buildingTypes',
+						dirName: 'buildingType',
 						dirValueField: 'name'
 					},
 					{
@@ -475,13 +475,13 @@ const indicators = {
 					{
 						name: 'region',
 						value: data.region,
-						dirName: 'regions',
+						dirName: 'region',
 						dirValueField: 'name'
 					},
 					{
 						name: 'type',
 						value: data.buildingType,
-						dirName: 'buildingTypes',
+						dirName: 'buildingType',
 						dirValueField: 'name'
 					},
 					{
@@ -543,13 +543,13 @@ const indicators = {
 					{
 						name: 'region',
 						value: data.region,
-						dirName: 'regions',
+						dirName: 'region',
 						dirValueField: 'name'
 					},
 					{
 						name: 'type',
 						value: data.buildingType,
-						dirName: 'buildingTypes',
+						dirName: 'buildingType',
 						dirValueField: 'name'
 					},
 					{
@@ -611,13 +611,13 @@ const indicators = {
 					{
 						name: 'region',
 						value: data.region,
-						dirName: 'regions',
+						dirName: 'region',
 						dirValueField: 'name'
 					},
 					{
 						name: 'type',
 						value: data.buildingType,
-						dirName: 'buildingTypes',
+						dirName: 'buildingType',
 						dirValueField: 'name'
 					},
 					{
