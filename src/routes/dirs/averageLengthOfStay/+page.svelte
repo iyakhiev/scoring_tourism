@@ -7,14 +7,14 @@
 			type: 'dir',
 			dirName: 'region',
 			name: 'region',
-			title: 'Регион',
+			title: 'Регион&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
 			default: 'Выберите регион'
 		},
 		{
 			type: 'dir',
 			dirName: 'buildingType',
 			name: 'buildingType',
-			title: 'Тип объект',
+			title: 'Тип объекта',
 			default: 'Выберите тип объекта'
 		},
 		{

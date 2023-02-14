@@ -237,7 +237,7 @@
 			<tr>
 				<th class="!relative"></th>
 				{#each structure as row}
-					<th>{row.title}</th>
+					<th>{@html row.title}</th>
 				{/each}
 			</tr>
 			</thead>

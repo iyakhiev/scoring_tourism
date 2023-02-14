@@ -7,7 +7,7 @@
 			type: 'dir',
 			dirName: 'buildingType',
 			name: 'buildingType',
-			title: 'Тип объект',
+			title: 'Тип объекта',
 			default: 'Выберите тип объекта'
 		},
 		{
