@@ -2008,19 +2008,19 @@
 				{/if}
 			{:else if role === ROLES_ENUM.SECURITY}
 				{#if project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name}
-					{#if !hasStopFactors}
-						<button class="btn btn-outline btn-secondary mx-10 my-4"
-						        on:click={approveApplicant}>
-							Подтвердить благонадежность
-						</button>
-					{/if}
 					<button class="btn btn-outline btn-secondary mx-10 my-4"
 					        on:click={estimateStopFactors}>
 						Оценить благонадежность
 					</button>
+					{#if !hasStopFactors}
+						<button class="btn btn-secondary mx-10 my-4"
+						        on:click={approveApplicant}>
+							Подтвердить благонадежность
+						</button>
+					{/if}
 				{/if}
 			{:else if role === ROLES_ENUM.MANAGER}
-				{#if project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name}
+				{#if project.status !== PROJECT_STATUS_ENUM.CREATED.name}
 					<button class="btn btn-outline btn-secondary mx-10 my-4"
 					        on:click={estimateStopFactors}>
 						Провести оценку
