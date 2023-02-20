@@ -1,10 +1,16 @@
 <script>
+	import { PROJECT_STATUS_ENUM } from '$lib/enums'
+
 	export let data
 	let projects = []
 
 	$: {
 		console.log('projects/layout, data', data)
-		projects = data?.projects || []
+		projects = data?.projects.map(project => {
+			if (!project.status)
+				project.status = PROJECT_STATUS_ENUM.CREATED.name
+			return project
+		}) || []
 	}
 </script>
 
@@ -18,8 +24,14 @@
 	{#each projects as project}
 		<div class="card bg-base-100 shadow-lg border">
 			<div class="card-body md:flex-row p-4 md:p-6">
-				<h2 class="card-title">{project.name}</h2>
-				<div class="card-actions flex-col justify-end ml-auto mt-2 md:mt-0 shrink-0">
+				<div>
+					<h2 class="card-title">{project.name}</h2>
+					<p class="mt-2">
+						Статус проекта:
+						<span class="font-medium uppercase">{PROJECT_STATUS_ENUM[project.status].title}</span>
+					</p>
+				</div>
+				<div class="card-actions flex-col justify-end items-stretch ml-auto mt-2 md:mt-0 shrink-0">
 					<a href="/project/{project._id}?role=investor" class="btn btn-secondary btn-outline">
 						Открыть для инвестора
 					</a>

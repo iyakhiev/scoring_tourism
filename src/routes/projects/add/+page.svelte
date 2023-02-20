@@ -3,14 +3,14 @@
 	import Select from '$lib/components/select.svelte'
 	import { goto } from '$app/navigation'
 	import { DIRs } from '$lib/stores'
-	import { PROJECT_STATUS } from '$lib/enums'
+	import { PROJECT_STATUS_ENUM } from '$lib/enums'
 
 	let agreeWithTerms = false
 	let project = {
 		name: '',
 		region: '',
 		buildingType: '',
-		status: PROJECT_STATUS.CREATED
+		status: PROJECT_STATUS_ENUM.CREATED.name
 	}
 
 	function addProject() {

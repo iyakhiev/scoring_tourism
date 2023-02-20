@@ -8,7 +8,7 @@
 	import { browser } from '$app/environment'
 	import { page } from '$app/stores'
 	import { DIRs } from '$lib/stores'
-	import { ROLES, PROJECT_STATUS } from '$lib/enums'
+	import { ROLES_ENUM, PROJECT_STATUS_ENUM } from '$lib/enums'
 
 	export let data
 
@@ -1477,9 +1477,9 @@
 
 	function getCurrentRole() {
 		const roleFromURL = $page.url.searchParams.get('role')
-		if (ROLES[roleFromURL && roleFromURL.toUpperCase()])
-			return ROLES[roleFromURL.toUpperCase()]
-		return ROLES.INVESTOR
+		if (ROLES_ENUM[roleFromURL && roleFromURL.toUpperCase()])
+			return ROLES_ENUM[roleFromURL.toUpperCase()]
+		return ROLES_ENUM.INVESTOR
 	}
 
 	function setProject(data) {
@@ -1492,24 +1492,25 @@
 		highlightSave = false
 		activeObject = 0
 		activeInfrastructureObject = null
+		hasStopFactors = true
 
 		role = getCurrentRole()
 
 		if (!project.status)
-			project.status = PROJECT_STATUS.CREATED
+			project.status = PROJECT_STATUS_ENUM.CREATED.name
 
 		console.log('role', role, 'status', project.status)
 
-		if (role === ROLES.INVESTOR) {
-			if (project.status === PROJECT_STATUS.CREATED
-				|| project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL)
+		if (role === ROLES_ENUM.INVESTOR) {
+			if (project.status === PROJECT_STATUS_ENUM.CREATED.name
+				|| project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name)
 				visibleTabs = [tabs[0]]
-			else if (project.status === PROJECT_STATUS.APPLICANT_APPROVED
-				|| project.status === PROJECT_STATUS.SCORING_RESULT_APPROVED)
+			else if (project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
+				|| project.status === PROJECT_STATUS_ENUM.SCORING_RESULT_APPROVED.name)
 				visibleTabs = tabs.filter(tab => tab.name !== 'investorScore')
-		} else if (role === ROLES.SECURITY) {
+		} else if (role === ROLES_ENUM.SECURITY) {
 			visibleTabs = [tabs[0], tabs[1]]
-		} else if (role === ROLES.MANAGER) {
+		} else if (role === ROLES_ENUM.MANAGER) {
 			visibleTabs = tabs
 		}
 
@@ -1666,7 +1667,7 @@
 		fetch('/api/check_stop_factors', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ project })
+			body: JSON.stringify({ project, role })
 		})
 			.then(res => res.json())
 			.then(res => {
@@ -1689,7 +1690,7 @@
 					const part1 = `${d[0]} ${section.passedCount} ${d[1]}`
 					section.status = `(${part1} из ${section.indicators.length})`
 
-					hasStopFactors = section.hasCommonStops || section.hasAdditionalStops
+					hasStopFactors = section.hasCommonStops
 				})
 
 				location.hash = ''
@@ -1729,12 +1730,12 @@
 	}
 
 	function sendForApproval() {
-		project.status = PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL
+		project.status = PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
 		saveProject(() => window.open($page.url.origin + $page.url.pathname + '?role=security', '_blank').focus())
 	}
 
 	function approveApplicant() {
-		project.status = PROJECT_STATUS.APPLICANT_APPROVED
+		project.status = PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		saveProject(() => window.open($page.url.origin + $page.url.pathname + '?role=investor', '_blank').focus())
 	}
 
@@ -1988,24 +1989,25 @@
 				</div>
 			</div>
 			<p class="text-center m-4 mt-8 font-bold text-xl text-secondary">{project.name}</p>
-			{#if role === ROLES.INVESTOR}
-				{#if project.status === PROJECT_STATUS.CREATED}
+			<p class="text-center m-4 text-secondary">
+				Статус проекта:
+				<br>
+				<span class="font-medium uppercase">{PROJECT_STATUS_ENUM[project.status].title}</span>
+			</p>
+			{#if role === ROLES_ENUM.INVESTOR}
+				{#if project.status === PROJECT_STATUS_ENUM.CREATED.name}
 					<button class="btn btn-outline btn-secondary mx-10 my-4"
 					        on:click={sendForApproval}>
 						Отправить на согласование
 					</button>
-				{:else if project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL}
-					<button class="btn mx-10 my-4 btn-disabled">
-						Проект на согласовании
-					</button>
-				{:else if project.status === PROJECT_STATUS.APPLICANT_APPROVED}
+				{:else if project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name}
 					<button class="btn btn-outline btn-secondary mx-10 my-4"
 					        on:click={estimateStopFactors}>
 						Провести оценку
 					</button>
 				{/if}
-			{:else if role === ROLES.SECURITY}
-				{#if project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL}
+			{:else if role === ROLES_ENUM.SECURITY}
+				{#if project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name}
 					{#if !hasStopFactors}
 						<button class="btn btn-outline btn-secondary mx-10 my-4"
 						        on:click={approveApplicant}>
@@ -2017,16 +2019,13 @@
 						Оценить благонадежность
 					</button>
 				{/if}
-			{:else if role === ROLES.MANAGER}
-				{#if project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL}
-					<button class="btn mx-10 my-4 btn-disabled">
-						Проект на согласовании
+			{:else if role === ROLES_ENUM.MANAGER}
+				{#if project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name}
+					<button class="btn btn-outline btn-secondary mx-10 my-4"
+					        on:click={estimateStopFactors}>
+						Провести оценку
 					</button>
 				{/if}
-				<button class="btn btn-outline btn-secondary mx-10 my-4"
-				        on:click={estimateStopFactors}>
-					Провести оценку
-				</button>
 			{/if}
 			{#if visibleTabs.length > 1}
 				<ul class="m-4">
