@@ -1,4 +1,5 @@
 import { dirs } from '$lib/db/dirs'
+import { PROJECT_STATUS } from '$lib/enums'
 
 export const POST = async function ({ request }) {
 	const { project } = await request.json()
@@ -89,6 +90,9 @@ function getDirTitle(dirs, dirName, value) {
 
 const indicators = [
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Платежеспособность Инвестора',
 		name: '',
 		sectionTitle: 'Оценка Инвестора',
@@ -207,6 +211,25 @@ const indicators = [
 					return res
 				}
 			},
+		],
+		calc: function (project, dirs, scoring) {
+			for (const row of scoring)
+				if (row.stopFactor?.type === 'common')
+					return { stopFactor: this.stopFactor }
+		}
+	},
+	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL
+		},
+		label: 'Благонадежность (инвестора, бенефециара(ов), связанных с бенефециаром(ами) юр.лиц, в зависимости от фазы)',
+		name: '',
+		sectionTitle: 'Оценка Инвестора',
+		stopFactor: {
+			type: 'common',
+			title: 'Выявлены признак неблагонадежности Инвестора'
+		},
+		indicators: [
 			{
 				label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
 				name: 'hasOwnershipRight',
@@ -262,22 +285,6 @@ const indicators = [
 					return res
 				}
 			},
-		],
-		calc: function (project, dirs, scoring) {
-			for (const row of scoring)
-				if (row.stopFactor?.type === 'common')
-					return { stopFactor: this.stopFactor }
-		}
-	},
-	{
-		label: 'Благонадежность (инвестора, бенефециара(ов), связанных с бенефециаром(ами) юр.лиц, в зависимости от фазы)',
-		name: '',
-		sectionTitle: 'Оценка Инвестора',
-		stopFactor: {
-			type: 'common',
-			title: 'Выявлены признак неблагонадежности Инвестора'
-		},
-		indicators: [
 			{
 				label: 'Участие в уставном капитале инвестора резидента недружественной страны',
 				name: 'hasUnfriendlyCountryCapital',
@@ -664,6 +671,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Общее количество номеров в КСР, шт.',
 		name: 'totalNumberOfRooms',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -687,6 +697,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Дата начала подготовки ПСД',
 		name: 'startDateOfPSDPreparation',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -723,6 +736,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Дата окончания подготовки ПСД',
 		name: 'endDateOfPSDPreparation',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -753,6 +769,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Дата начала СМР',
 		name: 'startDateOfSMR',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -783,6 +802,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Дата окончания СМР',
 		name: 'endDateOfSMR',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -812,6 +834,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Дата ввода в эксплуатацию',
 		name: 'commissioningDate',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -841,6 +866,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Соответствие категории и вида разрешенного использования земельного участка целям проекта',
 		name: 'complianceOfLandTypeWithProject',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -860,6 +888,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Стоимость 1 м² объекта, тыс. руб.',
 		name: 'costPerSqMeter',
 		sectionTitle: 'ТЭП, CAPEX',
@@ -895,6 +926,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Количество месяцев функционирования в году',
 		name: 'numberOfOperationMonths',
 		sectionTitle: 'Экономические показатели',
@@ -918,6 +952,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'ADR — отпускной тариф, руб./сутки',
 		name: 'adr',
 		sectionTitle: 'Экономические показатели',
@@ -984,6 +1021,7 @@ const indicators = [
 		buildingType: 'hotel',
 		condition: function (project) {
 			return project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
 		name: 'marginEBITDA',
@@ -1041,6 +1079,7 @@ const indicators = [
 		buildingType: 'complex',
 		condition: function (project) {
 			return project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Рентабельность по EBITDA (прогноз Инвестора), %',
 		name: 'marginEBITDA',
@@ -1086,6 +1125,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Occupancy (OCC) — реальная заполняемость, %',
 		name: 'occ',
 		sectionTitle: 'Экономические показатели',
@@ -1109,6 +1151,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Double Occupancy — сколько гостей в среднем проживает в одном номере, чел./номер',
 		name: 'doubleOcc',
 		sectionTitle: 'Экономические показатели',
@@ -1168,6 +1213,7 @@ const indicators = [
 		buildingType: 'hotel',
 		condition: function (project) {
 			return project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Количество сотрудников на 1 номер, чел.',
 		name: 'staffPerRoom',
@@ -1225,6 +1271,7 @@ const indicators = [
 		buildingType: 'complex',
 		condition: function (project) {
 			return project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Количество сотрудников на 1 номер, чел.',
 		name: 'staffPerRoom',
@@ -1270,6 +1317,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Доля средств Корпорации Туризм.РФ в уставном капитале, %',
 		name: 'corporationFundsShare',
 		sectionTitle: 'Финансирование',
@@ -1293,6 +1343,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Доля кредитных средств в объеме финансирования, %',
 		name: 'creditFundsShare',
 		sectionTitle: 'Финансирование',
@@ -1316,6 +1369,9 @@ const indicators = [
 		}
 	},
 	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Уровень долговой нагрузки, EBITDA / (I + D)',
 		name: 'debtCoverageRatio',
 		sectionTitle: 'Финансирование',
@@ -1339,7 +1395,10 @@ const indicators = [
 		}
 	},
 	{
-		condition: project => project.needOfSoftLoan,
+		condition: function (project) {
+			return project.needOfSoftLoan
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Тип проекта',
 		name: 'buildingType',
 		sectionTitle: 'Льготное кредитование',
@@ -1360,7 +1419,9 @@ const indicators = [
 	{
 		buildingType: 'hotel',
 		condition: function (project) {
-			return project.needOfSoftLoan && project.buildingType === this.buildingType
+			return project.needOfSoftLoan
+				&& project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Размер номерного фонда',
 		name: 'totalNumberOfRooms',
@@ -1387,7 +1448,9 @@ const indicators = [
 	{
 		buildingType: 'hotel',
 		condition: function (project) {
-			return project.needOfSoftLoan && project.buildingType === this.buildingType
+			return project.needOfSoftLoan
+				&& project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Площадь гостиницы',
 		name: 'hotelArea',
@@ -1412,7 +1475,10 @@ const indicators = [
 		}
 	},
 	{
-		condition: project => project.needOfSoftLoan,
+		condition: function (project) {
+			return project.needOfSoftLoan
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Соответствие установленному размеру льготного кредита, тыс. руб.',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
@@ -1436,7 +1502,10 @@ const indicators = [
 		}
 	},
 	{
-		condition: project => project.needOfSoftLoan,
+		condition: function (project) {
+			return project.needOfSoftLoan
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Всесезонность',
 		name: 'numberOfOperationMonths',
 		sectionTitle: 'Льготное кредитование',
@@ -1460,7 +1529,10 @@ const indicators = [
 		}
 	},
 	{
-		condition: project => project.needOfSoftLoan,
+		condition: function (project) {
+			return project.needOfSoftLoan
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Наличие правоустанавливающих документов на земельные участки (объекты)',
 		name: 'hasOwnershipRight',
 		sectionTitle: 'Льготное кредитование',
@@ -1481,7 +1553,10 @@ const indicators = [
 		}
 	},
 	{
-		condition: project => project.needOfSoftLoan,
+		condition: function (project) {
+			return project.needOfSoftLoan
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
+		},
 		label: 'Вид работ по проекту (строительство или реконструкция)',
 		name: 'typeOfWork',
 		sectionTitle: 'Льготное кредитование',
@@ -1507,7 +1582,9 @@ const indicators = [
 	{
 		buildingType: 'hotel',
 		condition: function (project) {
-			return project.needOfSoftLoan && project.buildingType === this.buildingType
+			return project.needOfSoftLoan
+				&& project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Размер льготного кредита на номер, тыс. руб.',
 		name: 'bankLoanAmount',
@@ -1535,7 +1612,9 @@ const indicators = [
 	{
 		buildingType: 'complex',
 		condition: function (project) {
-			return project.needOfSoftLoan && project.buildingType === this.buildingType
+			return project.needOfSoftLoan
+				&& project.buildingType === this.buildingType
+				&& project.status === PROJECT_STATUS.APPLICANT_APPROVED
 		},
 		label: 'Размер льготного кредита на номер, тыс. руб.',
 		name: 'bankLoanAmount',

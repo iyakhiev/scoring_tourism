@@ -1,5 +1,4 @@
 <script>
-	import { DIRs, projects } from '$lib/stores'
 	import Input from '$lib/components/input.svelte'
 	import Check from '$lib/components/check.svelte'
 	import Select from '$lib/components/select.svelte'
@@ -7,17 +6,20 @@
 	import { openModal } from '$lib/components/modals.svelte'
 	import { goto } from '$app/navigation'
 	import { browser } from '$app/environment'
-
-	// todo check tab problem
-	// todo check fields visibility by buildingType
+	import { page } from '$app/stores'
+	import { DIRs } from '$lib/stores'
+	import { ROLES, PROJECT_STATUS } from '$lib/enums'
 
 	export let data
 
+	let role
 	let project
 	let highlightSave = false
 	let activeObject = null
 	let activeInfrastructureObject = null
 	let drawer = true
+	let visibleTabs = []
+	let hasStopFactors = true
 
 	const tabs = [
 		{
@@ -79,127 +81,9 @@
 		},
 		{
 			ind: 3,
-			title: 'Данные бухгалтерского баланса',
-			name: 'balanceSheetData',
+			title: 'Оценка инвестора',
+			name: 'investorScore',
 			fields: [
-				{
-					label: 'Краткосрочные финансовые вложения, тыс. руб.',
-					tip: 'Строка 1240 бухгалтерского баланса',
-					name: 'kfv',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.absLiqRatio.calc()
-						calcFields.fastLiqRatio.calc()
-					}
-				},
-				{
-					label: 'Денежные средства и их эквиваленты, тыс. руб.',
-					tip: 'Строка 1250 бухгалтерского баланса',
-					name: 'ds',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.absLiqRatio.calc()
-						calcFields.fastLiqRatio.calc()
-					}
-				},
-				{
-					label: 'Краткосрочные обязательства, тыс. руб.',
-					tip: 'Итого по разделу V, строка 1500 бухгалтерского баланса',
-					name: 'ko',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.absLiqRatio.calc()
-						calcFields.fastLiqRatio.calc()
-						calcFields.currentLiqRatio.calc()
-						calcFields.debtToEquityRatio.calc()
-						calcFields.solvencyRatio.calc()
-						calcFields.doAndKoSum.calc()
-					}
-				},
-				{
-					label: 'Коэффициент абсолютной ликвидности',
-					name: 'absLiqRatio',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Краткосрочная дебиторская задолженность, тыс. руб.',
-					tip: 'Строка 1520 бухгалтерского баланса',
-					name: 'kdz',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.fastLiqRatio.calc()
-				},
-				{
-					label: 'Коэффициент быстрой ликвидности',
-					name: 'fastLiqRatio',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Оборотные активы, тыс. руб.',
-					tip: 'Строка 1200 бухгалтерского баланса',
-					name: 'oa',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.currentLiqRatio.calc()
-				},
-				{
-					label: 'Коэффициент текущей ликвидности',
-					name: 'currentLiqRatio',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Собственный капитал, тыс. руб.',
-					tip: 'Строка 1300 бухгалтерского баланса',
-					name: 'sk',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.debtToEquityRatio.calc()
-				},
-				{
-					label: 'Долгосрочные обязательства, тыс. руб.',
-					tip: 'Строка 1400 бухгалтерского баланса',
-					name: 'do',
-					type: 'number',
-					min: 0,
-					calc: () => {
-						calcFields.debtToEquityRatio.calc()
-						calcFields.solvencyRatio.calc()
-						calcFields.doAndKoSum.calc()
-					}
-				},
-				{
-					label: 'Сумма долгосрочных и краткосрочных обязательств, тыс. руб.',
-					tip: 'Строки 1410, 1435, 1510, 1520 и 1545 бухгалтерского баланса',
-					name: 'doAndKoSum',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Коэфициент соотношения заемных и собственных средств',
-					name: 'debtToEquityRatio',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Капитал и резервы, тыс. руб.',
-					tip: 'Строка 1300 (итого по разделу III) бухгалтерского баланса',
-					name: 'kr',
-					type: 'number',
-					min: 0,
-					calc: () => calcFields.solvencyRatio.calc()
-				},
-				{
-					label: 'Коэффициент общей платежеспособности',
-					name: 'solvencyRatio',
-					type: 'number',
-					disabled: true
-				},
 				{
 					label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
 					tip: 'Выписка из ЕГРН',
@@ -327,6 +211,131 @@
 		},
 		{
 			ind: 4,
+			title: 'Данные бухгалтерского баланса',
+			name: 'balanceSheetData',
+			fields: [
+				{
+					label: 'Краткосрочные финансовые вложения, тыс. руб.',
+					tip: 'Строка 1240 бухгалтерского баланса',
+					name: 'kfv',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+					}
+				},
+				{
+					label: 'Денежные средства и их эквиваленты, тыс. руб.',
+					tip: 'Строка 1250 бухгалтерского баланса',
+					name: 'ds',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+					}
+				},
+				{
+					label: 'Краткосрочные обязательства, тыс. руб.',
+					tip: 'Итого по разделу V, строка 1500 бухгалтерского баланса',
+					name: 'ko',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.absLiqRatio.calc()
+						calcFields.fastLiqRatio.calc()
+						calcFields.currentLiqRatio.calc()
+						calcFields.debtToEquityRatio.calc()
+						calcFields.solvencyRatio.calc()
+						calcFields.doAndKoSum.calc()
+					}
+				},
+				{
+					label: 'Коэффициент абсолютной ликвидности',
+					name: 'absLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Краткосрочная дебиторская задолженность, тыс. руб.',
+					tip: 'Строка 1520 бухгалтерского баланса',
+					name: 'kdz',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.fastLiqRatio.calc()
+				},
+				{
+					label: 'Коэффициент быстрой ликвидности',
+					name: 'fastLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Оборотные активы, тыс. руб.',
+					tip: 'Строка 1200 бухгалтерского баланса',
+					name: 'oa',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.currentLiqRatio.calc()
+				},
+				{
+					label: 'Коэффициент текущей ликвидности',
+					name: 'currentLiqRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Собственный капитал, тыс. руб.',
+					tip: 'Строка 1300 бухгалтерского баланса',
+					name: 'sk',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.debtToEquityRatio.calc()
+				},
+				{
+					label: 'Долгосрочные обязательства, тыс. руб.',
+					tip: 'Строка 1400 бухгалтерского баланса',
+					name: 'do',
+					type: 'number',
+					min: 0,
+					calc: () => {
+						calcFields.debtToEquityRatio.calc()
+						calcFields.solvencyRatio.calc()
+						calcFields.doAndKoSum.calc()
+					}
+				},
+				{
+					label: 'Сумма долгосрочных и краткосрочных обязательств, тыс. руб.',
+					tip: 'Строки 1410, 1435, 1510, 1520 и 1545 бухгалтерского баланса',
+					name: 'doAndKoSum',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Коэфициент соотношения заемных и собственных средств',
+					name: 'debtToEquityRatio',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Капитал и резервы, тыс. руб.',
+					tip: 'Строка 1300 (итого по разделу III) бухгалтерского баланса',
+					name: 'kr',
+					type: 'number',
+					min: 0,
+					calc: () => calcFields.solvencyRatio.calc()
+				},
+				{
+					label: 'Коэффициент общей платежеспособности',
+					name: 'solvencyRatio',
+					type: 'number',
+					disabled: true
+				},
+			]
+		},
+		{
+			ind: 5,
 			title: 'Общая информация о проекте',
 			name: 'projectInfo',
 			fields: [
@@ -453,7 +462,7 @@
 			]
 		},
 		{
-			ind: 5,
+			ind: 6,
 			title: 'Транспортная доступность',
 			name: 'transportAccessibility',
 			fields: [
@@ -484,7 +493,7 @@
 			]
 		},
 		{
-			ind: 6,
+			ind: 7,
 			title: 'Информация об объектах в составе проекта',
 			name: 'objectsInfo',
 			fields: [
@@ -558,7 +567,7 @@
 			]
 		},
 		{
-			ind: 7,
+			ind: 8,
 			title: 'Экономические показатели',
 			name: 'economicIndicators',
 			fields: [
@@ -718,7 +727,7 @@
 			]
 		},
 		{
-			ind: 8,
+			ind: 9,
 			title: 'Финансирование',
 			name: 'financing',
 			fields: [
@@ -1176,7 +1185,7 @@
 			name: 'staffPerRoom',
 			calc: function () {
 				if (!project.totalNumberOfRooms || !project.totalNumberOfNewJobs)
-					updateProjectProp(this.name)
+					return updateProjectProp(this.name)
 
 				const value = project.totalNumberOfNewJobs / project.totalNumberOfRooms
 				updateProjectProp(this.name, +value.toFixed(2))
@@ -1458,7 +1467,7 @@
 		return ''
 	}
 
-	function updateProjectProp(field, value = '') {
+	function updateProjectProp(field, value = null) {
 		if (project[field] != value) {
 			console.log('update', `"${field}"`, 'cur', `"${project[field]}"`, 'new', `"${value}"`)
 			project[field] = value
@@ -1466,8 +1475,15 @@
 		}
 	}
 
+	function getCurrentRole() {
+		const roleFromURL = $page.url.searchParams.get('role')
+		if (ROLES[roleFromURL && roleFromURL.toUpperCase()])
+			return ROLES[roleFromURL.toUpperCase()]
+		return ROLES.INVESTOR
+	}
+
 	function setProject(data) {
-		// console.log('setProject, data', data)
+		console.log('setProject, data', data)
 
 		if (!data?.project)
 			return
@@ -1476,6 +1492,26 @@
 		highlightSave = false
 		activeObject = 0
 		activeInfrastructureObject = null
+
+		role = getCurrentRole()
+
+		if (!project.status)
+			project.status = PROJECT_STATUS.CREATED
+
+		console.log('role', role, 'status', project.status)
+
+		if (role === ROLES.INVESTOR) {
+			if (project.status === PROJECT_STATUS.CREATED
+				|| project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL)
+				visibleTabs = [tabs[0]]
+			else if (project.status === PROJECT_STATUS.APPLICANT_APPROVED
+				|| project.status === PROJECT_STATUS.SCORING_RESULT_APPROVED)
+				visibleTabs = tabs.filter(tab => tab.name !== 'investorScore')
+		} else if (role === ROLES.SECURITY) {
+			visibleTabs = [tabs[0], tabs[1]]
+		} else if (role === ROLES.MANAGER) {
+			visibleTabs = tabs
+		}
 
 		if (!project.objects || !project.objects.length)
 			addObject()
@@ -1585,7 +1621,7 @@
 		}
 	}
 
-	function saveProject() {
+	function saveProject(cb) {
 		if (!project?._id)
 			return
 
@@ -1614,9 +1650,10 @@
 
 				if (res.redirect)
 					goto('/')
-				if (res?.res?.modifiedCount || res?.res?.matchedCount) {
+				if (res?.res?.modifiedCount || res?.res?.matchedCount)
 					highlightSave = false
-				}
+				if (cb)
+					cb()
 			})
 	}
 
@@ -1651,6 +1688,8 @@
 					])
 					const part1 = `${d[0]} ${section.passedCount} ${d[1]}`
 					section.status = `(${part1} из ${section.indicators.length})`
+
+					hasStopFactors = section.hasCommonStops || section.hasAdditionalStops
 				})
 
 				location.hash = ''
@@ -1684,14 +1723,19 @@
 
 				if (res.redirect)
 					goto('/')
-				if (res?.res?.deletedCount) {
-					projects.update(arr => {
-						return arr.filter(row => row._id !== project._id)
-					})
-
+				if (res?.res?.deletedCount)
 					goto('/projects')
-				}
 			})
+	}
+
+	function sendForApproval() {
+		project.status = PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL
+		saveProject(() => window.open($page.url.origin + $page.url.pathname + '?role=security', '_blank').focus())
+	}
+
+	function approveApplicant() {
+		project.status = PROJECT_STATUS.APPLICANT_APPROVED
+		saveProject(() => window.open($page.url.origin + $page.url.pathname + '?role=investor', '_blank').focus())
 	}
 
 	function goToTop() {
@@ -1793,7 +1837,7 @@
 					</div>
 					<div class="divider my-20"></div>
 				{/if}
-				{#each tabs as tab}
+				{#each visibleTabs as tab}
 					<a id="{tab.name}"></a>
 					<p class="text-xl font-bold text-secondary mt-12 mb-5 uppercase">{tab.title}</p>
 					{#if tab.fields.length}
@@ -1944,55 +1988,93 @@
 				</div>
 			</div>
 			<p class="text-center m-4 mt-8 font-bold text-xl text-secondary">{project.name}</p>
-			<button class="btn btn-outline btn-secondary mx-10 my-4"
-			        on:click={estimateStopFactors}>
-				Провести оценку
-			</button>
-			<ul class="m-4">
-				{#if project.scoring}
-					<li class="flex flex-col items-stretch">
-						<a href="#scoring"
-						   on:click={() => drawer = false}
-						   class="rounded py-2 px-4 hover:bg-base-200 font-medium text-secondary uppercase">
-							Предварительная оценка
-						</a>
-						<div class="divider ml-4 mr-4 my-1"></div>
-					</li>
+			{#if role === ROLES.INVESTOR}
+				{#if project.status === PROJECT_STATUS.CREATED}
+					<button class="btn btn-outline btn-secondary mx-10 my-4"
+					        on:click={sendForApproval}>
+						Отправить на согласование
+					</button>
+				{:else if project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL}
+					<button class="btn mx-10 my-4 btn-disabled">
+						Проект на согласовании
+					</button>
+				{:else if project.status === PROJECT_STATUS.APPLICANT_APPROVED}
+					<button class="btn btn-outline btn-secondary mx-10 my-4"
+					        on:click={estimateStopFactors}>
+						Провести оценку
+					</button>
 				{/if}
-				{#each tabs as tab}
-					<li class="flex flex-col items-stretch">
-						<a href="#{tab.name}"
-						   on:click={() => drawer = false}
-						   class="rounded py-2 px-4 hover:bg-base-200 font-medium text-secondary uppercase">
-							{tab.title}
-						</a>
-						{#if tab.name === 'objectsInfo'}
-							<ul class="pl-4">
-								{#each project.objects as object, i}
-									<li class="flex hover:bg-base-200 rounded my-0.5"
-									    on:click={() => selectObject(i)}>
-										<a href="#objects"
-										   class="px-5 py-2 w-full text-secondary uppercase">
-											{getObjectName(object)}
-										</a>
-									</li>
-								{/each}
-							</ul>
-							<ul class="pl-4">
-								{#each project.infrastructureObjects || [] as object, i}
-									<li class="flex hover:bg-base-200 rounded my-0.5"
-									    on:click={() => selectObject(i, true)}>
-										<a href="#objects"
-										   class="px-5 py-2 w-full text-secondary uppercase">
-											{getObjectName(object, true)}
-										</a>
-									</li>
-								{/each}
-							</ul>
-						{/if}
-					</li>
-				{/each}
-			</ul>
+			{:else if role === ROLES.SECURITY}
+				{#if project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL}
+					{#if !hasStopFactors}
+						<button class="btn btn-outline btn-secondary mx-10 my-4"
+						        on:click={approveApplicant}>
+							Подтвердить благонадежность
+						</button>
+					{/if}
+					<button class="btn btn-outline btn-secondary mx-10 my-4"
+					        on:click={estimateStopFactors}>
+						Оценить благонадежность
+					</button>
+				{/if}
+			{:else if role === ROLES.MANAGER}
+				{#if project.status === PROJECT_STATUS.WAITING_FOR_APPLICANT_APPROVAL}
+					<button class="btn mx-10 my-4 btn-disabled">
+						Проект на согласовании
+					</button>
+				{/if}
+				<button class="btn btn-outline btn-secondary mx-10 my-4"
+				        on:click={estimateStopFactors}>
+					Провести оценку
+				</button>
+			{/if}
+			{#if visibleTabs.length > 1}
+				<ul class="m-4">
+					{#if project.scoring}
+						<li class="flex flex-col items-stretch">
+							<a href="#scoring"
+							   on:click={() => drawer = false}
+							   class="rounded py-2 px-4 hover:bg-base-200 font-medium text-secondary uppercase">
+								Предварительная оценка
+							</a>
+							<div class="divider ml-4 mr-4 my-1"></div>
+						</li>
+					{/if}
+					{#each visibleTabs as tab}
+						<li class="flex flex-col items-stretch">
+							<a href="#{tab.name}"
+							   on:click={() => drawer = false}
+							   class="rounded py-2 px-4 hover:bg-base-200 font-medium text-secondary uppercase">
+								{tab.title}
+							</a>
+							{#if tab.name === 'objectsInfo'}
+								<ul class="pl-4">
+									{#each project.objects as object, i}
+										<li class="flex hover:bg-base-200 rounded my-0.5"
+										    on:click={() => selectObject(i)}>
+											<a href="#objects"
+											   class="px-5 py-2 w-full text-secondary uppercase">
+												{getObjectName(object)}
+											</a>
+										</li>
+									{/each}
+								</ul>
+								<ul class="pl-4">
+									{#each project.infrastructureObjects || [] as object, i}
+										<li class="flex hover:bg-base-200 rounded my-0.5"
+										    on:click={() => selectObject(i, true)}>
+											<a href="#objects"
+											   class="px-5 py-2 w-full text-secondary uppercase">
+												{getObjectName(object, true)}
+											</a>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{/if}
 			<button class="btn btn-outline btn-secondary text-accent mx-10 my-5"
 			        on:click={deleteProject}>
 				Удалить проект

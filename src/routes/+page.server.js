@@ -9,7 +9,8 @@ export const actions = {
 		if (login === 'TRF' && password === 'scoring') {
 			cookies.set('access', true, {
 				path: '/',
-				sameSite: 'strict'
+				sameSite: 'strict',
+				maxAge: 60 * 60 * 24 * 7
 			})
 			throw redirect(302, '/projects')
 		}

@@ -1,11 +1,10 @@
 <script>
-	import { projects } from '$lib/stores'
-
 	export let data
+	let projects = []
 
 	$: {
-		// console.log('projects/layout, data', data)
-		projects.set(data?.projects || [])
+		console.log('projects/layout, data', data)
+		projects = data?.projects || []
 	}
 </script>
 
@@ -16,12 +15,20 @@
 	</a>
 </div>
 <div class="flex flex-col gap-5">
-	{#each $projects as project}
+	{#each projects as project}
 		<div class="card bg-base-100 shadow-lg border">
 			<div class="card-body md:flex-row p-4 md:p-6">
 				<h2 class="card-title">{project.name}</h2>
-				<div class="card-actions justify-end ml-auto mt-2 md:mt-0">
-					<a href="/project/{project._id}" class="btn btn-secondary btn-outline">Открыть</a>
+				<div class="card-actions flex-col justify-end ml-auto mt-2 md:mt-0 shrink-0">
+					<a href="/project/{project._id}?role=investor" class="btn btn-secondary btn-outline">
+						Открыть для инвестора
+					</a>
+					<a href="/project/{project._id}?role=security" class="btn btn-secondary btn-outline">
+						Открыть для СБ
+					</a>
+					<a href="/project/{project._id}?role=manager" class="btn btn-secondary btn-outline">
+						Открыть для менеджера
+					</a>
 				</div>
 			</div>
 		</div>

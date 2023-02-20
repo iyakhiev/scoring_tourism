@@ -1,15 +1,16 @@
 <script>
-	import { DIRs } from '$lib/stores'
-	import { projects } from '$lib/stores'
-	import { goto } from '$app/navigation'
-	import Select from '$lib/components/select.svelte'
 	import Input from '$lib/components/input.svelte'
+	import Select from '$lib/components/select.svelte'
+	import { goto } from '$app/navigation'
+	import { DIRs } from '$lib/stores'
+	import { PROJECT_STATUS } from '$lib/enums'
 
 	let agreeWithTerms = false
 	let project = {
 		name: '',
 		region: '',
-		buildingType: ''
+		buildingType: '',
+		status: PROJECT_STATUS.CREATED
 	}
 
 	function addProject() {
@@ -29,15 +30,8 @@
 
 				if (res.redirect)
 					goto('/')
-				if (res?.res?.insertedId) {
-					project._id = res?.res?.insertedId
-					projects.update(arr => {
-						arr.push(project)
-						return arr
-					})
-
-					goto(`/project/${project._id}`)
-				}
+				if (res?.res?.insertedId)
+					goto(`/project/${res?.res?.insertedId}`)
 			})
 	}
 </script>

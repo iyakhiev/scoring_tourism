@@ -1,14 +1,14 @@
 <script>
 	import '../app.postcss'
 	import 'tippy.js/dist/tippy.css'
+	import Modals from '$lib/components/modals.svelte'
 	import { setDirs } from '$lib/stores'
 	import { DIRs } from '$lib/stores'
-	import Modals from '$lib/components/modals.svelte'
 
 	export let data
 
 	$: {
-		// console.log('layout, data', data)
+		console.log('layout, data', data)
 		setDirs(data?.dirs)
 		// console.log('layout, $DIRs', $DIRs)
 	}

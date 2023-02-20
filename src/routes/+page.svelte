@@ -1,8 +1,15 @@
 <script>
 	import NavBar from '$lib/components/navbar.svelte'
-	export let form
+	import { browser } from '$app/environment'
+	import { goto } from '$app/navigation'
 
-	console.log('form', form)
+	export let form
+	export let data
+
+	$: {
+		if (browser && data?.access)
+			goto('/projects')
+	}
 </script>
 
 <NavBar authorized={false}/>
