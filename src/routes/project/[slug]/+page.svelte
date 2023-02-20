@@ -1495,7 +1495,7 @@
 
 		role = getCurrentRole()
 
-		// if (!project.status)
+		if (!project.status)
 			project.status = PROJECT_STATUS.CREATED
 
 		console.log('role', role, 'status', project.status)
