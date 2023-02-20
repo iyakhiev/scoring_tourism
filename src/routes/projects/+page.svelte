@@ -31,14 +31,14 @@
 						<span class="font-medium uppercase">{PROJECT_STATUS_ENUM[project.status].title}</span>
 					</p>
 				</div>
-				<div class="card-actions flex-col justify-end items-stretch ml-auto mt-2 md:mt-0 shrink-0">
-					<a href="/project/{project._id}?role=investor" class="btn btn-secondary btn-outline">
+				<div class="card-actions flex-col items-stretch md:ml-auto mt-2 md:mt-0 shrink-0">
+					<a href="/project/{project._id}?role=investor" class="btn btn-sm btn-secondary btn-outline">
 						Открыть для инвестора
 					</a>
-					<a href="/project/{project._id}?role=security" class="btn btn-secondary btn-outline">
+					<a href="/project/{project._id}?role=security" class="btn btn-sm btn-secondary btn-outline">
 						Открыть для СБ
 					</a>
-					<a href="/project/{project._id}?role=manager" class="btn btn-secondary btn-outline">
+					<a href="/project/{project._id}?role=manager" class="btn btn-sm btn-secondary btn-outline">
 						Открыть для менеджера
 					</a>
 				</div>
