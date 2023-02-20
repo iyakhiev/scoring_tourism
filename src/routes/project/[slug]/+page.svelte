@@ -1495,7 +1495,7 @@
 
 		role = getCurrentRole()
 
-		if (!project.status)
+		// if (!project.status)
 			project.status = PROJECT_STATUS.CREATED
 
 		console.log('role', role, 'status', project.status)
@@ -1652,7 +1652,7 @@
 					goto('/')
 				if (res?.res?.modifiedCount || res?.res?.matchedCount)
 					highlightSave = false
-				if (cb)
+				if (typeof cb === 'function')
 					cb()
 			})
 	}
@@ -2090,7 +2090,7 @@
 	<button class="btn btn-ghost bg-base-200/50"
 	        class:border={highlightSave}
 	        class:border-black={highlightSave}
-	        on:click={saveProject}>
+	        on:click={() => saveProject()}>
 		<img class="w-5 md:w-6" src="/save.svg" alt="Наверх">
 	</button>
 	<label for="my-drawer"
