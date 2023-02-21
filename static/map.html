@@ -5,135 +5,95 @@
 	<title>Map</title>
 	<style>
         .rf-map,
-        .rf-map *{
+        .rf-map * {
             box-sizing: border-box;
         }
+
         .rf-map {
             position: relative;
             max-width: 980px;
             margin: auto;
             padding: 20px;
         }
-        .rf-map .district b {
+
+        .rf-map #district {
+            display: none;
             position: absolute;
             z-index: 5;
+        }
+
+        .rf-map #district .district-container {
+	        display: flex;
+	        align-items: center;
+	        gap: 5px;
+        }
+
+        .rf-map #district .circle {
             width: 18px;
             height: 18px;
-            background: rgba(51, 122, 183, 0.9);
+            background: #183a68;
             border-radius: 50%;
-            left: 6px;
-            top: 18px;
             transition: all 0.3s;
         }
-        .rf-map .district span {
-            position: absolute;
-            z-index: 5;
-            top: 20px;
-            left: 30px;
+
+        .rf-map #district span {
             font-size: 13px;
             font-weight: bold;
             font-family: Tahoma, sans-serif;
             line-height: 1;
-            color: #337AB7;
+            color: #183a68;
         }
-        .rf-map .district {
-            display: none;
-        }
-        .rf-map.open .district b {
+
+        .rf-map.open #district b {
             top: 0;
             left: 0;
             border-radius: 0;
-            width:100%;
+            width: 100%;
             height: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2), 0 16px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 16px 20px rgba(0, 0, 0, 0.2);
         }
-        .rf-map.open .district span {
+
+        .rf-map.open #district span {
             color: #FFF;
         }
+
         .rf-map svg {
             width: 100%;
             height: 100%;
             filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.5));
         }
+
         .rf-map path {
             stroke: #FFFFFF;
             stroke-width: 1;
             stroke-linejoin: round;
         }
+
         .rf-map [data-code] {
-	        cursor: pointer;
-            fill: #337AB7;
+            cursor: pointer;
+            fill: #183a68;
             transition: fill 0.2s;
         }
+
         .rf-map [data-code]:hover {
-            fill: #7d98ad;
+            fill: #4970c5;
         }
-        .rf-map .district-text {
-            display: none;
-            position: absolute;
-            z-index: 6;
-            left: 0;
-            top: 60px;
-            width: calc(100% - 20px);
-            height: calc(100% - 90px);
-            padding: 0 20px;
-            overflow: auto;
-            color: #FFF;
-            font-size: 13px;
-            font-family: Verdana, sans-serif;
-        }
-        .rf-map .close-district {
-            opacity: 0;
-            z-index: 6;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            line-height: 1;
-            font-size: 40px;
-            color: #fff;
-            cursor: pointer;
-            transition: opacity 1s;
-            pointer-events: none;
-        }
-        .rf-map.open .close-district {
-            opacity: 1;
-            pointer-events: initial;
-        }
-        .rf-map .district-links {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .rf-map .district-links div {
-            font-size: 13px;
-            font-family: Verdana, sans-serif;
-            padding: 4px;
-        }
-        .rf-map .district-links div:after {
-            content: " | ";
-            color: #337AB7;
-        }
-        .rf-map .district-links div:last-child:after {
-            content: "";
-        }
+
         .dropfill {
-            fill: #337AB7!important;
-        }
-        .mainfill {
-            fill: #1d4567!important;
+            fill: #4970c5 !important;
         }
 	</style>
 </head>
 <body>
 <div class="rf-map">
-	<div class="district"><b></b><span></span></div>
-	<div class="close-district">&times;</div>
-	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 808.9 458.9" enable-background="new 0 0 808.9 458.9" xml:space="preserve">
+	<div id="district">
+		<div class="district-container">
+			<div class="circle"></div>
+			<span></span>
+		</div>
+	</div>
+	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	     viewBox="0 0 808.9 458.9" enable-background="new 0 0 808.9 458.9" xml:space="preserve">
         <path data-title="Республика Крым" data-code="RU-CR" d="M1.6,328.6H4l1.2,0.8l1.5,0.2v-0.9l1.3-0.2l0.8,1.3h3.3l0.1-1.1
         l1.2,0.3v2.1l1.4,1.3l-0.8,2l1.6,1.6v2.9l0.4,1.1l-0.5,1.3l-0.8,1.1l1.2,1.2l0.5,1.2l2,0.6l2.1,0.3l2.5,4.2l-1.5,0.2l-1.3,1.3
         l-2.6-0.9l-2-1.8l-0.4-1.1l-0.2-1l-1.3-0.9l-2.6,0.6l-1.7-0.9l-2.1-1.2l-3,0.5l-2.2-0.4l-1-1.7l-0.7-2.6l1.6-0.1l1.9-2.3l0.5-2.4
@@ -860,31 +820,27 @@
         53.7,331.5 53.5,332.4 53.6,333.3 53.4,334.3 52.5,334.5 52.5,334.9 52.6,335.4 52.8,336.3 52.3,336.4 53,337.6 52.8,338.6
         52.8,339 "/>
     </svg>
-	<div class="district-links"></div>
 </div>
-<script
-		src="https://code.jquery.com/jquery-3.6.3.min.js"
-		integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
-		crossorigin="anonymous"></script>
 <script>
-	$(function() {
-		$('[data-code]').mouseenter(function() {
-			$('.district span').html($(this).attr('data-title'));
-			$('.district').show();
-		});
-		$('[data-code]').mouseleave(function() {
-			if (!$('.rf-map').hasClass("open")) {
-				$('.district').hide();
-			}
-		});
-		$('[data-code]').each(function() {
-			let id = $(this).attr('data-code');
-			let title = $(this).attr('data-title');
-			if ($('#' + id).text() != '') {
-				$('.district-links').append('<div data-title="' + title + '" data-code="' + id + '">' + title + '</div>');
-			}
-		});
-	});
+	document.addEventListener('DOMContentLoaded', function () {
+		document.querySelectorAll('[data-code]').forEach(region => {
+			region.addEventListener('mouseenter', function (e) {
+				document.querySelector('#district span').textContent = e.currentTarget.getAttribute('data-title')
+				document.querySelector('#district').style.display = 'block'
+			})
+
+			region.addEventListener('mouseleave', function (e) {
+				document.querySelector('#district').style.display = 'none'
+			})
+
+			region.addEventListener('click', function (e) {
+				const id = e.currentTarget.getAttribute('data-code')
+				console.log('click', id)
+				document.querySelectorAll('.dropfill').forEach(row => row.classList.remove('dropfill'))
+				e.currentTarget.classList.add('dropfill')
+			})
+		})
+	})
 </script>
 </body>
 </html>

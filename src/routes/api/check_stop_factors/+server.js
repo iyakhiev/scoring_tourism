@@ -341,11 +341,11 @@ const indicators = [
 				}
 			},
 			{
-				label: 'Отсутствие штата персонала',
+				label: 'Отсутствие работников в штате',
 				name: 'hasLackOfStaff',
 				stopFactor: {
 					type: 'additional',
-					title: 'Отсутствие штата персонала'
+					title: 'Отсутствие работников в штате'
 				},
 				calc: function (project, dirs, scoring) {
 					const res = { value: !!project[this.name] }
