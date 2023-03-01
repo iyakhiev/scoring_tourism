@@ -25,7 +25,7 @@
 			<label class="label" for="password">
 				<span class="label-text">Пароль</span>
 			</label>
-			<input id="password" type="text" name="password" placeholder="Пароль" class="input input-bordered w-full"/>
+			<input id="password" type="password" name="password" placeholder="Пароль" class="input input-bordered w-full"/>
 		</div>
 		<div class="flex flex-col items-center w-full mt-5">
 			{#if form?.error}

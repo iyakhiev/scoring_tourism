@@ -1836,6 +1836,9 @@
 							</div>
 						{/each}
 					</div>
+					<div class="flex justify-end mt-10">
+						<button class="btn btn-outline btn-secondary">Утвердить проект</button>
+					</div>
 					<div class="divider my-20"></div>
 				{/if}
 				{#each visibleTabs as tab}

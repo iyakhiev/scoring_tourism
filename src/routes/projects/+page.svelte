@@ -33,13 +33,13 @@
 				</div>
 				<div class="card-actions flex-col items-stretch md:ml-auto mt-2 md:mt-0 shrink-0">
 					<a href="/project/{project._id}?role=investor" class="btn btn-sm btn-secondary btn-outline">
-						Открыть для инвестора
+						Ввод данных
 					</a>
 					<a href="/project/{project._id}?role=security" class="btn btn-sm btn-secondary btn-outline">
-						Открыть для СБ
+						Проверка инвестора
 					</a>
 					<a href="/project/{project._id}?role=manager" class="btn btn-sm btn-secondary btn-outline">
-						Открыть для менеджера
+						Анализ проекта
 					</a>
 				</div>
 			</div>
