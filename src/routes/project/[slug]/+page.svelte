@@ -9,6 +9,7 @@
 	import { page } from '$app/stores'
 	import { DIRs } from '$lib/stores'
 	import { ROLES_ENUM, PROJECT_STATUS_ENUM } from '$lib/enums'
+	import { getNumberStr, getNumber } from '$lib/numbersTransformer'
 
 	export let data
 
@@ -215,7 +216,7 @@
 			name: 'balanceSheetData',
 			fields: [
 				{
-					label: 'Краткосрочные финансовые вложения, тыс. руб.',
+					label: 'Краткосрочные финансовые вложения',
 					tip: 'Строка 1240 бухгалтерского баланса',
 					name: 'kfv',
 					type: 'number',
@@ -226,7 +227,7 @@
 					}
 				},
 				{
-					label: 'Денежные средства и их эквиваленты, тыс. руб.',
+					label: 'Денежные средства и их эквиваленты',
 					tip: 'Строка 1250 бухгалтерского баланса',
 					name: 'ds',
 					type: 'number',
@@ -237,7 +238,7 @@
 					}
 				},
 				{
-					label: 'Краткосрочные обязательства, тыс. руб.',
+					label: 'Краткосрочные обязательства',
 					tip: 'Итого по разделу V, строка 1500 бухгалтерского баланса',
 					name: 'ko',
 					type: 'number',
@@ -258,7 +259,7 @@
 					disabled: true
 				},
 				{
-					label: 'Краткосрочная дебиторская задолженность, тыс. руб.',
+					label: 'Краткосрочная дебиторская задолженность',
 					tip: 'Строка 1520 бухгалтерского баланса',
 					name: 'kdz',
 					type: 'number',
@@ -272,7 +273,7 @@
 					disabled: true
 				},
 				{
-					label: 'Оборотные активы, тыс. руб.',
+					label: 'Оборотные активы',
 					tip: 'Строка 1200 бухгалтерского баланса',
 					name: 'oa',
 					type: 'number',
@@ -286,7 +287,7 @@
 					disabled: true
 				},
 				{
-					label: 'Собственный капитал, тыс. руб.',
+					label: 'Собственный капитал',
 					tip: 'Строка 1300 бухгалтерского баланса',
 					name: 'sk',
 					type: 'number',
@@ -294,7 +295,7 @@
 					calc: () => calcFields.debtToEquityRatio.calc()
 				},
 				{
-					label: 'Долгосрочные обязательства, тыс. руб.',
+					label: 'Долгосрочные обязательства',
 					tip: 'Строка 1400 бухгалтерского баланса',
 					name: 'do',
 					type: 'number',
@@ -306,7 +307,7 @@
 					}
 				},
 				{
-					label: 'Сумма долгосрочных и краткосрочных обязательств, тыс. руб.',
+					label: 'Сумма долгосрочных и краткосрочных обязательств',
 					tip: 'Строки 1410, 1435, 1510, 1520 и 1545 бухгалтерского баланса',
 					name: 'doAndKoSum',
 					type: 'number',
@@ -319,7 +320,7 @@
 					disabled: true
 				},
 				{
-					label: 'Капитал и резервы, тыс. руб.',
+					label: 'Капитал и резервы',
 					tip: 'Строка 1300 (итого по разделу III) бухгалтерского баланса',
 					name: 'kr',
 					type: 'number',
@@ -454,7 +455,7 @@
 					type: 'date',
 				},
 				{
-					label: 'Расходы pre-opening, тыс. руб.',
+					label: 'Расходы pre-opening',
 					name: 'preOpeningCost',
 					type: 'number',
 					min: 0
@@ -535,13 +536,13 @@
 					disabled: true
 				},
 				{
-					label: 'Стоимость 1 м² объекта, тыс. руб.',
+					label: 'Стоимость 1 м² объекта',
 					name: 'costPerSqMeter',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость 1 номера, тыс. руб.',
+					label: 'Стоимость 1 номера',
 					name: 'costPerRoom',
 					type: 'number',
 					disabled: true
@@ -553,13 +554,13 @@
 					disabled: true
 				},
 				{
-					label: 'Стоимость строительства гостиниц(ы), тыс. руб.',
+					label: 'Стоимость строительства гостиниц(ы)',
 					name: 'totalCostOfHotel',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
+					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты)',
 					name: 'totalCostOfBuildingInfrastructure',
 					type: 'number',
 					disabled: true
@@ -626,25 +627,25 @@
 					calc: () => calcFields.touristFlow.calc()
 				},
 				{
-					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
+					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы)',
 					name: 'revenuePerSqMeter',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Общая выручка в год после выхода на проектную нагрузку',
 					name: 'totalRevenues',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Выручка от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку',
 					name: 'roomRevenue',
 					type: 'number',
 					disabled: true,
 				},
 				{
-					label: 'Выручка ресторанов, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка ресторанов в год после выхода на проектную нагрузку',
 					name: 'restaurantsRevenue',
 					type: 'number',
 					min: 0,
@@ -653,7 +654,7 @@
 					}
 				},
 				{
-					label: 'Выручка СПА и фитнес-центров, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка СПА и фитнес-центров в год после выхода на проектную нагрузку',
 					name: 'spaAndGymRevenue',
 					type: 'number',
 					min: 0,
@@ -662,7 +663,7 @@
 					}
 				},
 				{
-					label: 'Выручка аквапарка, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка аквапарка в год после выхода на проектную нагрузку',
 					name: 'aquaparkRevenue',
 					type: 'number',
 					min: 0,
@@ -671,14 +672,14 @@
 					}
 				},
 				{
-					label: 'Выручка инфраструктуры ГЛК, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка инфраструктуры ГЛК в год после выхода на проектную нагрузку',
 					name: 'glkRevenue',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
 				{
-					label: 'Выручка парка развлечений, аттракционов, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка парка развлечений, аттракционов в год после выхода на проектную нагрузку',
 					name: 'amusementsRevenue',
 					type: 'number',
 					min: 0,
@@ -687,20 +688,20 @@
 					}
 				},
 				{
-					label: 'Выручка прочее, тыс. руб. в год после выхода на проектную нагрузку',
+					label: 'Выручка прочее в год после выхода на проектную нагрузку',
 					name: 'otherRevenue',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
 				{
-					label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
+					label: 'RevPAR — средняя выручка за номер в год',
 					name: 'revPAR',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, тыс. руб.',
+					label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг',
 					name: 'revPAC',
 					type: 'number',
 					disabled: true
@@ -732,19 +733,19 @@
 			name: 'financing',
 			fields: [
 				{
-					label: 'Общий объем финансирования (Total Founds), тыс. руб.',
+					label: 'Общий объем финансирования (Total Founds)',
 					name: 'totalFunds',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Собственные средства, тыс. руб.',
+					label: 'Собственные средства',
 					name: 'ownFunds',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Взнос Инвестора в уставный капитал СПК в денежной форме, тыс. руб.',
+					label: 'Взнос Инвестора в уставный капитал СПК в денежной форме',
 					name: 'investorContributionCash',
 					type: 'number',
 					min: 0,
@@ -754,7 +755,7 @@
 					}
 				},
 				{
-					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме), тыс. руб.',
+					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме)',
 					name: 'investorContributionNotCash',
 					type: 'number',
 					min: 0,
@@ -764,21 +765,21 @@
 					}
 				},
 				{
-					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме), тыс. руб.',
+					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме)',
 					name: 'investorContributionCashNotInCapital',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.ownFunds.calc()
 				},
 				{
-					label: 'Инвестор (заем), тыс. руб.',
+					label: 'Инвестор (заем)',
 					name: 'investorLoan',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.ownFunds.calc()
 				},
 				{
-					label: 'Корпорация Туризм.РФ  (взнос в уставный капитал СПК), тыс. руб.',
+					label: 'Корпорация Туризм.РФ  (взнос в уставный капитал СПК)',
 					name: 'corporationContributionCash',
 					type: 'number',
 					min: 0,
@@ -788,7 +789,7 @@
 					}
 				},
 				{
-					label: 'Корпорация Туризм.РФ  (заем), тыс. руб.',
+					label: 'Корпорация Туризм.РФ  (заем)',
 					name: 'corporationLoan',
 					type: 'number',
 					min: 0,
@@ -798,14 +799,14 @@
 					}
 				},
 				{
-					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо), тыс. руб.',
+					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо)',
 					name: 'landSaleRevenue',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.ownFunds.calc()
 				},
 				{
-					label: 'Кредит банка (DEBT), тыс. руб.',
+					label: 'Кредит банка (DEBT)',
 					name: 'bankLoanAmount',
 					type: 'number',
 					min: 0,
@@ -834,7 +835,7 @@
 					}
 				},
 				{
-					label: 'Потребность в льготном кредите (в т.ч. Постановление №141), тыс. руб.',
+					label: 'Потребность в льготном кредите (в т.ч. Постановление №141)',
 					name: 'needOfSoftLoan',
 					type: 'check',
 				},
@@ -863,19 +864,19 @@
 					disabled: true
 				},
 				{
-					label: 'EBITDA, тыс. руб. (за год после ввода в эксплуатацию)',
+					label: 'EBITDA (за год после ввода в эксплуатацию)',
 					name: 'EBITDA',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Процентные платежи в год (I), тыс. руб.',
+					label: 'Процентные платежи в год (I)',
 					name: 'interestPayments',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Выплаты тела кредита, тыс. руб. в год (D)',
+					label: 'Выплаты тела кредита в год (D)',
 					name: 'loanBodyPayments',
 					type: 'number',
 					disabled: true
@@ -892,8 +893,8 @@
 				if (!project.ko)
 					return updateProjectProp(this.name)
 
-				const a = parseFloat(project.kfv || 0) + parseFloat(project.ds || 0)
-				const value = a / project.ko
+				const a = getNumber(project.kfv) + getNumber(project.ds)
+				const value = a / getNumber(project.ko)
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -905,8 +906,8 @@
 				if (!project.ko)
 					return updateProjectProp(this.name)
 
-				const a = parseFloat(project.kdz || 0) + parseFloat(project.kfv || 0) + parseFloat(project.ds || 0)
-				const value = a / project.ko
+				const a = getNumber(project.kdz) + getNumber(project.kfv) + getNumber(project.ds)
+				const value = a / getNumber(project.ko)
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -918,7 +919,7 @@
 				if (!project.ko)
 					return updateProjectProp(this.name)
 
-				const value = project.oa / project.ko
+				const value = getNumber(project.oa) / getNumber(project.ko)
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -930,8 +931,8 @@
 				if (!project.sk)
 					return updateProjectProp(this.name)
 
-				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
-				const value = a / project.sk
+				const a = getNumber(project.do) + getNumber(project.ko)
+				const value = a / getNumber(project.sk)
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -943,17 +944,17 @@
 				if (!project.ko && !project.do)
 					return updateProjectProp(this.name)
 
-				const a = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
-				const value = project.kr / a
+				const a = getNumber(project.do) + getNumber(project.ko)
+				const value = getNumber(project.kr) / a
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		doAndKoSum: {
-			label: 'Сумма долгосрочных и краткосрочных обязательств, тыс. руб.',
+			label: 'Сумма долгосрочных и краткосрочных обязательств',
 			name: 'doAndKoSum',
 			calc: function () {
-				const value = parseFloat(project.do || 0) + parseFloat(project.ko || 0)
+				const value = getNumber(project.do) + getNumber(project.ko)
 				updateProjectProp(this.name, value)
 			}
 		},
@@ -961,8 +962,8 @@
 			label: 'Общая площадь объектов, м²',
 			name: 'totalArea',
 			calc: function () {
-				const value = parseFloat(project.hotelArea || 0)
-					+ parseFloat(project.infrastructureArea || 0)
+				const value = getNumber(project.hotelArea)
+					+ getNumber(project.infrastructureArea)
 
 				updateProjectProp(this.name, value)
 				calcFields.costPerSqMeter.calc()
@@ -975,12 +976,12 @@
 			name: 'hotelArea',
 			calc: function () {
 				const value = project.objects && project.objects.reduce((acc, object) => {
-					object[this.name] = parseFloat(object.roomsArea || 0)
-						+ parseFloat(object.restaurantsArea || 0)
-						+ parseFloat(object.confRoomsArea || 0)
-						+ parseFloat(object.spaAndGymArea || 0)
-						+ parseFloat(object.poolsArea || 0)
-						+ parseFloat(object.hotelOthersArea || 0)
+					object[this.name] = getNumber(object.roomsArea)
+						+ getNumber(object.restaurantsArea)
+						+ getNumber(object.confRoomsArea)
+						+ getNumber(object.spaAndGymArea)
+						+ getNumber(object.poolsArea)
+						+ getNumber(object.hotelOthersArea)
 
 					acc += object[this.name]
 					return acc
@@ -995,7 +996,7 @@
 			name: 'infrastructureArea',
 			calc: function () {
 				const value = project.infrastructureObjects && project.infrastructureObjects.reduce((acc, object) => {
-					acc += parseFloat(object.area || 0)
+					acc += getNumber(object.area)
 					return acc
 				}, 0)
 
@@ -1007,24 +1008,24 @@
 			label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
 			name: 'totalCost',
 			calc: function () {
-				const value = parseFloat(project.totalCostOfHotel || 0)
-					+ parseFloat(project.totalCostOfBuildingInfrastructure || 0)
+				const value = getNumber(project.totalCostOfHotel)
+					+ getNumber(project.totalCostOfBuildingInfrastructure)
 
 				updateProjectProp(this.name, value)
 				calcFields.costPerSqMeter.calc()
 			}
 		},
 		totalCostOfHotel: {
-			label: 'Стоимость строительства объектов, тыс. руб.',
+			label: 'Стоимость строительства объектов',
 			name: 'totalCostOfHotel',
 			calc: function () {
 				const value = project.objects && project.objects.reduce((acc, object) => {
-					object[this.name] = parseFloat(object.totalCostOfBuildingRooms || 0)
-						+ parseFloat(object.totalCostOfBuildingRestaurants || 0)
-						+ parseFloat(object.totalCostOfBuildingConfRooms || 0)
-						+ parseFloat(object.totalCostOfBuildingSpaAndGym || 0)
-						+ parseFloat(object.totalCostOfBuildingPools || 0)
-						+ parseFloat(object.totalCostOfBuildingHotelOthers || 0)
+					object[this.name] = getNumber(object.totalCostOfBuildingRooms)
+						+ getNumber(object.totalCostOfBuildingRestaurants)
+						+ getNumber(object.totalCostOfBuildingConfRooms)
+						+ getNumber(object.totalCostOfBuildingSpaAndGym)
+						+ getNumber(object.totalCostOfBuildingPools)
+						+ getNumber(object.totalCostOfBuildingHotelOthers)
 
 					acc += object[this.name]
 					return acc
@@ -1036,11 +1037,11 @@
 			}
 		},
 		totalCostOfBuildingInfrastructure: {
-			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), тыс. руб.',
+			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты)',
 			name: 'totalCostOfBuildingInfrastructure',
 			calc: function () {
 				const value = project.infrastructureObjects && project.infrastructureObjects.reduce((acc, object) => {
-					acc += parseFloat(object.cost || 0)
+					acc += getNumber(object.cost)
 					return acc
 				}, 0)
 
@@ -1053,7 +1054,7 @@
 			name: 'totalNumberOfRooms',
 			calc: function () {
 				const value = project.objects && project.objects.reduce((acc, object) => {
-					acc += parseFloat(object.numberOfRooms || 0)
+					acc += getNumber(object.numberOfRooms)
 					return acc
 				}, 0)
 
@@ -1065,24 +1066,24 @@
 			}
 		},
 		costPerSqMeter: {
-			label: 'Стоимость 1 м² объекта, тыс. руб.',
+			label: 'Стоимость 1 м² объекта',
 			name: 'costPerSqMeter',
 			calc: function () {
 				if (!project.totalCost || !project.totalArea)
 					return updateProjectProp(this.name)
 
-				const value = project.totalCost / project.totalArea
+				const value = getNumber(project.totalCost) / getNumber(project.totalArea)
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		costPerRoom: {
-			label: 'Стоимость 1 номера, тыс. руб.',
+			label: 'Стоимость 1 номера',
 			name: 'costPerRoom',
 			calc: function () {
 				if (!project.totalCostOfHotel || !project.totalNumberOfRooms)
 					return updateProjectProp(this.name)
 
-				const value = project.totalCostOfHotel / project.totalNumberOfRooms
+				const value = getNumber(project.totalCostOfHotel) / getNumber(project.totalNumberOfRooms)
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -1094,7 +1095,7 @@
 				if (project.buildingType !== this.buildingType || !project.totalArea)
 					return updateProjectProp(this.name)
 
-				const value = (project.hotelArea / project.totalArea) * 100
+				const value = (getNumber(project.hotelArea) / getNumber(project.totalArea)) * 100
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -1109,25 +1110,31 @@
 				let value = 0
 
 				if (project.buildingType === 'hotel')
-					value = project.totalNumberOfRooms * project.doubleOcc * 365 * (project.occ / 100) / 100
+					value = getNumber(project.totalNumberOfRooms)
+						* getNumber(project.doubleOcc)
+						* 365
+						* (getNumber(project.occ) / 100) / 100
 				else if (project.buildingType === 'complex')
-					value = project.totalNumberOfRooms * project.doubleOcc * 365 * (project.occ / 100) / 100
-						+ parseFloat(project.totalExternalGuests || 0) * 365
+					value = getNumber(project.totalNumberOfRooms)
+						* getNumber(project.doubleOcc)
+						* 365
+						* (getNumber(project.occ) / 100) / 100
+						+ getNumber(project.totalExternalGuests) * 365
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalRevenues: {
-			label: 'Общая выручка, тыс. руб. в год после выхода на проектную нагрузку',
+			label: 'Общая выручка в год после выхода на проектную нагрузку',
 			name: 'totalRevenues',
 			calc: function () {
-				const value = parseFloat(project.roomRevenue || 0)
-					+ parseFloat(project.restaurantsRevenue || 0)
-					+ parseFloat(project.spaAndGymRevenue || 0)
-					+ parseFloat(project.aquaparkRevenue || 0)
-					+ parseFloat(project.glkRevenue || 0)
-					+ parseFloat(project.amusementsRevenue || 0)
-					+ parseFloat(project.otherRevenue || 0)
+				const value = getNumber(project.roomRevenue)
+					+ getNumber(project.restaurantsRevenue)
+					+ getNumber(project.spaAndGymRevenue)
+					+ getNumber(project.aquaparkRevenue)
+					+ getNumber(project.glkRevenue)
+					+ getNumber(project.amusementsRevenue)
+					+ getNumber(project.otherRevenue)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.revPAC.calc()
 				calcFields.revenuePerSqMeter.calc()
@@ -1135,48 +1142,51 @@
 			}
 		},
 		roomRevenue: {
-			label: 'Выручка от реализации номеров (Room Revenue), тыс. руб. в год после выхода на проектную нагрузку',
+			label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку',
 			name: 'roomRevenue',
 			calc: function () {
 				if (!project.adr || !project.totalNumberOfRooms || !project.occ)
 					return updateProjectProp(this.name)
 
-				const value = (project.adr / 1000) * project.totalNumberOfRooms * (project.occ / 100) * 365
+				const value = getNumber(project.adr)
+					* getNumber(project.totalNumberOfRooms)
+					* (getNumber(project.occ) / 100)
+					* 365
 				updateProjectProp(this.name, value)
 				calcFields.totalRevenues.calc()
 				calcFields.revPAR.calc()
 			}
 		},
 		revenuePerSqMeter: {
-			label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), тыс. руб.',
+			label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы)',
 			name: 'revenuePerSqMeter',
 			calc: function () {
 				if (!project.totalRevenues || !project.totalArea)
 					return updateProjectProp(this.name)
 
-				const value = project.totalRevenues / project.totalArea
+				const value = getNumber(project.totalRevenues) / getNumber(project.totalArea)
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		revPAR: {
-			label: 'RevPAR — средняя выручка за номер в год, тыс. руб.',
+			label: 'RevPAR — средняя выручка за номер в год',
 			name: 'revPAR',
 			calc: function () {
 				if (!project.roomRevenue || !project.totalNumberOfRooms)
 					return updateProjectProp(this.name)
 
-				const value = project.roomRevenue / project.totalNumberOfRooms
+				const value = getNumber(project.roomRevenue) / getNumber(project.totalNumberOfRooms)
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		revPAC: {
-			label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, тыс. руб.',
+			label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг',
 			name: 'revPAC',
 			calc: function () {
 				if (!project.totalRevenues || !project.touristFlow)
 					return updateProjectProp(this.name)
 
-				const value = project.totalRevenues / project.touristFlow
+				const value = getNumber(project.totalRevenues) / getNumber(project.touristFlow)
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -1187,30 +1197,30 @@
 				if (!project.totalNumberOfRooms || !project.totalNumberOfNewJobs)
 					return updateProjectProp(this.name)
 
-				const value = project.totalNumberOfNewJobs / project.totalNumberOfRooms
+				const value = getNumber(project.totalNumberOfNewJobs) / getNumber(project.totalNumberOfRooms)
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		totalFunds: {
-			label: 'Общий объем финансирования (Total Founds), тыс. руб.',
+			label: 'Общий объем финансирования (Total Founds)',
 			name: 'totalFunds',
 			calc: function () {
-				const value = parseFloat(project.ownFunds || 0) + parseFloat(project.bankLoanAmount || 0)
+				const value = getNumber(project.ownFunds) + getNumber(project.bankLoanAmount)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.creditFundsShare.calc()
 			}
 		},
 		ownFunds: {
-			label: 'Собственные средства, тыс. руб.',
+			label: 'Собственные средства',
 			name: 'ownFunds',
 			calc: function () {
-				const value = parseFloat(project.investorContributionCash || 0)
-					+ parseFloat(project.investorContributionNotCash || 0)
-					+ parseFloat(project.investorContributionCashNotInCapital || 0)
-					+ parseFloat(project.investorLoan || 0)
-					+ parseFloat(project.corporationContributionCash || 0)
-					+ parseFloat(project.corporationLoan || 0)
-					+ parseFloat(project.landSaleRevenue || 0)
+				const value = getNumber(project.investorContributionCash)
+					+ getNumber(project.investorContributionNotCash)
+					+ getNumber(project.investorContributionCashNotInCapital)
+					+ getNumber(project.investorLoan)
+					+ getNumber(project.corporationContributionCash)
+					+ getNumber(project.corporationLoan)
+					+ getNumber(project.landSaleRevenue)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.totalFunds.calc()
 			}
@@ -1222,10 +1232,10 @@
 				if (!(project.investorContributionCash || project.investorContributionNotCash))
 					return updateProjectProp(this.name)
 
-				const corporationContribution = parseFloat(project.corporationContributionCash || 0)
-					+ parseFloat(project.corporationLoan || 0)
-				const investorContribution = parseFloat(project.investorContributionCash || 0)
-					+ parseFloat(project.investorContributionNotCash || 0)
+				const corporationContribution = getNumber(project.corporationContributionCash)
+					+ getNumber(project.corporationLoan)
+				const investorContribution = getNumber(project.investorContributionCash)
+					+ getNumber(project.investorContributionNotCash)
 				const value = (corporationContribution / (corporationContribution + investorContribution)) * 100
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -1237,7 +1247,7 @@
 				if (!project.bankLoanAmount || !project.totalFunds)
 					return updateProjectProp(this.name)
 
-				const value = (project.bankLoanAmount / project.totalFunds) * 100
+				const value = (getNumber(project.bankLoanAmount) / getNumber(project.totalFunds)) * 100
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
@@ -1248,16 +1258,16 @@
 				if (!project.EBITDA || !project.interestPayments || !project.loanBodyPayments)
 					return updateProjectProp(this.name)
 
-				const a = parseFloat(project.interestPayments || 0) + parseFloat(project.loanBodyPayments || 0)
-				const value = project.EBITDA / a
+				const a = getNumber(project.interestPayments) + getNumber(project.loanBodyPayments)
+				const value = getNumber(project.EBITDA) / a
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
 		},
 		EBITDA: {
-			label: 'EBITDA, тыс. руб. (за год после ввода в эксплуатацию)',
+			label: 'EBITDA (за год после ввода в эксплуатацию)',
 			name: 'EBITDA',
 			calc: function () {
-				const value = project.totalRevenues * project.marginEBITDA
+				const value = getNumber(project.totalRevenues) * getNumber(project.marginEBITDA)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
@@ -1272,13 +1282,15 @@
 					return
 				}
 
-				const value = project.bankLoanAmount / project.loanTerm * (project.plannedLoanRate / 100)
+				const value = getNumber(project.bankLoanAmount)
+					/ getNumber(project.loanTerm)
+					* (getNumber(project.plannedLoanRate) / 100)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
 		},
 		loanBodyPayments: {
-			label: 'Выплаты тела кредита, тыс. руб. в год (D)',
+			label: 'Выплаты тела кредита в год (D)',
 			name: 'loanBodyPayments',
 			calc: function () {
 				if (!project.bankLoanAmount || !project.loanTerm) {
@@ -1287,7 +1299,7 @@
 					return
 				}
 
-				const value = project.bankLoanAmount / project.loanTerm
+				const value = getNumber(project.bankLoanAmount) / getNumber(project.loanTerm)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
 			}
@@ -1369,48 +1381,48 @@
 			calc: () => calcFields.hotelArea.calc()
 		},
 		{
-			label: 'Стоимость строительства гостиницы, тыс. руб.',
+			label: 'Стоимость строительства гостиницы',
 			name: 'totalCostOfHotel',
 			type: 'number',
 			disabled: true
 		},
 		{
-			label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования, тыс. руб.',
+			label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования',
 			name: 'totalCostOfBuildingRooms',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства ресторанов, тыс. руб.',
+			label: 'Стоимость строительства ресторанов',
 			name: 'totalCostOfBuildingRestaurants',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства конференц-залов, тыс. руб.',
+			label: 'Стоимость строительства конференц-залов',
 			name: 'totalCostOfBuildingConfRooms',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства СПА и фитнес центров, тыс. руб.',
+			label: 'Стоимость строительства СПА и фитнес центров',
 			name: 'totalCostOfBuildingSpaAndGym',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства бассейнов, тыс. руб.',
+			label: 'Стоимость строительства бассейнов',
 			name: 'totalCostOfBuildingPools',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства иных объектов, тыс. руб.',
+			label: 'Стоимость строительства иных объектов',
 			name: 'totalCostOfBuildingHotelOthers',
 			type: 'number',
 			min: 0,
@@ -1438,7 +1450,7 @@
 			calc: () => calcFields.infrastructureArea.calc()
 		},
 		{
-			label: 'Стоимость строительства объекта дополнительной инфраструктуры, тыс. руб.',
+			label: 'Стоимость строительства объекта дополнительной инфраструктуры',
 			name: 'cost',
 			type: 'number',
 			min: 0,
@@ -1631,10 +1643,24 @@
 		const id = project._id
 		const projectData = {}
 
+		const fieldsTypes = tabs.reduce((acc, row) => {
+			row.fields.forEach(field => {
+				acc[field.name] = field.type
+			})
+			return acc
+		}, {})
+
 		Object.keys(project)
 			.forEach(key => {
-				if (!['_id', 'scoring'].includes(key))
-					projectData[key] = project[key]
+				if (['_id', 'scoring'].includes(key))
+					return
+
+				let value = project[key]
+
+				if (fieldsTypes[key] === 'number')
+					value = getNumber(value)
+
+				projectData[key] = value
 			})
 
 		fetch('/api/update_project', {
@@ -1849,15 +1875,18 @@
 							{#if !field.buildingType || project.buildingType === field.buildingType}
 								<div class="max-w-lg p-2">
 									{#if field.disabled}
-										<div class="form-control w-full">
-											<label class="label" for="{field.name}">
-												<span class="label-text">{field.label}</span>
-											</label>
-											<input id="{field.name}" type="number" placeholder=""
-											       value={project[field.name]} disabled
-											       class="input input-bordered w-full"/>
-										</div>
-									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+										<Input {...field}
+										       disabled={true}
+										       type="text"
+										       transformer={getNumberStr}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'number'}
+										<Input {...field}
+										       type="text"
+										       transformer={getNumberStr}
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'date' || field.type === 'text'}
 										<Input {...field}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
 										       bind:value={project[field.name]}/>
@@ -1909,16 +1938,20 @@
 							{#each objectFields as field}
 								<div class="max-w-lg p-2">
 									{#if field.disabled}
-										<div class="form-control w-full">
-											<label class="label" for="object-{field.name}">
-												<span class="label-text">{field.label}</span>
-											</label>
-											<input id="object-{field.name}" type="number" placeholder=""
-											       value={project.objects[activeObject][field.name]}
-											       disabled
-											       class="input input-bordered w-full"/>
-										</div>
-									{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+										<Input {...field}
+										       disabled={true}
+										       name="object-{field.name}"
+										       type="text"
+										       transformer={getNumberStr}
+										       bind:value={project.objects[activeObject][field.name]}/>
+									{:else if field.type === 'number'}
+										<Input {...field}
+										       type="text"
+										       transformer={getNumberStr}
+										       name="object-{field.name}"
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project.objects[activeObject][field.name]}/>
+									{:else if field.type === 'date' || field.type === 'text'}
 										<Input {...field}
 										       name="object-{field.name}"
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
@@ -1945,17 +1978,20 @@
 								<div class="max-w-lg p-2">
 									{#if !field.condition || field.condition(project.infrastructureObjects[activeInfrastructureObject])}
 										{#if field.disabled}
-											<div class="form-control w-full">
-												<label class="label" for="object-{field.name}">
-													<span class="label-text">{field.label}</span>
-												</label>
-												<input id="infrastructure-{field.name}" type="number"
-												       placeholder=""
-												       value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
-												       disabled
-												       class="input input-bordered w-full"/>
-											</div>
-										{:else if field.type === 'number' || field.type === 'date' || field.type === 'text'}
+											<Input {...field}
+											       disabled={true}
+											       name="infrastructure-{field.name}"
+											       type="text"
+											       transformer={getNumberStr}
+											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+										{:else if field.type === 'number'}
+											<Input {...field}
+											       type="text"
+											       transformer={getNumberStr}
+											       name="object-{field.name}"
+											       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+										{:else if field.type === 'date' || field.type === 'text'}
 											<Input {...field}
 											       name="infrastructure-{field.name}"
 											       on:change={() => (highlightSave = true) && field.calc && field.calc()}

@@ -1,8 +1,10 @@
 <script>
 	import { DIRs } from '$lib/stores'
 	import Select from '$lib/components/select.svelte'
+	import Input from '$lib/components/input.svelte'
 	import { browser } from '$app/environment'
 	import { goto } from '$app/navigation'
+	import { getNumberStr, getNumber } from '../numbersTransformer.js'
 
 	export let name
 	export let structure
@@ -92,11 +94,17 @@
 	function save() {
 		const values = currentDir.values.reduce((acc, row) => {
 			const value = {}
-			for (const field of structure)
+			for (const field of structure) {
 				value[field.name] = row[field.name]
+
+				if (field.type === 'value' && field.fields.length === 1)
+					value[field.name].value = getNumber(value[field.name].value)
+			}
 			acc.push(value)
 			return acc
 		}, [])
+
+		console.log(currentDir, values)
 
 		fetch('/api/update_dir', {
 			method: 'POST',
@@ -263,12 +271,11 @@
 							{#if row.fields.length === 1}
 								{#each row.fields as field}
 									<td>
-										<div class="form-control w-full" style="min-width: 100px">
-											<input type="number" placeholder="{field.placeholder}"
-											       on:change={() => highlightSave = true}
-											       bind:value={value.value[field.name]}
-											       class="input input-bordered"/>
-										</div>
+										<Input {...field}
+										       type="text"
+										       transformer={getNumberStr}
+										       on:change={() => highlightSave = true}
+										       bind:value={value.value[field.name]}/>
 									</td>
 								{/each}
 							{:else}

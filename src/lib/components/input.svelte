@@ -10,27 +10,49 @@
 	export let max
 	export let placeholder = ''
 	export let type = 'text'
+	export let transformer
+	export let disabled = false
 
-	$: value = value === undefined ? '' : value
+	$: {
+		value = value === undefined ? '' : value
+		if (typeof transformer === 'function')
+			transform(value)
+	}
+
+	$: disabled = disabled ? 'disabled' : ''
+
+	function transform(n) {
+		const updatedValue = transformer(n)
+		if (value === updatedValue)
+			value = '&nbsp;'
+		value = updatedValue
+	}
 
 	const handleInput = (e) => {
 		// in here, you can switch on type and implement
 		// whatever behaviour you need
-		value = type.match(/^(number|range)$/)
-			? +e.target.value
-			: e.target.value
+		if (typeof transformer === 'function')
+			transform(e.target.value)
+		else
+			value = type.match(/^(number|range)$/)
+				? +e.target.value
+				: e.target.value
+
+		console.log('handleInput', value)
 	}
 
 	const dispatch = createEventDispatcher()
 </script>
 
 <div class="form-control w-full">
-	<label class="label" for="input-{name}">
-		<span class="label-text">{@html label}</span>
-		{#if tip}
-			<Tooltip content={tip}/>
-		{/if}
-	</label>
+	{#if label}
+		<label class="label" for="input-{name}">
+			<span class="label-text">{@html label}</span>
+			{#if tip}
+				<Tooltip content={tip}/>
+			{/if}
+		</label>
+	{/if}
 	<input
 			on:input={handleInput}
 			on:change={() => dispatch('change')}
@@ -42,5 +64,6 @@
 			{type}
 			class="input input-bordered w-full"
 			id="input-{name}"
+			{disabled}
 	/>
 </div>

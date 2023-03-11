@@ -892,7 +892,7 @@ const indicators = [
 		condition: function (project) {
 			return project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		},
-		label: 'Стоимость 1 м² объекта, тыс. руб.',
+		label: 'Стоимость 1 м² объекта',
 		name: 'costPerSqMeter',
 		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
@@ -1480,7 +1480,7 @@ const indicators = [
 			return project.needOfSoftLoan
 				&& project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		},
-		label: 'Соответствие установленному размеру льготного кредита, тыс. руб.',
+		label: 'Соответствие установленному размеру льготного кредита',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
@@ -1587,7 +1587,7 @@ const indicators = [
 				&& project.buildingType === this.buildingType
 				&& project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		},
-		label: 'Размер льготного кредита на номер, тыс. руб.',
+		label: 'Размер льготного кредита на номер',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
 		stopFactor: {
@@ -1617,7 +1617,7 @@ const indicators = [
 				&& project.buildingType === this.buildingType
 				&& project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		},
-		label: 'Размер льготного кредита на номер, тыс. руб.',
+		label: 'Размер льготного кредита на номер',
 		name: 'bankLoanAmount',
 		sectionTitle: 'Льготное кредитование',
 		stopFactor: {

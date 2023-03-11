@@ -13,11 +13,11 @@
 		{
 			type: 'value',
 			name: 'value',
-			title: 'Стоимость 1 м², тыс. руб.',
+			title: 'Стоимость 1 м²',
 			fields: [
 				{
 					name: 'value',
-					placeholder: 'тыс. руб.',
+					placeholder: 'руб.',
 				}
 			]
 		}
