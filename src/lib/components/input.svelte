@@ -15,6 +15,7 @@
 
 	$: {
 		value = value === undefined ? '' : value
+		// console.log('$')
 		if (typeof transformer === 'function')
 			transform(value)
 	}
@@ -22,7 +23,8 @@
 	$: disabled = disabled ? 'disabled' : ''
 
 	function transform(n) {
-		const updatedValue = transformer(n)
+		const updatedValue = transformer(n, value)
+		// console.log('transform', updatedValue)
 		if (value === updatedValue)
 			value = '&nbsp;'
 		value = updatedValue
@@ -38,7 +40,7 @@
 				? +e.target.value
 				: e.target.value
 
-		console.log('handleInput', value)
+		// console.log('handleInput', value)
 	}
 
 	const dispatch = createEventDispatcher()

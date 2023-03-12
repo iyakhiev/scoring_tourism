@@ -9,7 +9,7 @@
 	import { page } from '$app/stores'
 	import { DIRs } from '$lib/stores'
 	import { ROLES_ENUM, PROJECT_STATUS_ENUM } from '$lib/enums'
-	import { getNumberStr, getNumber } from '$lib/numbersTransformer'
+	import { ogrnMask, innMask, phoneMask, getNumberStr, getNumber } from '$lib/numbersTransformer'
 
 	export let data
 
@@ -46,7 +46,7 @@
 				{
 					label: 'Номер телефона',
 					name: 'applicantPhone',
-					type: 'number'
+					type: 'phone'
 				},
 				{
 					label: 'Наименование юридического лица',
@@ -56,12 +56,12 @@
 				{
 					label: 'ОГРН',
 					name: 'applicantOGRN',
-					type: 'number'
+					type: 'ogrn'
 				},
 				{
 					label: 'ИНН',
 					name: 'applicantINN',
-					type: 'number'
+					type: 'inn'
 				},
 				{
 					label: 'Вид заявителя',
@@ -1879,6 +1879,24 @@
 										       disabled={true}
 										       type="text"
 										       transformer={getNumberStr}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'phone'}
+										<Input {...field}
+										       type="text"
+										       transformer={phoneMask}
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'inn'}
+										<Input {...field}
+										       type="text"
+										       transformer={innMask}
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										       bind:value={project[field.name]}/>
+									{:else if field.type === 'ogrn'}
+										<Input {...field}
+										       type="text"
+										       transformer={ogrnMask}
+										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
 										       bind:value={project[field.name]}/>
 									{:else if field.type === 'number'}
 										<Input {...field}

@@ -4,7 +4,7 @@
 	import Input from '$lib/components/input.svelte'
 	import { browser } from '$app/environment'
 	import { goto } from '$app/navigation'
-	import { getNumberStr, getNumber } from '../numbersTransformer.js'
+	import { getNumberStr, getNumber } from '$lib/numbersTransformer'
 
 	export let name
 	export let structure
@@ -103,8 +103,6 @@
 			acc.push(value)
 			return acc
 		}, [])
-
-		console.log(currentDir, values)
 
 		fetch('/api/update_dir', {
 			method: 'POST',
