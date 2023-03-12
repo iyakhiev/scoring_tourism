@@ -590,6 +590,7 @@
 					name: 'occ',
 					type: 'number',
 					min: 0,
+					bottomLabel: `${(0.65 * 0.83).toFixed(2)} - ${(0.65 * 1.17).toFixed(2)}`,
 					calc: () => {
 						calcFields.touristFlow.calc()
 						calcFields.roomRevenue.calc()
@@ -1513,6 +1514,23 @@
 
 		console.log('role', role, 'status', project.status)
 
+		browser && setReferenceValues()
+			.then(() => {
+				if (!project.objects || !project.objects.length)
+					addObject()
+				if (!project.infrastructureObjects)
+					project.infrastructureObjects = []
+
+				project.regionTitle = getTitleFromDirByValue('region', 'title', project.region)
+				project.buildingTypeTitle = getTitleFromDirByValue('buildingType', 'title', project.buildingType)
+				project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
+
+				Object.values(calcFields).forEach(field => field.calc())
+				setVisibleTabs()
+			})
+	}
+
+	function setVisibleTabs() {
 		if (role === ROLES_ENUM.INVESTOR) {
 			if (project.status === PROJECT_STATUS_ENUM.CREATED.name
 				|| project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name)
@@ -1525,18 +1543,6 @@
 		} else if (role === ROLES_ENUM.MANAGER) {
 			visibleTabs = tabs
 		}
-
-		if (!project.objects || !project.objects.length)
-			addObject()
-		if (!project.infrastructureObjects)
-			project.infrastructureObjects = []
-
-		project.regionTitle = getTitleFromDirByValue('region', 'title', project.region)
-		project.buildingTypeTitle = getTitleFromDirByValue('buildingType', 'title', project.buildingType)
-		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
-
-		if (browser)
-			Object.values(calcFields).forEach(field => field.calc())
 	}
 
 	function addObject() {
@@ -1684,6 +1690,95 @@
 			})
 	}
 
+	async function setReferenceValues() {
+		const fieldsToUpdate = [
+			{
+				tab: 'economicIndicators',
+				field: 'doubleOcc',
+				get: getDoubleOCCDirValue
+			},
+			{
+				tab: 'economicIndicators',
+				field: 'marginEBITDA',
+				get: getMarginEBITDADirValue
+			},
+		]
+
+		for (const f of fieldsToUpdate)
+			for (const tab of tabs)
+				if (tab.name === f.tab) {
+					for (const field of tab.fields) {
+						if (field.name === f.field) {
+							field.bottomLabel = await f.get()
+						}
+					}
+				}
+	}
+
+	async function getDoubleOCCDirValue() {
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'doubleOcc',
+				conditions: [
+					{
+						field: 'buildingCategory',
+						value: project.buildingCategory
+					}
+				]
+			})
+		})
+		const json = await res.json()
+
+		console.log('getDoubleOCCDirValue', json)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			const value = json.res[0].values[0].value
+			return `${value.from} - ${value.to}`
+		}
+
+		return ''
+	}
+
+	async function getMarginEBITDADirValue() {
+		const conditions = [
+			{
+				field: 'region',
+				value: project.region
+			},
+			{
+				field: 'buildingType',
+				value: project.buildingType
+			}
+		]
+
+		if (project.type === 'hotel' && project.objects.length)
+			conditions.push({
+				field: 'hotelRating',
+				value: project.objects[0].hotelRating
+			})
+
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'marginEBITDA',
+				conditions
+			})
+		})
+		const json = await res.json()
+
+		console.log('getMarginEBITDADirValue', json)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			const value = json.res[0].values[0].value
+			return `${value.from} - ${value.to}`
+		}
+
+		return ''
+	}
+
 	function declOfNum(number, titles) {
 		const cases = [2, 0, 1, 1, 1, 2]
 		return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]]
@@ -1775,7 +1870,7 @@
 		const hash = location.hash
 		if (hash) {
 			location.hash = ''
-			setTimeout(() => location.hash = hash)
+			setTimeout(() => location.hash = hash, 500)
 		}
 	}
 </script>

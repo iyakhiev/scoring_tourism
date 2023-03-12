@@ -5,6 +5,7 @@
 	export let name
 	export let value
 	export let label
+	export let bottomLabel
 	export let tip
 	export let min
 	export let max
@@ -68,4 +69,9 @@
 			id="input-{name}"
 			{disabled}
 	/>
+	{#if bottomLabel}
+		<label class="label">
+			<span class="label-text-alt">Референсные значения: {@html bottomLabel}</span>
+		</label>
+	{/if}
 </div>
