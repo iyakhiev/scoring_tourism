@@ -216,7 +216,7 @@
 			name: 'balanceSheetData',
 			fields: [
 				{
-					label: 'Краткосрочные финансовые вложения',
+					label: 'Краткосрочные финансовые вложения, руб.',
 					tip: 'Строка 1240 бухгалтерского баланса',
 					name: 'kfv',
 					type: 'number',
@@ -227,7 +227,7 @@
 					}
 				},
 				{
-					label: 'Денежные средства и их эквиваленты',
+					label: 'Денежные средства и их эквиваленты, руб.',
 					tip: 'Строка 1250 бухгалтерского баланса',
 					name: 'ds',
 					type: 'number',
@@ -238,7 +238,7 @@
 					}
 				},
 				{
-					label: 'Краткосрочные обязательства',
+					label: 'Краткосрочные обязательства, руб.',
 					tip: 'Итого по разделу V, строка 1500 бухгалтерского баланса',
 					name: 'ko',
 					type: 'number',
@@ -259,7 +259,7 @@
 					disabled: true
 				},
 				{
-					label: 'Краткосрочная дебиторская задолженность',
+					label: 'Краткосрочная дебиторская задолженность, руб.',
 					tip: 'Строка 1520 бухгалтерского баланса',
 					name: 'kdz',
 					type: 'number',
@@ -273,8 +273,8 @@
 					disabled: true
 				},
 				{
-					label: 'Оборотные активы',
-					tip: 'Строка 1200 бухгалтерского баланса',
+					label: 'Оборотные активы, руб.',
+					tip: 'Строка 1200 бухгалтерского баланса, руб.',
 					name: 'oa',
 					type: 'number',
 					min: 0,
@@ -287,7 +287,7 @@
 					disabled: true
 				},
 				{
-					label: 'Собственный капитал',
+					label: 'Собственный капитал, руб.',
 					tip: 'Строка 1300 бухгалтерского баланса',
 					name: 'sk',
 					type: 'number',
@@ -295,7 +295,7 @@
 					calc: () => calcFields.debtToEquityRatio.calc()
 				},
 				{
-					label: 'Долгосрочные обязательства',
+					label: 'Долгосрочные обязательства, руб.',
 					tip: 'Строка 1400 бухгалтерского баланса',
 					name: 'do',
 					type: 'number',
@@ -307,7 +307,7 @@
 					}
 				},
 				{
-					label: 'Сумма долгосрочных и краткосрочных обязательств',
+					label: 'Сумма долгосрочных и краткосрочных обязательств, руб.',
 					tip: 'Строки 1410, 1435, 1510, 1520 и 1545 бухгалтерского баланса',
 					name: 'doAndKoSum',
 					type: 'number',
@@ -320,7 +320,7 @@
 					disabled: true
 				},
 				{
-					label: 'Капитал и резервы',
+					label: 'Капитал и резервы, руб.',
 					tip: 'Строка 1300 (итого по разделу III) бухгалтерского баланса',
 					name: 'kr',
 					type: 'number',
@@ -455,7 +455,7 @@
 					type: 'date',
 				},
 				{
-					label: 'Расходы pre-opening',
+					label: 'Расходы pre-opening, руб.',
 					name: 'preOpeningCost',
 					type: 'number',
 					min: 0
@@ -468,25 +468,25 @@
 			name: 'transportAccessibility',
 			fields: [
 				{
-					label: 'Растояние от границы земельного участка до аэропорта',
+					label: 'Расстояние от границы земельного участка до аэропорта, км',
 					name: 'distanceToAirport',
 					type: 'number',
 					min: 0
 				},
 				{
-					label: 'Растояние от границы земельного участка до автомобильной дороги регионального / федерального значения',
+					label: 'Расстояние от границы земельного участка до автомобильной дороги регионального / федерального значения, км',
 					name: 'distanceToHighway',
 					type: 'number',
 					min: 0
 				},
 				{
-					label: 'Растояние от границы земельного участка до ж/д вокзала (станции)',
+					label: 'Расстояние от границы земельного участка до ж/д вокзала (станции), км',
 					name: 'distanceToRailwayStation',
 					type: 'number',
 					min: 0
 				},
 				{
-					label: 'Расстояние до морского / речного порта',
+					label: 'Расстояние до морского / речного порта, км',
 					name: 'distanceToSeaPort',
 					type: 'number',
 					min: 0
@@ -536,31 +536,31 @@
 					disabled: true
 				},
 				{
-					label: 'Стоимость 1 м² объекта',
+					label: 'Стоимость 1 м² объекта, руб.',
 					name: 'costPerSqMeter',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость 1 номера',
+					label: 'Стоимость 1 номера, руб.',
 					name: 'costPerRoom',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
+					label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), руб',
 					name: 'totalCost',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость строительства гостиниц(ы)',
+					label: 'Стоимость строительства гостиниц(ы), руб.',
 					name: 'totalCostOfHotel',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты)',
+					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), руб.',
 					name: 'totalCostOfBuildingInfrastructure',
 					type: 'number',
 					disabled: true
@@ -621,32 +621,32 @@
 				},
 				{
 					buildingType: 'complex',
-					label: 'Общее количество внешних гостей',
+					label: 'Общее количество внешних гостей, чел.',
 					name: 'totalExternalGuests',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.touristFlow.calc()
 				},
 				{
-					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы)',
+					label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), руб.',
 					name: 'revenuePerSqMeter',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Общая выручка в год после выхода на проектную нагрузку',
+					label: 'Общая выручка в год после выхода на проектную нагрузку, руб.',
 					name: 'totalRevenues',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку',
+					label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку, руб.',
 					name: 'roomRevenue',
 					type: 'number',
 					disabled: true,
 				},
 				{
-					label: 'Выручка ресторанов в год после выхода на проектную нагрузку',
+					label: 'Выручка ресторанов в год после выхода на проектную нагрузку, руб.',
 					name: 'restaurantsRevenue',
 					type: 'number',
 					min: 0,
@@ -655,7 +655,7 @@
 					}
 				},
 				{
-					label: 'Выручка СПА и фитнес-центров в год после выхода на проектную нагрузку',
+					label: 'Выручка СПА и фитнес-центров в год после выхода на проектную нагрузку, руб.',
 					name: 'spaAndGymRevenue',
 					type: 'number',
 					min: 0,
@@ -664,7 +664,7 @@
 					}
 				},
 				{
-					label: 'Выручка аквапарка в год после выхода на проектную нагрузку',
+					label: 'Выручка аквапарка в год после выхода на проектную нагрузку, руб.',
 					name: 'aquaparkRevenue',
 					type: 'number',
 					min: 0,
@@ -673,14 +673,14 @@
 					}
 				},
 				{
-					label: 'Выручка инфраструктуры ГЛК в год после выхода на проектную нагрузку',
+					label: 'Выручка инфраструктуры ГЛК в год после выхода на проектную нагрузку, руб.',
 					name: 'glkRevenue',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
 				{
-					label: 'Выручка парка развлечений, аттракционов в год после выхода на проектную нагрузку',
+					label: 'Выручка парка развлечений, аттракционов в год после выхода на проектную нагрузку, руб.',
 					name: 'amusementsRevenue',
 					type: 'number',
 					min: 0,
@@ -689,20 +689,20 @@
 					}
 				},
 				{
-					label: 'Выручка прочее в год после выхода на проектную нагрузку',
+					label: 'Выручка прочее в год после выхода на проектную нагрузку, руб.',
 					name: 'otherRevenue',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.totalRevenues.calc()
 				},
 				{
-					label: 'RevPAR — средняя выручка за номер в год',
+					label: 'RevPAR — средняя выручка за номер в год, руб.',
 					name: 'revPAR',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг',
+					label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, руб.',
 					name: 'revPAC',
 					type: 'number',
 					disabled: true
@@ -721,7 +721,7 @@
 					disabled: true
 				},
 				{
-					label: 'Участие в проекте гостиничного оператора (вознаграждение за управление проектируемым объектом)',
+					label: 'Участие в проекте гостиничного оператора (вознаграждение за управление проектируемым объектом), %',
 					name: 'remunerationForManagement',
 					type: 'number',
 					min: 0,
@@ -734,19 +734,19 @@
 			name: 'financing',
 			fields: [
 				{
-					label: 'Общий объем финансирования (Total Founds)',
+					label: 'Общий объем финансирования (Total Founds), руб.',
 					name: 'totalFunds',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Собственные средства',
+					label: 'Собственные средства, руб.',
 					name: 'ownFunds',
 					type: 'number',
 					disabled: true
 				},
 				{
-					label: 'Взнос Инвестора в уставный капитал СПК в денежной форме',
+					label: 'Взнос Инвестора в уставный капитал СПК в денежной форме, руб.',
 					name: 'investorContributionCash',
 					type: 'number',
 					min: 0,
@@ -756,7 +756,7 @@
 					}
 				},
 				{
-					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме)',
+					label: 'Имущественный взнос Инвестора в уставный капитал СПК (не в денежной форме), руб.',
 					name: 'investorContributionNotCash',
 					type: 'number',
 					min: 0,
@@ -766,21 +766,21 @@
 					}
 				},
 				{
-					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме)',
+					label: 'Имущественный взнос Инвестора без увеличения уставного капитала СПК (в денежной форме), руб.',
 					name: 'investorContributionCashNotInCapital',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.ownFunds.calc()
 				},
 				{
-					label: 'Инвестор (заем)',
+					label: 'Инвестор (заем), руб.',
 					name: 'investorLoan',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.ownFunds.calc()
 				},
 				{
-					label: 'Корпорация Туризм.РФ  (взнос в уставный капитал СПК)',
+					label: 'Корпорация Туризм.РФ (взнос в уставный капитал СПК), руб.',
 					name: 'corporationContributionCash',
 					type: 'number',
 					min: 0,
@@ -790,7 +790,7 @@
 					}
 				},
 				{
-					label: 'Корпорация Туризм.РФ  (заем)',
+					label: 'Корпорация Туризм.РФ (заем), руб.',
 					name: 'corporationLoan',
 					type: 'number',
 					min: 0,
@@ -800,14 +800,14 @@
 					}
 				},
 				{
-					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо)',
+					label: 'Выручка от реализации земельных участков, объектов, помещений, паев и пр. (если применимо), руб.',
 					name: 'landSaleRevenue',
 					type: 'number',
 					min: 0,
 					calc: () => calcFields.ownFunds.calc()
 				},
 				{
-					label: 'Кредит банка (DEBT)',
+					label: 'Кредит банка (DEBT), руб.',
 					name: 'bankLoanAmount',
 					type: 'number',
 					min: 0,
@@ -877,7 +877,7 @@
 					disabled: true
 				},
 				{
-					label: 'Выплаты тела кредита в год (D)',
+					label: 'Выплаты тела кредита в год (D), руб.',
 					name: 'loanBodyPayments',
 					type: 'number',
 					disabled: true
@@ -952,7 +952,7 @@
 			}
 		},
 		doAndKoSum: {
-			label: 'Сумма долгосрочных и краткосрочных обязательств',
+			label: 'Сумма долгосрочных и краткосрочных обязательств, руб.',
 			name: 'doAndKoSum',
 			calc: function () {
 				const value = getNumber(project.do) + getNumber(project.ko)
@@ -1006,7 +1006,7 @@
 			}
 		},
 		totalCost: {
-			label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), тыс. руб',
+			label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), руб',
 			name: 'totalCost',
 			calc: function () {
 				const value = getNumber(project.totalCostOfHotel)
@@ -1017,7 +1017,7 @@
 			}
 		},
 		totalCostOfHotel: {
-			label: 'Стоимость строительства объектов',
+			label: 'Стоимость строительства объектов, руб.',
 			name: 'totalCostOfHotel',
 			calc: function () {
 				const value = project.objects && project.objects.reduce((acc, object) => {
@@ -1038,7 +1038,7 @@
 			}
 		},
 		totalCostOfBuildingInfrastructure: {
-			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты)',
+			label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), руб.',
 			name: 'totalCostOfBuildingInfrastructure',
 			calc: function () {
 				const value = project.infrastructureObjects && project.infrastructureObjects.reduce((acc, object) => {
@@ -1067,7 +1067,7 @@
 			}
 		},
 		costPerSqMeter: {
-			label: 'Стоимость 1 м² объекта',
+			label: 'Стоимость 1 м² объекта, руб.',
 			name: 'costPerSqMeter',
 			calc: function () {
 				if (!project.totalCost || !project.totalArea)
@@ -1078,7 +1078,7 @@
 			}
 		},
 		costPerRoom: {
-			label: 'Стоимость 1 номера',
+			label: 'Стоимость 1 номера, руб.',
 			name: 'costPerRoom',
 			calc: function () {
 				if (!project.totalCostOfHotel || !project.totalNumberOfRooms)
@@ -1126,7 +1126,7 @@
 			}
 		},
 		totalRevenues: {
-			label: 'Общая выручка в год после выхода на проектную нагрузку',
+			label: 'Общая выручка в год после выхода на проектную нагрузку, руб.',
 			name: 'totalRevenues',
 			calc: function () {
 				const value = getNumber(project.roomRevenue)
@@ -1143,7 +1143,7 @@
 			}
 		},
 		roomRevenue: {
-			label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку',
+			label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку, руб.',
 			name: 'roomRevenue',
 			calc: function () {
 				if (!project.adr || !project.totalNumberOfRooms || !project.occ)
@@ -1159,7 +1159,7 @@
 			}
 		},
 		revenuePerSqMeter: {
-			label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы)',
+			label: 'Выручка на 1 м² (с НДС , после выхода на плановую загрузку (ориентировочно 3 год экспуатационной фазы), руб.',
 			name: 'revenuePerSqMeter',
 			calc: function () {
 				if (!project.totalRevenues || !project.totalArea)
@@ -1170,7 +1170,7 @@
 			}
 		},
 		revPAR: {
-			label: 'RevPAR — средняя выручка за номер в год',
+			label: 'RevPAR — средняя выручка за номер в год, руб.',
 			name: 'revPAR',
 			calc: function () {
 				if (!project.roomRevenue || !project.totalNumberOfRooms)
@@ -1181,7 +1181,7 @@
 			}
 		},
 		revPAC: {
-			label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг',
+			label: 'RevPAC — доход на гостя. Включает доход от продажи  номерного фонда и других услуг, руб.',
 			name: 'revPAC',
 			calc: function () {
 				if (!project.totalRevenues || !project.touristFlow)
@@ -1203,7 +1203,7 @@
 			}
 		},
 		totalFunds: {
-			label: 'Общий объем финансирования (Total Founds)',
+			label: 'Общий объем финансирования (Total Founds), руб.',
 			name: 'totalFunds',
 			calc: function () {
 				const value = getNumber(project.ownFunds) + getNumber(project.bankLoanAmount)
@@ -1212,7 +1212,7 @@
 			}
 		},
 		ownFunds: {
-			label: 'Собственные средства',
+			label: 'Собственные средства, руб.',
 			name: 'ownFunds',
 			calc: function () {
 				const value = getNumber(project.investorContributionCash)
@@ -1274,7 +1274,7 @@
 			}
 		},
 		interestPayments: {
-			label: 'Процентные платежи в год (I)',
+			label: 'Процентные платежи в год (I), руб.',
 			name: 'interestPayments',
 			calc: function () {
 				if (!project.bankLoanAmount || !project.plannedLoanRate || !project.loanTerm) {
@@ -1291,7 +1291,7 @@
 			}
 		},
 		loanBodyPayments: {
-			label: 'Выплаты тела кредита в год (D)',
+			label: 'Выплаты тела кредита в год (D), руб.',
 			name: 'loanBodyPayments',
 			calc: function () {
 				if (!project.bankLoanAmount || !project.loanTerm) {
@@ -1382,48 +1382,48 @@
 			calc: () => calcFields.hotelArea.calc()
 		},
 		{
-			label: 'Стоимость строительства гостиницы',
+			label: 'Стоимость строительства гостиницы, руб.',
 			name: 'totalCostOfHotel',
 			type: 'number',
 			disabled: true
 		},
 		{
-			label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования',
+			label: 'Стоимость строительства номерного фонда, включая апартаменты и места общего пользования, руб.',
 			name: 'totalCostOfBuildingRooms',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства ресторанов',
+			label: 'Стоимость строительства ресторанов, руб.',
 			name: 'totalCostOfBuildingRestaurants',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства конференц-залов',
+			label: 'Стоимость строительства конференц-залов, руб.',
 			name: 'totalCostOfBuildingConfRooms',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства СПА и фитнес центров',
+			label: 'Стоимость строительства СПА и фитнес центров, руб.',
 			name: 'totalCostOfBuildingSpaAndGym',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства бассейнов',
+			label: 'Стоимость строительства бассейнов, руб.',
 			name: 'totalCostOfBuildingPools',
 			type: 'number',
 			min: 0,
 			calc: () => calcFields.totalCostOfHotel.calc()
 		},
 		{
-			label: 'Стоимость строительства иных объектов',
+			label: 'Стоимость строительства иных объектов, руб.',
 			name: 'totalCostOfBuildingHotelOthers',
 			type: 'number',
 			min: 0,
@@ -1451,7 +1451,7 @@
 			calc: () => calcFields.infrastructureArea.calc()
 		},
 		{
-			label: 'Стоимость строительства объекта дополнительной инфраструктуры',
+			label: 'Стоимость строительства объекта дополнительной инфраструктуры, руб.',
 			name: 'cost',
 			type: 'number',
 			min: 0,
