@@ -1,5 +1,6 @@
 import { dirs } from '$lib/db/dirs'
 import { ROLES_ENUM, PROJECT_STATUS_ENUM } from '$lib/enums'
+import { getMonthDiff } from '$lib/dateFuncs'
 
 export const POST = async function ({ request }) {
 	const { project, role } = await request.json()
@@ -45,10 +46,11 @@ function checkFields(project, estimatingFields,
 	return errors
 }
 
-function getDirValue(dirs, dirName, fields) {
+function getDirValue(dirs, dirName, fields, multiple = false) {
 	const res = {
 		error: null,
-		dirValue: null
+		dirValue: null,
+		dirValues: []
 	}
 
 	const dir = dirs[dirName]
@@ -68,9 +70,15 @@ function getDirValue(dirs, dirName, fields) {
 
 		if (dirFound && dirValue.value) {
 			res.dirValue = dirValue.value
-			return res
+			if (multiple)
+				res.dirValues.push(dirValue)
+			else
+				return res
 		}
 	}
+
+	if (multiple && res.dirValues.length)
+		return res
 
 	const fieldsStr = fields
 		.map(row => row.title || row.value)
@@ -701,7 +709,7 @@ const indicators = [
 		condition: function (project) {
 			return project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		},
-		label: 'Дата начала подготовки ПСД',
+		label: 'Дата начала подготовки ПИР',
 		name: 'startDateOfPSDPreparation',
 		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
@@ -719,11 +727,7 @@ const indicators = [
 					const startDateOfPSDPreparation = new Date(project[this.name])
 					const applicationSubmissionDate = new Date(project.applicationSubmissionDate)
 
-					let months = (startDateOfPSDPreparation.getFullYear()
-						- applicationSubmissionDate.getFullYear()) * 12
-					months -= applicationSubmissionDate.getMonth()
-					months += startDateOfPSDPreparation.getMonth()
-					months += startDateOfPSDPreparation.getDate() > applicationSubmissionDate.getDate() ? 1 : 0
+					let months = getMonthDiff(applicationSubmissionDate, startDateOfPSDPreparation)
 
 					const condition = months > 12
 					if (condition)
@@ -740,7 +744,7 @@ const indicators = [
 		condition: function (project) {
 			return project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
 		},
-		label: 'Дата окончания подготовки ПСД',
+		label: 'Дата окончания подготовки ПИР',
 		name: 'endDateOfPSDPreparation',
 		sectionTitle: 'ТЭП, CAPEX',
 		stopFactor: {
@@ -762,6 +766,67 @@ const indicators = [
 					if (condition)
 						res.stopFactor = this.stopFactor
 				} catch (e) {
+					res.errors = ['Неверный формат даты']
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
+		},
+		label: 'Длительность выполнения ПИР',
+		name: 'pirDuration',
+		sectionTitle: 'ТЭП, CAPEX',
+		stopFactor: {
+			type: 'additional',
+			title: 'Превышен предельный срок выполенния ПИР'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: 0 }
+
+			const errors = checkFields(project,
+				['startDateOfPSDPreparation', 'endDateOfPSDPreparation', 'totalArea'])
+			if (errors.length)
+				res.errors = errors
+			else {
+				try {
+					const startDateOfPSDPreparation = new Date(project.startDateOfPSDPreparation)
+					const endDateOfPSDPreparation = new Date(project.endDateOfPSDPreparation)
+					res.value = getMonthDiff(startDateOfPSDPreparation, endDateOfPSDPreparation)
+
+					const fields = [
+						{
+							name: 'buildingType',
+							value: project.buildingType,
+							title: project.buildingTypeTitle,
+						},
+					]
+					const { error, dirValues } = getDirValue(dirs, 'pirDates', fields, true)
+					if (error)
+						res.errors = [error]
+					else {
+						let dirValue = null
+						for (const value of dirValues) {
+							if (value.objectCategory.from && project.totalArea < value.objectCategory.from)
+								continue
+							if (value.objectCategory.to && project.totalArea > value.objectCategory.to)
+								continue
+
+							dirValue = value.value.value
+						}
+
+						if (dirValue) {
+							const condition = res.value > dirValue
+							if (condition)
+								res.stopFactor = this.stopFactor
+						} else
+							res.errors = [`В справочнике "${dirs['pirDates'].title}" не указано значение по параметрам: ${project.buildingTypeTitle}, площадь ${project.totalArea} м²`]
+					}
+				} catch (e) {
+					console.error(e)
 					res.errors = ['Неверный формат даты']
 				}
 			}
@@ -827,6 +892,67 @@ const indicators = [
 					if (condition)
 						res.stopFactor = this.stopFactor
 				} catch (e) {
+					res.errors = ['Неверный формат даты']
+				}
+			}
+
+			return res
+		}
+	},
+	{
+		condition: function (project) {
+			return project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
+		},
+		label: 'Длительность выполнения СМР',
+		name: 'smrDuration',
+		sectionTitle: 'ТЭП, CAPEX',
+		stopFactor: {
+			type: 'additional',
+			title: 'Превышен предельный срок выполенния СМР'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: 0 }
+
+			const errors = checkFields(project,
+				['startDateOfSMR', 'endDateOfPSDPreparation', 'totalArea'])
+			if (errors.length)
+				res.errors = errors
+			else {
+				try {
+					const startDateOfSMR = new Date(project.startDateOfSMR)
+					const endDateOfSMR = new Date(project.endDateOfSMR)
+					res.value = getMonthDiff(startDateOfSMR, endDateOfSMR)
+
+					const fields = [
+						{
+							name: 'buildingType',
+							value: project.buildingType,
+							title: project.buildingTypeTitle,
+						},
+					]
+					const { error, dirValues } = getDirValue(dirs, 'smrDates', fields, true)
+					if (error)
+						res.errors = [error]
+					else {
+						let dirValue = null
+						for (const value of dirValues) {
+							if (value.objectCategory.from && project.totalArea < value.objectCategory.from)
+								continue
+							if (value.objectCategory.to && project.totalArea > value.objectCategory.to)
+								continue
+
+							dirValue = value.value.value
+						}
+
+						if (dirValue) {
+							const condition = res.value > dirValue
+							if (condition)
+								res.stopFactor = this.stopFactor
+						} else
+							res.errors = [`В справочнике "${dirs['smrDates'].title}" не указано значение по параметрам: ${project.buildingTypeTitle}, площадь ${project.totalArea} м²`]
+					}
+				} catch (e) {
+					console.error(e)
 					res.errors = ['Неверный формат даты']
 				}
 			}

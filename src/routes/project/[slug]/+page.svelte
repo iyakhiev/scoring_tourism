@@ -430,12 +430,12 @@
 					type: 'date',
 				},
 				{
-					label: 'Дата начала подготовки ПСД',
+					label: 'Дата начала подготовки ПИР',
 					name: 'startDateOfPSDPreparation',
 					type: 'date',
 				},
 				{
-					label: 'Дата окончания подготовки ПСД',
+					label: 'Дата окончания подготовки ПИР',
 					name: 'endDateOfPSDPreparation',
 					type: 'date',
 				},
@@ -590,7 +590,7 @@
 					name: 'occ',
 					type: 'number',
 					min: 0,
-					bottomLabel: `${(0.65 * 0.83).toFixed(2)} - ${(0.65 * 1.17).toFixed(2)}`,
+					bottomLabel: `Референсные значения: ${(0.65 * 0.83).toFixed(2)} - ${(0.65 * 1.17).toFixed(2)}`,
 					calc: () => {
 						calcFields.touristFlow.calc()
 						calcFields.roomRevenue.calc()
@@ -1514,20 +1514,22 @@
 
 		console.log('role', role, 'status', project.status)
 
+		if (!browser)
+			return
+
+		if (!project.objects || !project.objects.length)
+			addObject()
+		if (!project.infrastructureObjects)
+			project.infrastructureObjects = []
+
+		project.regionTitle = getTitleFromDirByValue('region', 'title', project.region)
+		project.buildingTypeTitle = getTitleFromDirByValue('buildingType', 'title', project.buildingType)
+		project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
+
+		Object.values(calcFields).forEach(field => field.calc())
+
 		browser && setReferenceValues()
-			.then(() => {
-				if (!project.objects || !project.objects.length)
-					addObject()
-				if (!project.infrastructureObjects)
-					project.infrastructureObjects = []
-
-				project.regionTitle = getTitleFromDirByValue('region', 'title', project.region)
-				project.buildingTypeTitle = getTitleFromDirByValue('buildingType', 'title', project.buildingType)
-				project.buildingCategoryTitle = getTitleFromDirByValue('buildingCategory', 'title', project.buildingCategory)
-
-				Object.values(calcFields).forEach(field => field.calc())
-				setVisibleTabs()
-			})
+			.then(() => setVisibleTabs())
 	}
 
 	function setVisibleTabs() {
@@ -1702,6 +1704,16 @@
 				field: 'marginEBITDA',
 				get: getMarginEBITDADirValue
 			},
+			{
+				tab: 'projectInfo',
+				field: 'endDateOfPSDPreparation',
+				get: getPIRDirValue
+			},
+			{
+				tab: 'projectInfo',
+				field: 'endDateOfSMR',
+				get: getSMRDirValue
+			},
 		]
 
 		for (const f of fieldsToUpdate)
@@ -1735,7 +1747,7 @@
 
 		if (json.res?.length && json.res[0].values?.length) {
 			const value = json.res[0].values[0].value
-			return `${value.from} - ${value.to}`
+			return `Референсные значения: ${value.from} - ${value.to}`
 		}
 
 		return ''
@@ -1773,7 +1785,71 @@
 
 		if (json.res?.length && json.res[0].values?.length) {
 			const value = json.res[0].values[0].value
-			return `${value.from} - ${value.to}`
+			return `Референсные значения: ${value.from} - ${value.to}`
+		}
+
+		return ''
+	}
+
+	async function getPIRDirValue() {
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'pirDates',
+				conditions: [
+					{
+						field: 'buildingType',
+						value: project.buildingType
+					}
+				]
+			})
+		})
+		const json = await res.json()
+
+		console.log('getPIRDirValue', json)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			for (const value of json.res[0].values) {
+				if (value.objectCategory.from && project.totalArea < value.objectCategory.from)
+					continue
+				if (value.objectCategory.to && project.totalArea > value.objectCategory.to)
+					continue
+
+				return `Макс. срок: ${value.value.value} мес.`
+			}
+		}
+
+		return ''
+	}
+
+	async function getSMRDirValue() {
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'smrDates',
+				conditions: [
+					{
+						field: 'buildingType',
+						value: project.buildingType
+					}
+				]
+			})
+		})
+		const json = await res.json()
+
+		console.log('getSMRDirValue', json)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			for (const value of json.res[0].values) {
+				if (value.objectCategory.from && project.totalArea < value.objectCategory.from)
+					continue
+				if (value.objectCategory.to && project.totalArea > value.objectCategory.to)
+					continue
+
+				return `Макс. срок: ${value.value.value} мес.`
+			}
 		}
 
 		return ''

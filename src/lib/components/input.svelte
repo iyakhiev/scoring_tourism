@@ -71,7 +71,7 @@
 	/>
 	{#if bottomLabel}
 		<label class="label">
-			<span class="label-text-alt">Референсные значения: {@html bottomLabel}</span>
+			<span class="label-text-alt">{@html bottomLabel}</span>
 		</label>
 	{/if}
 </div>

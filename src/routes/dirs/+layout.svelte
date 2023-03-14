@@ -35,6 +35,14 @@
 			name: 'numberOfNewJobs',
 			title: 'Количество новых рабочих мест'
 		},
+		{
+			name: 'pirDates',
+			title: 'Сроки выполнения ПИР',
+		},
+		{
+			name: 'smrDates',
+			title: 'Сроки выполнения СМР',
+		},
 		// {
 		// 	name: 'averageLengthOfStay',
 		// 	title: 'Средняя продолжительность пребывания'

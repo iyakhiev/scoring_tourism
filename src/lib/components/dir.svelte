@@ -273,7 +273,7 @@
 										       type="text"
 										       transformer={getNumberStr}
 										       on:change={() => highlightSave = true}
-										       bind:value={value.value[field.name]}/>
+										       bind:value={value[row.name][field.name]}/>
 									</td>
 								{/each}
 							{:else}
@@ -283,7 +283,7 @@
 											<span>{field.title}</span>
 											<input type="number" placeholder="{field.placeholder}"
 											       on:change={() => highlightSave = true}
-											       bind:value={value.value[field.name]}
+											       bind:value={value[row.name][field.name]}
 											       class="input input-bordered w-1/3"/>
 										{/each}
 									</div>
