@@ -21,7 +21,7 @@ export function getNumberStr(n) {
 
 	// console.log('getNumberStr', n)
 
-	return n ? n.toLocaleString() + (hasPoint ? ',' : '') : ''
+	return (n ? n.toLocaleString('ru-RU') : '0') + (hasPoint ? ',' : '')
 }
 
 export function ogrnMask(str) {

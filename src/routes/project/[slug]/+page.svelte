@@ -10,6 +10,7 @@
 	import { DIRs } from '$lib/stores'
 	import { ROLES_ENUM, PROJECT_STATUS_ENUM } from '$lib/enums'
 	import { ogrnMask, innMask, phoneMask, getNumberStr, getNumber } from '$lib/numbersTransformer'
+	import { getMonthDiff } from '$lib/dateFuncs'
 
 	export let data
 
@@ -440,6 +441,12 @@
 					type: 'date',
 				},
 				{
+					label: 'Длительность выполнения ПИР, мес.',
+					name: 'pirDuration',
+					type: 'number',
+					disabled: true
+				},
+				{
 					label: 'Дата начала СМР',
 					name: 'startDateOfSMR',
 					type: 'date',
@@ -448,6 +455,12 @@
 					label: 'Дата окончания СМР',
 					name: 'endDateOfSMR',
 					type: 'date',
+				},
+				{
+					label: 'Длительность выполнения СМР',
+					name: 'smrDuration',
+					type: 'number',
+					disabled: true
 				},
 				{
 					label: 'Дата ввода в эксплуатацию',
@@ -1114,13 +1127,13 @@
 					value = getNumber(project.totalNumberOfRooms)
 						* getNumber(project.doubleOcc)
 						* 365
-						* (getNumber(project.occ) / 100) / 100
+						* (getNumber(project.occ) / 100)
 				else if (project.buildingType === 'complex')
 					value = getNumber(project.totalNumberOfRooms)
 						* getNumber(project.doubleOcc)
 						* 365
-						* (getNumber(project.occ) / 100) / 100
-						+ getNumber(project.totalExternalGuests) * 365
+						* (getNumber(project.occ) / 100)
+						+ getNumber(project.totalExternalGuests)
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -1303,6 +1316,38 @@
 				const value = getNumber(project.bankLoanAmount) / getNumber(project.loanTerm)
 				updateProjectProp(this.name, +value.toFixed(2))
 				calcFields.debtCoverageRatio.calc()
+			}
+		},
+		pirDuration: {
+			label: 'Длительность выполнения ПИР, мес.',
+			name: 'pirDuration',
+			calc: function () {
+				let value = ''
+
+				try {
+					const startDateOfPSDPreparation = new Date(project.startDateOfPSDPreparation)
+					const endDateOfPSDPreparation = new Date(project.endDateOfPSDPreparation)
+					value = getMonthDiff(startDateOfPSDPreparation, endDateOfPSDPreparation)
+				} catch (e) {
+				}
+
+				updateProjectProp(this.name, value)
+			}
+		},
+		smrDuration: {
+			label: 'Длительность выполнения СМР, мес.',
+			name: 'smrDuration',
+			calc: function () {
+				let value = ''
+
+				try {
+					const startDateOfSMR = new Date(project.startDateOfSMR)
+					const endDateOfSMR = new Date(project.endDateOfSMR)
+					value = getMonthDiff(startDateOfSMR, endDateOfSMR)
+				} catch (e) {
+				}
+
+				updateProjectProp(this.name, value)
 			}
 		},
 	}
@@ -1649,27 +1694,7 @@
 		console.log('saveProject', project)
 
 		const id = project._id
-		const projectData = {}
-
-		const fieldsTypes = tabs.reduce((acc, row) => {
-			row.fields.forEach(field => {
-				acc[field.name] = field.type
-			})
-			return acc
-		}, {})
-
-		Object.keys(project)
-			.forEach(key => {
-				if (['_id', 'scoring'].includes(key))
-					return
-
-				let value = project[key]
-
-				if (fieldsTypes[key] === 'number')
-					value = getNumber(value)
-
-				projectData[key] = value
-			})
+		const projectData = getProjectWithNumbers()
 
 		fetch('/api/update_project', {
 			method: 'POST',
@@ -1692,6 +1717,32 @@
 			})
 	}
 
+	function getProjectWithNumbers() {
+		const projectData = {}
+
+		const fieldsTypes = tabs.reduce((acc, row) => {
+			row.fields.forEach(field => {
+				acc[field.name] = field.type
+			})
+			return acc
+		}, {})
+
+		Object.keys(project)
+			.forEach(key => {
+				if (['_id', 'scoring'].includes(key))
+					return
+
+				let value = project[key]
+
+				if (fieldsTypes[key] === 'number')
+					value = getNumber(value)
+
+				projectData[key] = value
+			})
+
+		return projectData
+	}
+
 	async function setReferenceValues() {
 		const fieldsToUpdate = [
 			{
@@ -1706,12 +1757,12 @@
 			},
 			{
 				tab: 'projectInfo',
-				field: 'endDateOfPSDPreparation',
+				field: 'pirDuration',
 				get: getPIRDirValue
 			},
 			{
 				tab: 'projectInfo',
-				field: 'endDateOfSMR',
+				field: 'smrDuration',
 				get: getSMRDirValue
 			},
 		]
@@ -1861,10 +1912,12 @@
 	}
 
 	function estimateStopFactors() {
+		const projectData = getProjectWithNumbers()
+
 		fetch('/api/check_stop_factors', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ project, role })
+			body: JSON.stringify({ project: projectData, role })
 		})
 			.then(res => res.json())
 			.then(res => {
