@@ -2269,7 +2269,7 @@
 					<img src="/hill-line-left.png" alt="" class="max-w-none">
 				</div>
 			</div>
-			<p class="text-center m-4 mt-8 font-bold text-xl text-secondary">{project.name}</p>
+			<p class="text-center m-4 mt-8 font-bold text-xl text-secondary">{project.projectName}</p>
 			<p class="text-center m-4 text-secondary">
 				Статус проекта:
 				<br>

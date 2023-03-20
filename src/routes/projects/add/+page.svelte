@@ -7,17 +7,17 @@
 
 	let agreeWithTerms = false
 	let project = {
-		name: '',
+		projectName: '',
 		region: '',
 		buildingType: '',
 		status: PROJECT_STATUS_ENUM.CREATED.name
 	}
 
 	function addProject() {
-		if (!project.name || !project.name.trim())
+		if (!project.projectName || !project.projectName.trim())
 			return
 
-		project.name = project.name.trim()
+		project.projectName = project.projectName.trim()
 
 		fetch('/api/add_project', {
 			method: 'POST',
@@ -45,7 +45,7 @@
 		<Input name="theProjectName"
 		       label="Название"
 		       placeholder="Название проекта"
-		       bind:value={project.name}/>
+		       bind:value={project.projectName}/>
 		<Select name="theProjectRegion"
 		        label="Регион"
 		        title="Выберите регион"
@@ -69,8 +69,8 @@
 	<div class="flex justify-end mt-10">
 		<button class="btn btn-outline btn-secondary"
 		        on:click={addProject}
-		        class:pointer-events-none={!project?.name.trim()}
-		        class:opacity-50={!project?.name.trim()}>
+		        class:pointer-events-none={!project?.projectName.trim()}
+		        class:opacity-50={!project?.projectName.trim()}>
 			Сохранить
 		</button>
 	</div>

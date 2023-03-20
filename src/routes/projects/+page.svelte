@@ -25,7 +25,7 @@
 		<div class="card bg-base-100 shadow-lg border">
 			<div class="card-body md:flex-row p-4 md:p-6">
 				<div>
-					<h2 class="card-title">{project.name}</h2>
+					<h2 class="card-title">{project.projectName}</h2>
 					<p class="mt-2">
 						Статус проекта:
 						<span class="font-medium uppercase">{PROJECT_STATUS_ENUM[project.status].title}</span>

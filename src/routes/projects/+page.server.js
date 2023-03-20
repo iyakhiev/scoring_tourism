@@ -5,7 +5,7 @@ export async function load() {
 		.find({}, {
 			projection: {
 				_id: 1,
-				name: 1,
+				projectName: 1,
 				status: 1,
 			}
 		})
