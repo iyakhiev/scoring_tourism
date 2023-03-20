@@ -261,6 +261,7 @@
 								<Select name={row.name}
 								        title={row.default}
 								        options={row.options || $DIRs[row.dirName]?.values || []}
+								        defaultDisabled={row.defaultEnabled ? false : true}
 								        on:change={() => highlightSave = true}
 								        bind:value={value[row.name]}
 								/>

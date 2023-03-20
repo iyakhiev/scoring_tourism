@@ -14,13 +14,14 @@ export const POST = async function ({ request }) {
 		})
 	}
 
-	// console.log(match)
-	// console.log(cond)
-
 	if (cond.length > 1)
 		condAnd = {
 			$and: [...cond]
 		}
+
+	// console.log(match)
+	// console.log(cond)
+	// console.log('condAnd', condAnd)
 
 	const res = await dirs.aggregate([
 		{ $match: { name, ...match } },
@@ -28,7 +29,7 @@ export const POST = async function ({ request }) {
 			$project: {
 				values: {
 					$filter: {
-						cond: condAnd ? cond : cond[0],
+						cond: condAnd ? condAnd : cond[0],
 						input: '$values',
 						as: 'values'
 					}

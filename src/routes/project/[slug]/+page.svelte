@@ -1548,7 +1548,6 @@
 
 		project = data.project
 		highlightSave = false
-		activeObject = 0
 		activeInfrastructureObject = null
 		hasStopFactors = true
 
@@ -1564,6 +1563,8 @@
 
 		if (!project.objects || !project.objects.length)
 			addObject()
+		else
+			selectObject(0)
 		if (!project.infrastructureObjects)
 			project.infrastructureObjects = []
 
@@ -1667,6 +1668,8 @@
 		} else {
 			activeInfrastructureObject = null
 			activeObject = ind
+
+			setADR(project.objects[activeObject])
 		}
 		drawer = false
 	}
@@ -1765,6 +1768,21 @@
 				field: 'smrDuration',
 				get: getSMRDirValue
 			},
+			{
+				tab: 'economicIndicators',
+				field: 'totalNumberOfNewJobs',
+				get: getNumberOfNewJobs
+			},
+			{
+				tab: 'economicIndicators',
+				field: 'staffPerRoom',
+				get: getStaffPerRoom
+			},
+			{
+				tab: 'objectsInfo',
+				field: 'costPerSqMeter',
+				get: getCostPerSqMeter
+			},
 		]
 
 		for (const f of fieldsToUpdate)
@@ -1776,6 +1794,109 @@
 						}
 					}
 				}
+	}
+
+	async function getStaffPerRoom() {
+		const conditions = [
+			{
+				field: 'region',
+				value: project.region
+			},
+			{
+				field: 'buildingType',
+				value: project.buildingType
+			}
+		]
+
+		if (project.type === 'hotel' && project.objects.length)
+			conditions.push({
+				field: 'hotelRating',
+				value: project.objects[0].hotelRating
+			})
+
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'staffPerRoom',
+				conditions
+			})
+		})
+		const json = await res.json()
+
+		console.log('staffPerRoom', json, conditions)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			const value = json.res[0].values[0].value
+			return `Референсные значения: ${value.from} - ${value.to}`
+		}
+
+		return ''
+	}
+
+	async function getNumberOfNewJobs() {
+		const conditions = [
+			{
+				field: 'buildingType',
+				value: project.buildingType
+			},
+		]
+
+		if (project.type === 'hotel' && project.objects.length) {
+			conditions.push({
+				field: 'hotelRating',
+				value: project.objects[0].hotelRating
+			})
+			conditions.push({
+				field: 'buildingCategory',
+				value: project.buildingCategory
+			})
+		}
+
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'numberOfNewJobs',
+				conditions
+			})
+		})
+		const json = await res.json()
+
+		console.log('getNumberOfNewJobs', json, conditions)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			const value = json.res[0].values[0].value
+			return `Референсные значения: ${value.from * project.totalNumberOfRooms} - ${value.to * project.totalNumberOfRooms}`
+		}
+
+		return ''
+	}
+
+	async function getCostPerSqMeter() {
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'costPerSqMeter',
+				conditions: [
+					{
+						field: 'region',
+						value: project.region
+					}
+				]
+			})
+		})
+		const json = await res.json()
+
+		console.log('getCostPerSqMeter', json)
+
+		if (json.res?.length && json.res[0].values?.length) {
+			const value = json.res[0].values[0].value
+			return `Референсное значение: ${getNumberStr(value.value)}`
+		}
+
+		return ''
 	}
 
 	async function getDoubleOCCDirValue() {
@@ -1840,6 +1961,50 @@
 		}
 
 		return ''
+	}
+
+	async function setADR(object) {
+		const conditions = [
+			{
+				field: 'region',
+				value: project.region
+			},
+			{
+				field: 'buildingCategory',
+				value: project.buildingCategory
+			},
+			{
+				field: 'hotelRating',
+				value: object.hotelRating
+			}
+		]
+
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'adr',
+				conditions
+			})
+		})
+		const json = await res.json()
+
+		console.log('getADR', json, conditions)
+
+		let value = ''
+
+		if (json.res?.length && json.res[0].values?.length)
+			value = `Референсное значение: ${getNumberStr(json.res[0].values[0].value.value)}`
+
+
+		for (let i = 0; i < objectFields.length; i++) {
+			const field = objectFields[i]
+			if (field.name === 'adr') {
+				field.bottomLabel = value
+				objectFields[i] = field
+				break
+			}
+		}
 	}
 
 	async function getPIRDirValue() {
