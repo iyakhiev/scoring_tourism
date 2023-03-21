@@ -11,21 +11,6 @@
 			default: 'Выберите регион'
 		},
 		{
-			type: 'dir',
-			dirName: 'buildingType',
-			name: 'buildingType',
-			title: 'Тип объекта',
-			default: 'Выберите тип объекта'
-		},
-		{
-			type: 'dir',
-			dirName: 'buildingCategory',
-			name: 'buildingCategory',
-			title: 'Категория объекта',
-			default: 'Выберите категорию объекта',
-			defaultEnabled: true
-		},
-		{
 			type: 'value',
 			name: 'value',
 			title: 'Продолжительность пребывания, сутки',

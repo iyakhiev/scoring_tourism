@@ -43,10 +43,10 @@
 			name: 'smrDates',
 			title: 'Сроки выполнения СМР',
 		},
-		// {
-		// 	name: 'averageLengthOfStay',
-		// 	title: 'Средняя продолжительность пребывания'
-		// }
+		{
+			name: 'averageLengthOfStay',
+			title: 'Средняя продолжительность пребывания'
+		}
 	]
 </script>
 

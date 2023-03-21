@@ -1117,7 +1117,7 @@
 			buildingType: 'hotel',
 			label: 'Турпоток, чел./ночей за год',
 			name: 'touristFlow',
-			calc: function () {
+			calc: async function () {
 				if (!project.totalNumberOfRooms || !project.doubleOcc || !project.occ)
 					return updateProjectProp(this.name)
 
@@ -1128,12 +1128,16 @@
 						* getNumber(project.doubleOcc)
 						* 365
 						* (getNumber(project.occ) / 100)
-				else if (project.buildingType === 'complex')
-					value = getNumber(project.totalNumberOfRooms)
-						* getNumber(project.doubleOcc)
-						* 365
-						* (getNumber(project.occ) / 100)
-						+ getNumber(project.totalExternalGuests)
+				else if (project.buildingType === 'complex') {
+					const dirValue = await getAvLengthOfStay()
+
+					if (dirValue)
+						value = (getNumber(project.totalNumberOfRooms)
+								* getNumber(project.doubleOcc)
+								* 365
+								* (getNumber(project.occ) / 100)) / dirValue
+							+ getNumber(project.totalExternalGuests)
+				}
 
 				updateProjectProp(this.name, +value.toFixed(2))
 			}
@@ -2069,6 +2073,30 @@
 		}
 
 		return ''
+	}
+
+	async function getAvLengthOfStay() {
+		const res = await fetch('/api/get_dir_value', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: 'averageLengthOfStay',
+				conditions: [
+					{
+						field: 'region',
+						value: project.region
+					}
+				]
+			})
+		})
+		const json = await res.json()
+
+		console.log('averageLengthOfStay', json)
+
+		if (json.res?.length && json.res[0].values?.length)
+			return json.res[0].values[0].value.value
+
+		return null
 	}
 
 	function declOfNum(number, titles) {
