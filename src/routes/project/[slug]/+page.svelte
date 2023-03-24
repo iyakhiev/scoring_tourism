@@ -1143,6 +1143,7 @@
 				}
 
 				updateProjectProp(this.name, Math.round(value))
+				calcFields.revPAC.calc()
 			}
 		},
 		totalRevenues: {
@@ -1884,7 +1885,9 @@
 
 		if (json.res?.length && json.res[0].values?.length) {
 			const value = json.res[0].values[0].value
-			return `Референсные значения: ${value.from * project.totalNumberOfRooms} - ${value.to * project.totalNumberOfRooms}`
+			const from = Math.round(value.from * project.totalNumberOfRooms)
+			const to = Math.round(value.to * project.totalNumberOfRooms)
+			return `Референсные значения: ${from} - ${to}`
 		}
 
 		return ''
