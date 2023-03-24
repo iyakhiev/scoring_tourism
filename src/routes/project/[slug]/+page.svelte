@@ -471,7 +471,7 @@
 					type: 'date',
 				},
 				{
-					label: 'Расходы pre-opening, руб.',
+					label: 'Расходы на предоткрытие, руб.',
 					name: 'preOpeningCost',
 					type: 'number',
 					min: 0
