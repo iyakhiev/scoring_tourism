@@ -21,8 +21,9 @@
 		</label>
 	{/if}
 	<select class="select select-bordered w-full" id="select-{name}"
+	        bind:value
 	        on:change={() => dispatch('change')}
-	        bind:value>
+	>
 		{#if defaultDisabled}
 			<option disabled selected value="">{title}</option>
 		{:else}

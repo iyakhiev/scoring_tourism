@@ -57,9 +57,9 @@
 		</label>
 	{/if}
 	<input
+			{value}
 			on:input={handleInput}
 			on:change={() => dispatch('change')}
-			{value}
 			{min}
 			{max}
 			{name}

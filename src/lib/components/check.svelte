@@ -14,8 +14,8 @@
 	<label class="label cursor-pointer flex-row-reverse gap-5 justify-end">
 		<span class="label-text">{label}</span>
 		<input
-				on:change={() => dispatch('change')}
 				bind:checked
+				on:change={() => dispatch('change')}
 				{name}
 				type="checkbox"
 				class="checkbox checkbox-secondary"/>

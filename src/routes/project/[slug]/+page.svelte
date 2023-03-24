@@ -351,6 +351,7 @@
 					name: 'region',
 					type: 'select',
 					options: $DIRs['region'].values,
+					calc: () => setReferenceValues()
 				},
 				{
 					label: 'Населенный пункт',
@@ -366,13 +367,15 @@
 					label: 'Тип объекта',
 					name: 'buildingType',
 					type: 'select',
-					options: $DIRs['buildingType']?.values
+					options: $DIRs['buildingType']?.values,
+					calc: () => setReferenceValues()
 				},
 				{
 					label: 'Категория объекта',
 					name: 'buildingCategory',
 					type: 'select',
-					options: $DIRs['buildingCategory']?.values
+					options: $DIRs['buildingCategory']?.values,
+					calc: () => setReferenceValues()
 				},
 				{
 					label: 'Особенности объекта',
@@ -507,80 +510,6 @@
 			]
 		},
 		{
-			ind: 7,
-			title: 'Информация об объектах в составе проекта',
-			name: 'objectsInfo',
-			fields: [
-				{
-					label: 'Вид работ по проекту',
-					name: 'typeOfWork',
-					type: 'select',
-					options: $DIRs['typeOfWork']?.values
-				},
-				{
-					label: 'Общее количество номеров в КСР, шт.',
-					name: 'totalNumberOfRooms',
-					type: 'number',
-					disabled: true
-				},
-				{
-					buildingType: 'complex',
-					label: 'Доля площадей КСР в составе объекта (для МФК), %',
-					name: 'shareOfRoomsArea',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Общая площадь объектов и дополнительной инфраструктуры, м²',
-					name: 'totalArea',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Площадь гостиниц(ы), м²',
-					name: 'hotelArea',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
-					name: 'infrastructureArea',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Стоимость 1 м² объекта, руб.',
-					name: 'costPerSqMeter',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Стоимость 1 номера, руб.',
-					name: 'costPerRoom',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), руб',
-					name: 'totalCost',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Стоимость строительства гостиниц(ы), руб.',
-					name: 'totalCostOfHotel',
-					type: 'number',
-					disabled: true
-				},
-				{
-					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), руб.',
-					name: 'totalCostOfBuildingInfrastructure',
-					type: 'number',
-					disabled: true
-				},
-			]
-		},
-		{
 			ind: 8,
 			title: 'Экономические показатели',
 			name: 'economicIndicators',
@@ -603,7 +532,7 @@
 					name: 'occ',
 					type: 'number',
 					min: 0,
-					bottomLabel: `Референсные значения: ${(0.65 * 0.83).toFixed(2)} - ${(0.65 * 1.17).toFixed(2)}`,
+					bottomLabel: `Референсные значения: ${Math.round(65 * 0.83)} - ${Math.round(65 * 1.17)}`,
 					calc: () => {
 						calcFields.touristFlow.calc()
 						calcFields.roomRevenue.calc()
@@ -896,7 +825,81 @@
 					disabled: true
 				},
 			],
-		}
+		},
+		{
+			ind: 7,
+			title: 'Информация об объектах в составе проекта',
+			name: 'objectsInfo',
+			fields: [
+				{
+					label: 'Вид работ по проекту',
+					name: 'typeOfWork',
+					type: 'select',
+					options: $DIRs['typeOfWork']?.values
+				},
+				{
+					label: 'Общее количество номеров в КСР, шт.',
+					name: 'totalNumberOfRooms',
+					type: 'number',
+					disabled: true
+				},
+				{
+					buildingType: 'complex',
+					label: 'Доля площадей КСР в составе объекта (для МФК), %',
+					name: 'shareOfRoomsArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общая площадь объектов и дополнительной инфраструктуры, м²',
+					name: 'totalArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Площадь гостиниц(ы), м²',
+					name: 'hotelArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Площадь дополнительной инфраструктуры (отдельные объекты), м²',
+					name: 'infrastructureArea',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость 1 м² объекта, руб.',
+					name: 'costPerSqMeter',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость 1 номера, руб.',
+					name: 'costPerRoom',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Общая стоимость объектов и дополнительной инфраструктуры (с НДС, в ценах соответствующих лет), руб',
+					name: 'totalCost',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость строительства гостиниц(ы), руб.',
+					name: 'totalCostOfHotel',
+					type: 'number',
+					disabled: true
+				},
+				{
+					label: 'Стоимость строительства дополнительной инфраструктуры (отдельные объекты), руб.',
+					name: 'totalCostOfBuildingInfrastructure',
+					type: 'number',
+					disabled: true
+				},
+			]
+		},
 	]
 
 	const calcFields = {
@@ -1139,7 +1142,7 @@
 							+ getNumber(project.totalExternalGuests)
 				}
 
-				updateProjectProp(this.name, +value.toFixed(2))
+				updateProjectProp(this.name, Math.round(value))
 			}
 		},
 		totalRevenues: {
@@ -1163,13 +1166,18 @@
 			label: 'Выручка от реализации номеров (Room Revenue) в год после выхода на проектную нагрузку, руб.',
 			name: 'roomRevenue',
 			calc: function () {
-				if (!project.adr || !project.totalNumberOfRooms || !project.occ)
+				if (!project.occ)
 					return updateProjectProp(this.name)
 
-				const value = getNumber(project.adr)
-					* getNumber(project.totalNumberOfRooms)
-					* (getNumber(project.occ) / 100)
-					* 365
+				const value = project.objects && project.objects.reduce((acc, object) => {
+					object[this.name] = getNumber(object.adr)
+						* getNumber(object.numberOfRooms)
+						* (getNumber(project.occ) / 100)
+						* 365
+
+					acc += object[this.name]
+					return acc
+				}, 0)
 				updateProjectProp(this.name, value)
 				calcFields.totalRevenues.calc()
 				calcFields.revPAR.calc()
@@ -1362,6 +1370,7 @@
 			name: 'hotelRating',
 			type: 'select',
 			options: $DIRs['hotelRating'].values,
+			calc: () => setADR() && setReferenceValues()
 		},
 		{
 			label: 'Название гостиницы',
@@ -1376,7 +1385,7 @@
 			calc: () => calcFields.totalNumberOfRooms.calc()
 		},
 		{
-			label: 'ADR — отпускной тариф, руб./сутки',
+			label: 'ADR — отпускной тариф с учетом сезонности, руб./сутки',
 			name: 'adr',
 			type: 'number',
 			min: 0,
@@ -1578,8 +1587,10 @@
 
 		Object.values(calcFields).forEach(field => field.calc())
 
-		browser && setReferenceValues()
-			.then(() => setVisibleTabs())
+		if (browser) {
+			setVisibleTabs()
+			setReferenceValues()
+		}
 	}
 
 	function setVisibleTabs() {
@@ -1673,7 +1684,7 @@
 			activeInfrastructureObject = null
 			activeObject = ind
 
-			setADR(project.objects[activeObject])
+			setADR()
 		}
 		drawer = false
 	}
@@ -1790,7 +1801,7 @@
 		]
 
 		for (const f of fieldsToUpdate)
-			for (const tab of tabs)
+			for (const tab of visibleTabs)
 				if (tab.name === f.tab) {
 					for (const field of tab.fields) {
 						if (field.name === f.field) {
@@ -1798,6 +1809,8 @@
 						}
 					}
 				}
+
+		visibleTabs = visibleTabs
 	}
 
 	async function getStaffPerRoom() {
@@ -1961,13 +1974,15 @@
 
 		if (json.res?.length && json.res[0].values?.length) {
 			const value = json.res[0].values[0].value
-			return `Референсные значения: ${value.from} - ${value.to}`
+			return `Референсные значения: ${value.from * 0.8} - ${value.to * 1.2}`
 		}
 
 		return ''
 	}
 
-	async function setADR(object) {
+	async function setADR() {
+		const object = project.objects[activeObject]
+
 		const conditions = [
 			{
 				field: 'region',
@@ -1993,12 +2008,13 @@
 		})
 		const json = await res.json()
 
-		console.log('getADR', json, conditions)
+		console.log('getADR', json, object.hotelRating)
 
 		let value = ''
 
 		if (json.res?.length && json.res[0].values?.length)
-			value = `Референсное значение: ${getNumberStr(json.res[0].values[0].value.value)}`
+			value = json.res[0].values[0].value.value
+			value = `Референсное значение: ${getNumberStr(value * 0.9)} - ${getNumberStr(value * 1.1)}`
 
 
 		for (let i = 0; i < objectFields.length; i++) {
@@ -2030,14 +2046,20 @@
 		console.log('getPIRDirValue', json)
 
 		if (json.res?.length && json.res[0].values?.length) {
-			for (const value of json.res[0].values) {
-				if (value.objectCategory.from && project.totalArea < value.objectCategory.from)
-					continue
-				if (value.objectCategory.to && project.totalArea > value.objectCategory.to)
-					continue
+			let value = json.res[0].values[0].value.value
 
-				return `Макс. срок: ${value.value.value} мес.`
-			}
+			if (project.buildingType === 'hotel')
+				for (const dirValue of json.res[0].values) {
+					if (dirValue.objectCategory.from && project.totalArea < dirValue.objectCategory.from)
+						continue
+					if (dirValue.objectCategory.to && project.totalArea > dirValue.objectCategory.to)
+						continue
+
+					value = dirValue.value.value
+					break
+				}
+
+			return `Макс. срок: ${value} мес.`
 		}
 
 		return ''
@@ -2062,14 +2084,20 @@
 		console.log('getSMRDirValue', json)
 
 		if (json.res?.length && json.res[0].values?.length) {
-			for (const value of json.res[0].values) {
-				if (value.objectCategory.from && project.totalArea < value.objectCategory.from)
-					continue
-				if (value.objectCategory.to && project.totalArea > value.objectCategory.to)
-					continue
+			let value = json.res[0].values[0].value.value
 
-				return `Макс. срок: ${value.value.value} мес.`
-			}
+			if (project.buildingType === 'hotel')
+				for (const dirValue of json.res[0].values) {
+					if (dirValue.objectCategory.from && project.totalArea < dirValue.objectCategory.from)
+						continue
+					if (dirValue.objectCategory.to && project.totalArea > dirValue.objectCategory.to)
+						continue
+
+					value = dirValue.value.value
+					break
+				}
+
+			return `Макс. срок: ${value} мес.`
 		}
 
 		return ''
@@ -2301,38 +2329,45 @@
 										<Input {...field}
 										       type="text"
 										       transformer={phoneMask}
+										       bind:value={project[field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project[field.name]}/>
+										/>
 									{:else if field.type === 'inn'}
 										<Input {...field}
 										       type="text"
 										       transformer={innMask}
+										       bind:value={project[field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project[field.name]}/>
+										/>
 									{:else if field.type === 'ogrn'}
 										<Input {...field}
 										       type="text"
 										       transformer={ogrnMask}
+										       bind:value={project[field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project[field.name]}/>
+										/>
 									{:else if field.type === 'number'}
 										<Input {...field}
 										       type="text"
 										       transformer={getNumberStr}
+										       bind:value={project[field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project[field.name]}/>
+										/>
 									{:else if field.type === 'date' || field.type === 'text'}
 										<Input {...field}
+										       bind:value={project[field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project[field.name]}/>
+										/>
 									{:else if field.type === 'check'}
 										<Check {...field}
+										       bind:checked={project[field.name]}
 										       on:change={() => (highlightSave = true)}
-										       bind:checked={project[field.name]}/>
+										/>
 									{:else if field.type === 'select'}
 										<Select {...field}
-										        on:change={() => (highlightSave = true)}
-										        bind:value={project[field.name]}/>
+										        bind:value={project[field.name]}
+										        on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										/>
 									{/if}
 								</div>
 							{/if}
@@ -2384,23 +2419,27 @@
 										       type="text"
 										       transformer={getNumberStr}
 										       name="object-{field.name}"
+										       bind:value={project.objects[activeObject][field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project.objects[activeObject][field.name]}/>
+										/>
 									{:else if field.type === 'date' || field.type === 'text'}
 										<Input {...field}
 										       name="object-{field.name}"
+										       bind:value={project.objects[activeObject][field.name]}
 										       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-										       bind:value={project.objects[activeObject][field.name]}/>
+										/>
 									{:else if field.type === 'check'}
 										<Check {...field}
 										       name="object-{field.name}"
+										       bind:checked={project.objects[activeObject][field.name]}
 										       on:change={() => (highlightSave = true)}
-										       bind:checked={project.objects[activeObject][field.name]}/>
+										/>
 									{:else if field.type === 'select'}
 										<Select {...field}
 										        name="object-{field.name}"
-										        on:change={() => (highlightSave = true)}
-										        bind:value={project.objects[activeObject][field.name]}/>
+										        bind:value={project.objects[activeObject][field.name]}
+										        on:change={() => (highlightSave = true) && field.calc && field.calc()}
+										/>
 									{/if}
 								</div>
 							{/each}
@@ -2424,23 +2463,27 @@
 											       type="text"
 											       transformer={getNumberStr}
 											       name="object-{field.name}"
+											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
 											       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											/>
 										{:else if field.type === 'date' || field.type === 'text'}
 											<Input {...field}
 											       name="infrastructure-{field.name}"
+											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
 											       on:change={() => (highlightSave = true) && field.calc && field.calc()}
-											       bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											/>
 										{:else if field.type === 'check'}
 											<Check {...field}
 											       name="infrastructure-{field.name}"
+											       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}
 											       on:change={() => (highlightSave = true)}
-											       bind:checked={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											/>
 										{:else if field.type === 'select'}
 											<Select {...field}
 											        name="infrastructure-{field.name}"
+											        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}
 											        on:change={() => (highlightSave = true)}
-											        bind:value={project.infrastructureObjects[activeInfrastructureObject][field.name]}/>
+											/>
 										{/if}
 									{/if}
 								</div>

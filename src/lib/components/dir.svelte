@@ -262,8 +262,8 @@
 								        title={row.default}
 								        options={row.options || $DIRs[row.dirName]?.values || []}
 								        defaultDisabled={row.defaultEnabled ? false : true}
-								        on:change={() => highlightSave = true}
 								        bind:value={value[row.name]}
+								        on:change={() => highlightSave = true}
 								/>
 							</td>
 						{:else}
@@ -273,8 +273,9 @@
 										<Input {...field}
 										       type="text"
 										       transformer={getNumberStr}
+										       bind:value={value[row.name][field.name]}
 										       on:change={() => highlightSave = true}
-										       bind:value={value[row.name][field.name]}/>
+										/>
 									</td>
 								{/each}
 							{:else}
@@ -283,9 +284,10 @@
 										{#each row.fields as field}
 											<span>{field.title}</span>
 											<input type="number" placeholder="{field.placeholder}"
-											       on:change={() => highlightSave = true}
 											       bind:value={value[row.name][field.name]}
-											       class="input input-bordered w-1/3"/>
+											       on:change={() => highlightSave = true}
+											       class="input input-bordered w-1/3"
+											/>
 										{/each}
 									</div>
 								</td>

@@ -23,6 +23,7 @@
 			name: 'hotelRating',
 			title: 'Звездность гостиницы',
 			default: 'Выберите тип',
+			defaultEnabled: true
 		},
 		{
 			type: 'value',
