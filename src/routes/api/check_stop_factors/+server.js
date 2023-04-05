@@ -226,459 +226,1014 @@ const indicators = [
 					return { stopFactor: this.stopFactor }
 		}
 	},
-	// {
-	// 	condition: function (project, role) {
-	// 		return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
-	// 			|| role === ROLES_ENUM.MANAGER
-	// 	},
-	// 	label: 'Благонадежность (инвестора, бенефециара(ов), связанных с бенефециаром(ами) юр.лиц, в зависимости от фазы)',
-	// 	name: '',
-	// 	sectionTitle: 'Оценка Инвестора',
-	// 	stopFactor: {
-	// 		type: 'common',
-	// 		title: 'Выявлены признак неблагонадежности Инвестора'
-	// 	},
-	// 	indicators: [
-	// 		{
-	// 			label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
-	// 			name: 'hasOwnershipRight',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Не представлены правоустанавливающие документы'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (!res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Наличие обременения на имущество (объекты, земельные участки) вносимое в виде имущественного взноса',
-	// 			name: 'hasPropertyEncumbrance',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Имущество находится под обременением'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			condition: project => project.applicantType === 'individual',
-	// 			label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
-	// 			name: 'hasSourceOfFundsDocs',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Отсутствует подтверждение происхождения доходов (имущества)'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (!res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Участие в уставном капитале инвестора резидента недружественной страны',
-	// 			name: 'hasUnfriendlyCountryCapital',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Выявлен факт участия в уставном капитале инвестора резидента недружественной страны'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем',
-	// 			name: 'noFinancialReportsForLastYear',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников: ни одного или один сотрудник, являющийся руководителем',
-	// 			name: 'reportWithNoEmployeesForLastYear',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Отсутствие работников в штате',
-	// 			name: 'hasLackOfStaff',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Отсутствие работников в штате'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Отсутствие материальных и финансовых ресурсов',
-	// 			name: 'noFunds',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Отсутствие материальных и финансовых ресурсов'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности, в т.ч. способе получения сведений об инвесторе (сайте, реклама в СМИ, отзывы в Интернете, рекомендации)',
-	// 			name: 'noEconomicActivity',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет',
-	// 			name: 'hasLossesForLast2Years',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Ответчик в судах на сумму свыше 300 тыс. руб.',
-	// 			name: 'isDefendantInCourts',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Ответчик в судах на сумму свыше 300 тыс. руб.'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Предстоящее исключение из ЕГРЮЛ',
-	// 			name: 'upcomingExclusionFromEGRUL',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Предстоящее исключение из ЕГРЮЛ'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Признание сведений в ЕГРЮЛ недостоверными',
-	// 			name: 'hasUnreliableInfoInEGRUL',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Признание сведений в ЕГРЮЛ недостоверными'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)',
-	// 			name: 'hasEnforcementProceedings',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года',
-	// 			name: 'hasTaxDebts',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Нахождение в реестре сведений о банкротстве',
-	// 			name: 'hasRegisteredBankruptcy',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Нахождение в реестре сведений о банкротстве'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Нахождение в реестре недобросовестных поставщиков',
-	// 			name: 'registeredAsUnscrupulousSupplier',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Нахождение в реестре недобросовестных поставщиков'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Нахождение в реестре обеспечительных мер',
-	// 			name: 'inRegisterOfInterimMeasures',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Нахождение в реестре обеспечительных мер'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке',
-	// 			name: 'notAbleToParticipateInOrgByJudicialProceeding',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Нахождение в реестре дисквалифицированных лиц',
-	// 			name: 'inRegisterOfDisqualifiedPersons',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Нахождение в реестре дисквалифицированных лиц'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Наличие информации о судимости',
-	// 			name: 'hasCriminalRecords',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Наличие информации о судимости'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Наличие информации об актуальных возбужднных уголовных делах',
-	// 			name: 'hasInitiatedCriminalCases',
-	// 			stopFactor: {
-	// 				type: 'additional',
-	// 				title: 'Наличие информации об актуальных возбужднных уголовных делах'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Наличие конфликта интересов, аффилированности с работником Корпорации',
-	// 			name: 'hasConflictOfInterest',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Наличие конфликта интересов, аффилированности с работником Корпорации'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 		{
-	// 			label: 'Нахождение в списке лиц, попадающих под условия, предусмотренные подпунктом "ф" пункта 1 статьи 23 Закона о регистрации (Федеральный закон от 08.08.2001 № 129-ФЗ)',
-	// 			name: 'fallingUnderArticle231f',
-	// 			stopFactor: {
-	// 				type: 'common',
-	// 				title: 'Отказ в государственной регистрации'
-	// 			},
-	// 			calc: function (project, dirs, scoring) {
-	// 				const res = { value: !!project[this.name] }
-	//
-	// 				if (res.value)
-	// 					res.stopFactor = this.stopFactor
-	//
-	// 				res.value = res.value ? 'Да' : 'Нет'
-	//
-	// 				return res
-	// 			}
-	// 		},
-	// 	],
-	// 	calc: function (project, dirs, scoring) {
-	// 		for (const row of scoring)
-	// 			if (row.stopFactor?.type === 'common')
-	// 				return { stopFactor: this.stopFactor }
-	// 	}
-	// },
+
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
+		name: 'hasOwnershipRight',
+		stopFactor: {
+			type: 'common',
+			title: 'Не представлены правоустанавливающие документы'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (!res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Наличие обременения на имущество (объекты, земельные участки) вносимое в виде имущественного взноса',
+		name: 'hasPropertyEncumbrance',
+		stopFactor: {
+			type: 'additional',
+			title: 'Имущество находится под обременением'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return (project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER) && project.applicantType === 'individual'
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
+		name: 'hasSourceOfFundsDocs',
+		stopFactor: {
+			type: 'common',
+			title: 'Отсутствует подтверждение происхождения доходов (имущества)'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (!res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Участие в уставном капитале инвестора резидента недружественной страны',
+		name: 'hasUnfriendlyCountryCapital',
+		stopFactor: {
+			type: 'common',
+			title: 'Выявлен факт участия в уставном капитале инвестора резидента недружественной страны'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем',
+		name: 'noFinancialReportsForLastYear',
+		stopFactor: {
+			type: 'additional',
+			title: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников: ни одного или один сотрудник, являющийся руководителем',
+		name: 'reportWithNoEmployeesForLastYear',
+		stopFactor: {
+			type: 'additional',
+			title: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Отсутствие работников в штате',
+		name: 'hasLackOfStaff',
+		stopFactor: {
+			type: 'additional',
+			title: 'Отсутствие работников в штате'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Отсутствие материальных и финансовых ресурсов',
+		name: 'noFunds',
+		stopFactor: {
+			type: 'additional',
+			title: 'Отсутствие материальных и финансовых ресурсов'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности, в т.ч. способе получения сведений об инвесторе (сайте, реклама в СМИ, отзывы в Интернете, рекомендации)',
+		name: 'noEconomicActivity',
+		stopFactor: {
+			type: 'additional',
+			title: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет',
+		name: 'hasLossesForLast2Years',
+		stopFactor: {
+			type: 'additional',
+			title: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Ответчик в судах на сумму свыше 300 тыс. руб.',
+		name: 'isDefendantInCourts',
+		stopFactor: {
+			type: 'additional',
+			title: 'Ответчик в судах на сумму свыше 300 тыс. руб.'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Предстоящее исключение из ЕГРЮЛ',
+		name: 'upcomingExclusionFromEGRUL',
+		stopFactor: {
+			type: 'common',
+			title: 'Предстоящее исключение из ЕГРЮЛ'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Признание сведений в ЕГРЮЛ недостоверными',
+		name: 'hasUnreliableInfoInEGRUL',
+		stopFactor: {
+			type: 'common',
+			title: 'Признание сведений в ЕГРЮЛ недостоверными'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)',
+		name: 'hasEnforcementProceedings',
+		stopFactor: {
+			type: 'additional',
+			title: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года',
+		name: 'hasTaxDebts',
+		stopFactor: {
+			type: 'common',
+			title: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Нахождение в реестре сведений о банкротстве',
+		name: 'hasRegisteredBankruptcy',
+		stopFactor: {
+			type: 'common',
+			title: 'Нахождение в реестре сведений о банкротстве'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Нахождение в реестре недобросовестных поставщиков',
+		name: 'registeredAsUnscrupulousSupplier',
+		stopFactor: {
+			type: 'common',
+			title: 'Нахождение в реестре недобросовестных поставщиков'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Нахождение в реестре обеспечительных мер',
+		name: 'inRegisterOfInterimMeasures',
+		stopFactor: {
+			type: 'common',
+			title: 'Нахождение в реестре обеспечительных мер'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке',
+		name: 'notAbleToParticipateInOrgByJudicialProceeding',
+		stopFactor: {
+			type: 'common',
+			title: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Нахождение в реестре дисквалифицированных лиц',
+		name: 'inRegisterOfDisqualifiedPersons',
+		stopFactor: {
+			type: 'common',
+			title: 'Нахождение в реестре дисквалифицированных лиц'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Наличие информации о судимости',
+		name: 'hasCriminalRecords',
+		stopFactor: {
+			type: 'additional',
+			title: 'Наличие информации о судимости'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Наличие информации об актуальных возбужднных уголовных делах',
+		name: 'hasInitiatedCriminalCases',
+		stopFactor: {
+			type: 'additional',
+			title: 'Наличие информации об актуальных возбужднных уголовных делах'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Наличие конфликта интересов, аффилированности с работником Корпорации',
+		name: 'hasConflictOfInterest',
+		stopFactor: {
+			type: 'common',
+			title: 'Наличие конфликта интересов, аффилированности с работником Корпорации'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+	{
+		condition: function (project, role) {
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		sectionTitle: 'Оценка Инвестора',
+		label: 'Нахождение в списке лиц, попадающих под условия, предусмотренные подпунктом "ф" пункта 1 статьи 23 Закона о регистрации (Федеральный закон от 08.08.2001 № 129-ФЗ)',
+		name: 'fallingUnderArticle231f',
+		stopFactor: {
+			type: 'common',
+			title: 'Отказ в государственной регистрации'
+		},
+		calc: function (project, dirs, scoring) {
+			const res = { value: !!project[this.name] }
+
+			if (res.value)
+				res.stopFactor = this.stopFactor
+
+			res.value = res.value ? 'Да' : 'Нет'
+
+			return res
+		}
+	},
+
+	{
+		condition: function (project, role) {
+			return false
+			return project.status === PROJECT_STATUS_ENUM.WAITING_FOR_APPLICANT_APPROVAL.name
+				|| role === ROLES_ENUM.MANAGER
+		},
+		label: 'Благонадежность (инвестора, бенефециара(ов), связанных с бенефециаром(ами) юр.лиц, в зависимости от фазы)',
+		name: '',
+		sectionTitle: 'Оценка Инвестора',
+		stopFactor: {
+			type: 'common',
+			title: 'Выявлены признак неблагонадежности Инвестора'
+		},
+		indicators: [
+			{
+				label: 'Наличие права пользования/владения на имущество (объекты, земельные участки), вносимым в виде имущественного взноса',
+				name: 'hasOwnershipRight',
+				stopFactor: {
+					type: 'common',
+					title: 'Не представлены правоустанавливающие документы'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (!res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Наличие обременения на имущество (объекты, земельные участки) вносимое в виде имущественного взноса',
+				name: 'hasPropertyEncumbrance',
+				stopFactor: {
+					type: 'additional',
+					title: 'Имущество находится под обременением'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				condition: project => project.applicantType === 'individual',
+				label: 'Для физических лиц - наличие документов, подтверждающих источники происхождения собственных средств (доходов, имущества)',
+				name: 'hasSourceOfFundsDocs',
+				stopFactor: {
+					type: 'common',
+					title: 'Отсутствует подтверждение происхождения доходов (имущества)'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (!res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Участие в уставном капитале инвестора резидента недружественной страны',
+				name: 'hasUnfriendlyCountryCapital',
+				stopFactor: {
+					type: 'common',
+					title: 'Выявлен факт участия в уставном капитале инвестора резидента недружественной страны'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем',
+				name: 'noFinancialReportsForLastYear',
+				stopFactor: {
+					type: 'additional',
+					title: 'За последний отчетный год бухгалтерская отчетность не сдавалась или сдавалась с нулевым показателем'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников: ни одного или один сотрудник, являющийся руководителем',
+				name: 'reportWithNoEmployeesForLastYear',
+				stopFactor: {
+					type: 'additional',
+					title: 'Среднесписочная численность сотрудников за последний отчетный год была как у компаний без сотрудников'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Отсутствие работников в штате',
+				name: 'hasLackOfStaff',
+				stopFactor: {
+					type: 'additional',
+					title: 'Отсутствие работников в штате'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Отсутствие материальных и финансовых ресурсов',
+				name: 'noFunds',
+				stopFactor: {
+					type: 'additional',
+					title: 'Отсутствие материальных и финансовых ресурсов'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности, в т.ч. способе получения сведений об инвесторе (сайте, реклама в СМИ, отзывы в Интернете, рекомендации)',
+				name: 'noEconomicActivity',
+				stopFactor: {
+					type: 'additional',
+					title: 'Наличие информации, свидетельствующей об отсутствии ведения реальной экономической деятельности'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет',
+				name: 'hasLossesForLast2Years',
+				stopFactor: {
+					type: 'additional',
+					title: 'В бухгалтерской отчетности отражены убытки на протяжении последних двух лет'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Ответчик в судах на сумму свыше 300 тыс. руб.',
+				name: 'isDefendantInCourts',
+				stopFactor: {
+					type: 'additional',
+					title: 'Ответчик в судах на сумму свыше 300 тыс. руб.'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Предстоящее исключение из ЕГРЮЛ',
+				name: 'upcomingExclusionFromEGRUL',
+				stopFactor: {
+					type: 'common',
+					title: 'Предстоящее исключение из ЕГРЮЛ'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Признание сведений в ЕГРЮЛ недостоверными',
+				name: 'hasUnreliableInfoInEGRUL',
+				stopFactor: {
+					type: 'common',
+					title: 'Признание сведений в ЕГРЮЛ недостоверными'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)',
+				name: 'hasEnforcementProceedings',
+				stopFactor: {
+					type: 'additional',
+					title: 'Исполнительные производства (на сумму свыше 300 тыс. руб.)'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года',
+				name: 'hasTaxDebts',
+				stopFactor: {
+					type: 'common',
+					title: 'Сведения об имеющейся задолженности по уплате налогов и/или не предоставлении налоговой отчетности более года'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Нахождение в реестре сведений о банкротстве',
+				name: 'hasRegisteredBankruptcy',
+				stopFactor: {
+					type: 'common',
+					title: 'Нахождение в реестре сведений о банкротстве'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Нахождение в реестре недобросовестных поставщиков',
+				name: 'registeredAsUnscrupulousSupplier',
+				stopFactor: {
+					type: 'common',
+					title: 'Нахождение в реестре недобросовестных поставщиков'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Нахождение в реестре обеспечительных мер',
+				name: 'inRegisterOfInterimMeasures',
+				stopFactor: {
+					type: 'common',
+					title: 'Нахождение в реестре обеспечительных мер'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке',
+				name: 'notAbleToParticipateInOrgByJudicialProceeding',
+				stopFactor: {
+					type: 'common',
+					title: 'Сведения о лицах, в отношении которых факт невозможности участия (осуществления руководства) в организации установлен (подтвержден) в судебном порядке'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Нахождение в реестре дисквалифицированных лиц',
+				name: 'inRegisterOfDisqualifiedPersons',
+				stopFactor: {
+					type: 'common',
+					title: 'Нахождение в реестре дисквалифицированных лиц'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Наличие информации о судимости',
+				name: 'hasCriminalRecords',
+				stopFactor: {
+					type: 'additional',
+					title: 'Наличие информации о судимости'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Наличие информации об актуальных возбужднных уголовных делах',
+				name: 'hasInitiatedCriminalCases',
+				stopFactor: {
+					type: 'additional',
+					title: 'Наличие информации об актуальных возбужднных уголовных делах'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Наличие конфликта интересов, аффилированности с работником Корпорации',
+				name: 'hasConflictOfInterest',
+				stopFactor: {
+					type: 'common',
+					title: 'Наличие конфликта интересов, аффилированности с работником Корпорации'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+			{
+				label: 'Нахождение в списке лиц, попадающих под условия, предусмотренные подпунктом "ф" пункта 1 статьи 23 Закона о регистрации (Федеральный закон от 08.08.2001 № 129-ФЗ)',
+				name: 'fallingUnderArticle231f',
+				stopFactor: {
+					type: 'common',
+					title: 'Отказ в государственной регистрации'
+				},
+				calc: function (project, dirs, scoring) {
+					const res = { value: !!project[this.name] }
+
+					if (res.value)
+						res.stopFactor = this.stopFactor
+
+					res.value = res.value ? 'Да' : 'Нет'
+
+					return res
+				}
+			},
+		],
+		calc: function (project, dirs, scoring) {
+			for (const row of scoring)
+				if (row.stopFactor?.type === 'common')
+					return { stopFactor: this.stopFactor }
+		}
+	},
 	{
 		condition: function (project) {
 			return project.status === PROJECT_STATUS_ENUM.APPLICANT_APPROVED.name
